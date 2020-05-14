@@ -60,17 +60,6 @@ class DecoderTests {
     }
 
     @Test
-    fun checkCorrectPayload() {
-        val inputMessage = "13 00 0000000000000001 0000000C 162F 48656C6C6F20776F726C6421 37B9".replace(" ", "")
-        val byteMessage = Hex.decodeHex(inputMessage)
-        val expected = Payload(0.toByte(), 1, "Hello world!".toByteArray())
-
-        Assertions.assertEquals(expected,
-                DataEncoder.decode(byteMessage)
-        )
-    }
-
-    @Test
     fun encodeDecodeTest() {
         val payload = Payload(
                 2,
@@ -80,9 +69,12 @@ class DecoderTests {
                 "Hello world!".toByteArray()
         )
 
+        val decoded = DataEncoder.decode(
+                DataEncoder.encode(payload)
+        )
 
         Assertions.assertEquals(payload,
-                DataEncoder.decode(DataEncoder.encode(payload))
+                decoded
         )
     }
 

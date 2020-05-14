@@ -1,15 +1,23 @@
 
 import java.nio.ByteBuffer
 import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
 import CRC16.compute_short as crc16short
+
 
 object DataEncoder {
     private const val MAGIC_BYTE: Byte = 0x13
-    private const val KEY: Byte = 0x13
-    private val cipher: Cipher
+    private val encryption: Cipher
+    private val decryption: Cipher
 
     init {
-        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        val key = KeyGenerator.getInstance("AES").generateKey()
+
+        encryption = Cipher.getInstance("AES")
+        encryption.init(Cipher.ENCRYPT_MODE, key)
+
+        decryption = Cipher.getInstance("AES")
+        decryption.init(Cipher.DECRYPT_MODE, key)
     }
 
 
@@ -28,26 +36,33 @@ object DataEncoder {
             throw BadDataException(String.format("Incorrect checksum, data probably corrupted. Expected: %s, got: %s", validateCRC, crc))
 
         val msg = data.copyOfRange(16, 16 + msgLen)
+
         crc = ByteBuffer.wrap(data, 16 + msgLen, 2).short
         validateCRC = crc16short(data, 16, msgLen)
 
         if (crc != validateCRC)
             throw BadDataException(String.format("Incorrect checksum, data probably corrupted. Expected: %s, got: %s", validateCRC, crc))
 
-        return Payload(clientID, msgID, msg)
+
+        return Payload(
+                clientID,
+                msgID,
+                decryption.doFinal(msg)
+        )
     }
 
     fun encode(info: Payload): ByteArray {
-        val buffer = ByteBuffer.allocate(18 + info.msg.size)
+        val msg = encryption.doFinal(info.msg)
+        val buffer = ByteBuffer.allocate(18 + msg.size)
 
         return buffer
                 .put(MAGIC_BYTE)
                 .put(info.clientID)
                 .putLong(info.msgID)
-                .putInt(info.msg.size)
-                .putShort(crc16short(buffer.array(),0, 14)) //CRC of previous four fields
-                .put(info.msg)
-                .putShort(crc16short(buffer.array(),16, info.msg.size))
+                .putInt(msg.size)
+                .putShort(crc16short(buffer.array(), 0, 14)) //CRC of previous four fields
+                .put(msg)
+                .putShort(crc16short(buffer.array(), 16, msg.size))
                 .array()
     }
 }
