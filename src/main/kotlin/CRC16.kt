@@ -43,6 +43,6 @@ object CRC16 {
         return crc
     }
 
-    fun compute_short(bytes: ByteArray, offset: Int, length: Int): Short =
+    fun computeShort(bytes: ByteArray, offset: Int, length: Int): Short =
             (compute(bytes, offset, length) and 0xFFFF).toShort()
 }

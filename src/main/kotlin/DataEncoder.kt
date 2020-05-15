@@ -2,7 +2,7 @@
 import java.nio.ByteBuffer
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
-import CRC16.compute_short as crc16short
+import CRC16.computeShort as crc16short
 
 
 object DataEncoder {

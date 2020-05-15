@@ -1,21 +1,10 @@
-import java.nio.ByteBuffer
-
 class Payload(var clientID: Byte, var msgID: Long, var msg: ByteArray) {
 
-    constructor(clientID: Byte, msgID: Long, cType: Int, userID: Int, msg: ByteArray) : this(
+    constructor(clientID: Byte, msgID: Long, msg: Message) : this(
             clientID,
             msgID,
-            messageToBytes(cType, userID, msg)
+            msg.toBytes()
     )
-
-    companion object {
-        fun messageToBytes(cType: Int, userID: Int, msg: ByteArray): ByteArray =
-                ByteBuffer.allocate(4 + 4 + msg.size)
-                        .putInt(cType)
-                        .putInt(userID)
-                        .put(msg)
-                        .array()
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

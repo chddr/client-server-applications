@@ -60,9 +60,11 @@ class DecoderTests {
         val payload = Payload(
                 2,
                 4,
-                1,
-                0,
-                "Hello world!".toByteArray()
+                Message(
+                        1,
+                        0,
+                        "Hello world!"
+                )
         )
 
         val decoded = DataEncoder.decode(
