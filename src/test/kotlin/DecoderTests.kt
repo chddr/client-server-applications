@@ -1,4 +1,3 @@
-import org.apache.commons.codec.DecoderException
 import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -27,7 +26,6 @@ class DecoderTests {
     }
 
     @Test
-    @Throws(DecoderException::class)
     fun wrongMsgLength() {
         val inputMessage = "13 00 0000000000000001 000000CC 462F 48656C6C6F20776F726C6421 37B9".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
@@ -38,7 +36,6 @@ class DecoderTests {
     }
 
     @Test
-    @Throws(DecoderException::class)
     fun wrongFirstCRC() {
         val inputMessage = "13 00 0000000000000001 0000000C FAFA 48656C6C6F20776F726C6421 37B9".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
@@ -49,7 +46,6 @@ class DecoderTests {
     }
 
     @Test
-    @Throws(DecoderException::class)
     fun wrongSecondCRC() {
         val inputMessage = "13 00 0000000000000001 0000000C 162F 48656C6C6F20776F726C6421 FAFA".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
