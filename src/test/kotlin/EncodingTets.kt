@@ -6,7 +6,7 @@ import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class DecoderTests {
+class EncodingTets {
     @Test
     fun wrongMagicByte() {
         val badData = byteArrayOf(
