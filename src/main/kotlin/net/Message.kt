@@ -1,3 +1,5 @@
+package net
+
 import java.nio.ByteBuffer
 
 class Message(var cType: Int, var userID: Int, var msg: ByteArray) {

@@ -1,3 +1,5 @@
+package net
+
 class Payload(var clientID: Byte, var msgID: Long, var msg: ByteArray) {
 
     constructor(clientID: Byte, msgID: Long, msg: Message) : this(
@@ -20,7 +22,7 @@ class Payload(var clientID: Byte, var msgID: Long, var msg: ByteArray) {
     }
 
     override fun toString(): String {
-        return "Payload(clientID=$clientID, msgID=$msgID, msg=${msg.contentToString()})"
+        return "net.Payload(clientID=$clientID, msgID=$msgID, msg=${msg.contentToString()})"
     }
 
     override fun hashCode(): Int {

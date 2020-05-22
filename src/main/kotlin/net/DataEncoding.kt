@@ -1,8 +1,8 @@
-
+package net
 import java.nio.ByteBuffer
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
-import CRC16.computeShort as crc16short
+import net.CRC16.computeShort as crc16short
 
 
 object DataEncoding {
