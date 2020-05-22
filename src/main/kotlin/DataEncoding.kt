@@ -5,7 +5,7 @@ import javax.crypto.KeyGenerator
 import CRC16.computeShort as crc16short
 
 
-object DataEncoder {
+object DataEncoding {
     private const val MAGIC_BYTE: Byte = 0x13
     private val encryption: Cipher
     private val decryption: Cipher
@@ -21,10 +21,9 @@ object DataEncoder {
     }
 
 
-    fun decode(data: ByteArray): Payload {
-        if (data[0] != MAGIC_BYTE) {
+    fun decrypt(data: ByteArray): Payload {
+        if (data[0] != MAGIC_BYTE)
             throw BadDataException("Wrong first 'magic byte' received, expected $MAGIC_BYTE")
-        }
 
         val clientID = data[1]
         val msgID = ByteBuffer.wrap(data, 2, 8).long
@@ -51,7 +50,7 @@ object DataEncoder {
         )
     }
 
-    fun encode(info: Payload): ByteArray {
+    fun encrypt(info: Payload): ByteArray {
         val msg = encryption.doFinal(info.msg)
         val buffer = ByteBuffer.allocate(18 + msg.size)
 

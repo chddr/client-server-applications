@@ -9,7 +9,7 @@ class DecoderTests {
                 0x12, 0xA, 0xA
         )
         Assertions.assertThrows(BadDataException::class.java,
-                { DataEncoder.decode(badData) },
+                { DataEncoding.decrypt(badData) },
                 "magic byte is wrong, should fail"
         )
     }
@@ -20,7 +20,7 @@ class DecoderTests {
                 0x13
         )
         Assertions.assertThrows(IndexOutOfBoundsException::class.java,
-                { DataEncoder.decode(badData) },
+                { DataEncoding.decrypt(badData) },
                 "decode() should fail, message is too short"
         )
     }
@@ -30,7 +30,7 @@ class DecoderTests {
         val inputMessage = "13 00 0000000000000001 000000CC 462F 48656C6C6F20776F726C6421 37B9".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
         Assertions.assertThrows(IndexOutOfBoundsException::class.java,
-                { DataEncoder.decode(byteMessage) },
+                { DataEncoding.decrypt(byteMessage) },
                 "decode() can't read so many bytes and should fail"
         )
     }
@@ -40,7 +40,7 @@ class DecoderTests {
         val inputMessage = "13 00 0000000000000001 0000000C FAFA 48656C6C6F20776F726C6421 37B9".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
         Assertions.assertThrows(BadDataException::class.java,
-                { DataEncoder.decode(byteMessage) },
+                { DataEncoding.decrypt(byteMessage) },
                 "provided wrong CRC"
         )
     }
@@ -50,7 +50,7 @@ class DecoderTests {
         val inputMessage = "13 00 0000000000000001 0000000C 162F 48656C6C6F20776F726C6421 FAFA".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
         Assertions.assertThrows(BadDataException::class.java,
-                { DataEncoder.decode(byteMessage) },
+                { DataEncoding.decrypt(byteMessage) },
                 "provided wrong CRC"
         )
     }
@@ -67,8 +67,8 @@ class DecoderTests {
                 )
         )
 
-        val decoded = DataEncoder.decode(
-                DataEncoder.encode(payload)
+        val decoded = DataEncoding.decrypt(
+                DataEncoding.encrypt(payload)
         )
 
         Assertions.assertEquals(payload,
