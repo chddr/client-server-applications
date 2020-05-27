@@ -1,11 +1,12 @@
-package net
+package net.packet
+
 import java.nio.ByteBuffer
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
-import net.CRC16.computeShort as crc16short
+import net.packet.CRC16.computeShort as crc16short
 
 
-object DataEncoding {
+object EncryptorDecryptor {
     private const val MAGIC_BYTE: Byte = 0x13
     private val encryption: Cipher
     private val decryption: Cipher
@@ -21,7 +22,7 @@ object DataEncoding {
     }
 
 
-    fun decrypt(data: ByteArray): Payload {
+    fun decrypt(data: ByteArray): Packet {
         if (data[0] != MAGIC_BYTE)
             throw BadDataException("Wrong first 'magic byte' received, expected $MAGIC_BYTE")
 
@@ -43,15 +44,15 @@ object DataEncoding {
             throw BadDataException(String.format("Incorrect checksum, data probably corrupted. Expected: %s, got: %s", validateCRC, crc))
 
 
-        return Payload(
+        return Packet(
                 clientID,
                 msgID,
-                decryption.doFinal(msg)
+                Message(decryption.doFinal(msg))
         )
     }
 
-    fun encrypt(info: Payload): ByteArray {
-        val msg = encryption.doFinal(info.msg)
+    fun encrypt(info: Packet): ByteArray {
+        val msg = encryption.doFinal(info.msg.toBytes())
         val buffer = ByteBuffer.allocate(18 + msg.size)
 
         return buffer
