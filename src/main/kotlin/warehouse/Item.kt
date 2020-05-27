@@ -1,3 +1,3 @@
 package warehouse
 
-data class Item(val name: String, val price: Double, var group: Group? = null)
+data class Item(var name: String, var price: Double, var amount: Int)
