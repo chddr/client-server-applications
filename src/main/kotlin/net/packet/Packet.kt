@@ -1,7 +1,5 @@
 package net.packet
 
-import java.nio.ByteBuffer
-
 class Packet(var clientID: Byte, var msgID: Long, var msg: Message) {
 
     override fun equals(other: Any?): Boolean {
@@ -27,15 +25,6 @@ class Packet(var clientID: Byte, var msgID: Long, var msg: Message) {
         result = 31 * result + msg.hashCode()
         return result
     }
-
-    fun toBytes(): ByteArray =
-            ByteBuffer.allocate(17 + msg.msg.size)
-                    .put(clientID)
-                    .putLong(msgID)
-                    .put(msg.toBytes())
-                    .array()
-
-
 
 }
 

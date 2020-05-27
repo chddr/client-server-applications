@@ -2,6 +2,7 @@
 import net.packet.BadDataException
 import net.packet.EncryptorDecryptor
 import net.packet.Message
+import net.packet.Message.CommandTypes.ADD_PRODUCT_TO_GROUP
 import net.packet.Packet
 import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Assertions
@@ -66,7 +67,7 @@ class EncodingTests {
                 2,
                 4,
                 Message(
-                        Message.CommandTypes.ADD_PRODUCT,
+                        ADD_PRODUCT_TO_GROUP.ordinal,
                         0,
                         "Hello world!"
                 )
@@ -76,9 +77,7 @@ class EncodingTests {
                 EncryptorDecryptor.encrypt(payload)
         )
 
-        Assertions.assertEquals(payload,
-                decoded
-        )
+        Assertions.assertEquals(payload, decoded)
     }
 
 

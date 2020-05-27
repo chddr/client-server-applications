@@ -1,37 +1,30 @@
 package net.packet
 
 import java.nio.ByteBuffer
+import java.nio.charset.Charset
 
-class Message(var cType: CommandTypes, var userID: Int, var msg: ByteArray) {
+class Message(var cType: Int, var userID: Int, var msg: String) {
 
     enum class CommandTypes {
-        GET_PRODUCT_COUNT, GET_PRODUCT, ADD_PRODUCT, ADD_PRODUCT_GROUP, ADD_PRODUCT_TO_GROUP, SET_PRODUCT_PRICE
+        GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT_TO_GROUP, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE, SERVER_RESPONSE
     }
 
-    constructor(cType: CommandTypes, userID: Int, msg: String) : this(
-            cType,
-            userID,
-            msg.toByteArray()
-    )
-
     constructor(data: ByteArray) : this(
-            cType = CommandTypes.values()[
-                    ByteBuffer.wrap(data, 0, 4).int
-            ],
+            cType = ByteBuffer.wrap(data, 0, 4).int,
             userID = ByteBuffer.wrap(data, 4, 4).int,
-            msg = data.copyOfRange(8, data.size)
+            msg = data.copyOfRange(8, data.size).toString(Charset.defaultCharset())
     )
 
 
     fun toBytes(): ByteArray =
-            ByteBuffer.allocate(4 + 4 + msg.size)
-                    .putInt(cType.ordinal)
+            ByteBuffer.allocate(4 + 4 + msg.length)
+                    .putInt(cType)
                     .putInt(userID)
-                    .put(msg)
+                    .put(msg.toByteArray())
                     .array()
 
     override fun toString(): String {
-        return "Message(cType=$cType, userID=$userID, msg=${msg.contentToString()})"
+        return "Message(cType=$cType, userID=$userID, msg=${msg})"
     }
 
     override fun equals(other: Any?): Boolean {

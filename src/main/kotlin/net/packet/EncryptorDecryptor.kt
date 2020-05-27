@@ -7,7 +7,7 @@ import net.packet.CRC16.computeShort as crc16short
 
 
 object EncryptorDecryptor {
-    private const val MAGIC_BYTE: Byte = 0x13
+    const val MAGIC_BYTE: Byte = 0x13
     private val encryption: Cipher
     private val decryption: Cipher
 
