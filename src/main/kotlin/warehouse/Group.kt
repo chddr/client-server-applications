@@ -6,14 +6,15 @@ class Group(var name: String) {
     private val items = HashMap<Int, Item>()
     private val idCounter = AtomicInteger(0)
 
-    fun addItem(item: Item) {
-        items[idCounter.getAndIncrement()] = item;
+    fun addItem(item: Item): Int {
+        val id = idCounter.getAndIncrement()
+        items[id] = item
+        return id
     }
 
-    fun productCount() = items.values.sumBy(Item::amount)
-
-
-
+    operator fun get(itemId: Int): Item? {
+        return items[itemId]
+    }
 
 
 }

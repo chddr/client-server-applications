@@ -10,7 +10,7 @@ fun main() {
     val nThreads = 4;
     val service = Executors.newFixedThreadPool(nThreads)
 
-    for (i in 0 until nThreads) {
+    repeat(nThreads) {
         service.submit(
                 Thread {
                     NetworkTCP.receiveMessage()
