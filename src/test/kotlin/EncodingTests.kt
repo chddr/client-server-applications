@@ -1,19 +1,21 @@
-import net.BadDataException
-import net.DataEncoding
-import net.Message
-import net.Payload
+
+import net.packet.BadDataException
+import net.packet.EncryptorDecryptor
+import net.packet.Message
+import net.packet.Message.CommandTypes.ADD_PRODUCT_TO_GROUP
+import net.packet.Packet
 import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class EncodingTets {
+class EncodingTests {
     @Test
     fun wrongMagicByte() {
         val badData = byteArrayOf(
                 0x12, 0xA, 0xA
         )
         Assertions.assertThrows(BadDataException::class.java,
-                { DataEncoding.decrypt(badData) },
+                { EncryptorDecryptor.decrypt(badData) },
                 "magic byte is wrong, should fail"
         )
     }
@@ -24,7 +26,7 @@ class EncodingTets {
                 0x13
         )
         Assertions.assertThrows(IndexOutOfBoundsException::class.java,
-                { DataEncoding.decrypt(badData) },
+                { EncryptorDecryptor.decrypt(badData) },
                 "decode() should fail, message is too short"
         )
     }
@@ -34,7 +36,7 @@ class EncodingTets {
         val inputMessage = "13 00 0000000000000001 000000CC 462F 48656C6C6F20776F726C6421 37B9".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
         Assertions.assertThrows(IndexOutOfBoundsException::class.java,
-                { DataEncoding.decrypt(byteMessage) },
+                { EncryptorDecryptor.decrypt(byteMessage) },
                 "decode() can't read so many bytes and should fail"
         )
     }
@@ -44,7 +46,7 @@ class EncodingTets {
         val inputMessage = "13 00 0000000000000001 0000000C FAFA 48656C6C6F20776F726C6421 37B9".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
         Assertions.assertThrows(BadDataException::class.java,
-                { DataEncoding.decrypt(byteMessage) },
+                { EncryptorDecryptor.decrypt(byteMessage) },
                 "provided wrong CRC"
         )
     }
@@ -54,30 +56,29 @@ class EncodingTets {
         val inputMessage = "13 00 0000000000000001 0000000C 162F 48656C6C6F20776F726C6421 FAFA".replace(" ", "")
         val byteMessage = Hex.decodeHex(inputMessage)
         Assertions.assertThrows(BadDataException::class.java,
-                { DataEncoding.decrypt(byteMessage) },
+                { EncryptorDecryptor.decrypt(byteMessage) },
                 "provided wrong CRC"
         )
     }
 
     @Test
     fun encodeDecodeTest() {
-        val payload = Payload(
+        val payload = Packet(
                 2,
                 4,
                 Message(
-                        1,
+                        ADD_PRODUCT_TO_GROUP.ordinal,
                         0,
                         "Hello world!"
                 )
         )
 
-        val decoded = DataEncoding.decrypt(
-                DataEncoding.encrypt(payload)
+        val decoded = EncryptorDecryptor.decrypt(
+                EncryptorDecryptor.encrypt(payload)
         )
 
-        Assertions.assertEquals(payload,
-                decoded
-        )
+        Assertions.assertEquals(payload, decoded)
     }
+
 
 }
