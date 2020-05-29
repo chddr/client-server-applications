@@ -1,4 +1,4 @@
-package tcp
+package net.impl.tcp
 
 import java.net.InetAddress
 import java.net.Socket

@@ -1,11 +1,11 @@
-package tcp
+package net.impl.tcp
 
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
 import kotlin.concurrent.thread
 
-const val SERVER_PORT = 2222;
+const val SERVER_PORT = 2222
 
 fun main() {
     ServerSocket(SERVER_PORT).use { serverSocket ->

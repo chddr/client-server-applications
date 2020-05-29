@@ -1,4 +1,4 @@
-package udp
+package net.impl.udp
 
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -22,12 +22,12 @@ fun main() {
     }
 
 
-    DatagramSocket(SERVER_PORT).use { serverSocket ->
+    DatagramSocket(net.impl.tcp.SERVER_PORT).use { serverSocket ->
         serverSocket.soTimeout = 2_000
         while (isRun.get()) {
             try {
                 val inputMessage = ByteArray(1000)
-                val packet: DatagramPacket = DatagramPacket(inputMessage, inputMessage.size)
+                val packet = DatagramPacket(inputMessage, inputMessage.size)
                 serverSocket.receive(packet)
 
                 thread(start = true) {
