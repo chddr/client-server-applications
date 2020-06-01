@@ -1,26 +1,11 @@
 package net.packet
 
 import java.nio.ByteBuffer
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
+import java.util.*
 import net.packet.CRC16.computeShort as crc16short
 
 
 object EncryptorDecryptor {
-    const val MAGIC_BYTE: Byte = 0x13
-    private val encryption: Cipher
-    private val decryption: Cipher
-
-    init {
-        val key = KeyGenerator.getInstance("AES").generateKey()
-
-        encryption = Cipher.getInstance("AES")
-        encryption.init(Cipher.ENCRYPT_MODE, key)
-
-        decryption = Cipher.getInstance("AES")
-        decryption.init(Cipher.DECRYPT_MODE, key)
-    }
-
 
     fun decrypt(data: ByteArray): Packet {
         if (data[0] != MAGIC_BYTE)
@@ -47,12 +32,12 @@ object EncryptorDecryptor {
         return Packet(
                 clientID,
                 msgID,
-                Message(decryption.doFinal(msg))
+                Message(Base64.getDecoder().decode(msg))
         )
     }
 
     fun encrypt(info: Packet): ByteArray {
-        val msg = encryption.doFinal(info.msg.toBytes())
+        val msg = Base64.getEncoder().encode(info.msg.toBytes())
         val buffer = ByteBuffer.allocate(18 + msg.size)
 
         return buffer
@@ -66,3 +51,4 @@ object EncryptorDecryptor {
                 .array()
     }
 }
+

@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets
 
 fun main() {
     for (i in 1..1000) {
-        DatagramSocket(net.impl.tcp.SERVER_PORT +1).use(block = { serverSocket ->
+        DatagramSocket(net.impl.tcp.SERVER_PORT +1).use { serverSocket ->
             serverSocket.soTimeout = 10_000
             println(serverSocket.localPort)
 
@@ -24,6 +24,6 @@ fun main() {
             println("Message from server: \"${String(inputMessage, 0, realMessageSize, StandardCharsets.UTF_8)}\"")
 
 
-        })
+        }
     }
 }

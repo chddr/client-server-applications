@@ -26,5 +26,11 @@ class Packet(var clientID: Byte, var msgID: Long, var msg: Message) {
         return result
     }
 
+    fun toPacket(): ByteArray = EncryptorDecryptor.encrypt(this)
+
+    companion object {
+        fun fromBytes(array: ByteArray) = EncryptorDecryptor.decrypt(array)
+    }
+
 }
 

@@ -1,23 +1,26 @@
 package net.impl
 
+import net.Network
+import net.PROCESSOR_THREADS
 import net.packet.Message
+import net.packet.Message.CommandTypes
 import net.packet.Packet
 import java.time.LocalDateTime
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class Processor(private val packet: Packet) : Runnable {
+class Processor(private val network: Network, private val packet: Packet) : Runnable {
 
     companion object {
         private val service = Executors.newFixedThreadPool(PROCESSOR_THREADS)
 
-        fun process(packet: Packet) {
-            service.submit(Processor(packet))
+        fun process(network: Network, packet: Packet) {
+            service.submit(Processor(network, packet))
         }
 
         fun shutdown() {
             service.shutdown()
-            while (!service.awaitTermination(10, TimeUnit.SECONDS)){
+            while (!service.awaitTermination(10, TimeUnit.SECONDS)) {
                 println("Processor is waiting for shutdown")
             }
         }
@@ -42,16 +45,10 @@ class Processor(private val packet: Packet) : Runnable {
             else -> "BYE"
         }
 
-        Encryption.encrypt(
-                Packet(
-                        0,
-                        0,
-                        Message(
-                                Message.CommandTypes.SERVER_RESPONSE.ordinal,
-                                0,
-                                msg
-                        )
-                )
-        )
+
+        network.send(Packet(
+                clientID = 0,
+                msgID = 0,
+                msg = Message(CommandTypes.SERVER_RESPONSE_OK.ordinal, userID = 0, msg = msg)))
     }
 }

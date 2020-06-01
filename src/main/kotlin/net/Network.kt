@@ -1,8 +1,10 @@
 package net
 
-import java.net.InetAddress
+import net.packet.Packet
+
 
 interface Network {
-    fun receiveMessage()
-    fun sendMessage(message: ByteArray, target: InetAddress)
+    fun receive(): Packet?
+    fun close()
+    fun send(packet: Packet)
 }

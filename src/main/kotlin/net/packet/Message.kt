@@ -6,7 +6,7 @@ import java.nio.charset.Charset
 class Message(var cType: Int, var userID: Int, var msg: String) {
 
     enum class CommandTypes {
-        GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT_TO_GROUP, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE, SERVER_RESPONSE
+        CLIENT_HELLO, CLIENT_BYE ,GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT_TO_GROUP, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE, SERVER_RESPONSE_OK, SERVER_RESPONSE_BYE
     }
 
     constructor(data: ByteArray) : this(
@@ -15,6 +15,7 @@ class Message(var cType: Int, var userID: Int, var msg: String) {
             msg = data.copyOfRange(8, data.size).toString(Charset.defaultCharset())
     )
 
+    constructor(cType: CommandTypes, userID: Int, msg: String) : this(cType.ordinal, userID, msg)
 
     fun toBytes(): ByteArray =
             ByteBuffer.allocate(4 + 4 + msg.length)
