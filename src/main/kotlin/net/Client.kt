@@ -1,10 +1,12 @@
 
-import net.Network
+import net.NetProtocol
 import net.Role
 import net.impl.NetworkTCP
+import net.impl.NetworkUDP
 import net.impl.Processor
 import net.packet.Message
 import net.packet.Packet
+import net.type
 import java.io.IOException
 
 
@@ -20,14 +22,16 @@ object Client {
                 Message(Message.CommandTypes.CLIENT_BYE, 1, "bye"))
 
         try {
-            val network: Network = NetworkTCP(Role.Client)
+            val network = when (type) {
+                NetProtocol.TCP -> NetworkTCP(Role.Client)
+                NetProtocol.UDP -> NetworkUDP(Role.Client)
+            }
             network.send(packet)
             network.receive()
             Thread.sleep(200)
             network.send(secondPacket)
             network.receive()
 
-            network.close()
             Processor.shutdown()
         } catch (e: IOException) {
             e.printStackTrace()

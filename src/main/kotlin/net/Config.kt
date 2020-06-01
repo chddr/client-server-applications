@@ -1,5 +1,7 @@
 package net
 
+import net.NetProtocol.TCP
+
 const val ENCRYPTION_THREADS = 3
 const val DECRYPTION_THREADS = 3
 const val PROCESSOR_THREADS = 3
@@ -14,4 +16,4 @@ enum class Role {
 
 const val HOST = "localhost"
 const val SERVER_PORT = 2305
-val type = NetProtocol.TCP
+val type = TCP

@@ -49,6 +49,7 @@ class Processor(private val network: Network, private val packet: Packet) : Runn
         network.send(Packet(
                 clientID = 0,
                 msgID = 0,
-                msg = Message(CommandTypes.SERVER_RESPONSE_OK.ordinal, userID = 0, msg = msg)))
+                msg = Message(CommandTypes.SERVER_RESPONSE_OK.ordinal, userID = 0, msg = msg),
+                clientAddress = packet.clientAddress))
     }
 }

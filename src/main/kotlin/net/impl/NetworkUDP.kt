@@ -4,10 +4,11 @@ import net.Network
 import net.Role
 import net.SERVER_PORT
 import net.packet.Packet
+import net.packet.Packet.ClientAddress
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.util.*
+import java.nio.ByteBuffer
 
 
 class NetworkUDP(private val role: Role) : Network {
@@ -17,32 +18,48 @@ class NetworkUDP(private val role: Role) : Network {
         Role.Client -> DatagramSocket()
     }
 
-
     override fun receive(): Packet? {
-        TODO("Not yet implemented")
+        val clientAddress: ClientAddress
+
+        val byteBuffer: ByteBuffer = ByteArray(Packet.MAX_SIZE).let { bytes ->
+            DatagramPacket(bytes, bytes.size).also {
+                socket.receive(it)
+                clientAddress = ClientAddress(it.address, it.port)
+            }
+            ByteBuffer.wrap(bytes)
+        }
+
+        val packet = byteBuffer.getInt(Packet.BEFORE_LEN).let {
+            byteBuffer.array().copyOf(Packet.WITHOUT_MESSAGE_LEN + it)
+        }.let { Packet.fromBytes(it) }.also { it.clientAddress = clientAddress }
+
+        println("Received:")
+        println("$packet\n")
+
+        return when (role) {
+            Role.Server -> {
+                Processor.process(this, packet)
+                null
+            }
+            Role.Client -> packet
+        }
     }
 
-    override fun close() = socket.close()
-
     override fun send(packet: Packet) {
-        var hostProperty: String = NetworkProperties.getProperty("host")
-        if (hostProperty == null) hostProperty = "localhost"
+        println("Sending:")
+        println("$packet\n")
 
-        var portProperty: String = NetworkProperties.getProperty("port")
-        if (portProperty == null) portProperty = "2305"
+        val inetAddress = packet.clientAddress?.inetAddress ?: InetAddress.getByName(net.HOST)
+        val port = packet.clientAddress?.port ?: net.SERVER_PORT
 
-        val inetAddress = if (packet.getClientInetAddress() != null) packet.getClientInetAddress() else InetAddress.getByName(hostProperty)
-        val port = if (packet.getClientPort() != null) packet.getClientPort() else portProperty.toInt()
+        packet.toPacket().let { packet ->
+            socket.send(DatagramPacket(packet, packet.size, inetAddress, port))
+        }
+    }
 
-        val packetBytes = packet.toPacket()
+    override fun toString(): String {
+        return "NetworkUDP(role=$role, socket=$socket)\n\n"
+    }
 
-        val datagramPacket = DatagramPacket(packetBytes, packetBytes.size, inetAddress, port)
-        socket.send(datagramPacket)
-
-        println("Send")
-        println("""
-    ${Arrays.toString(packetBytes)}
-    
-    """.trimIndent())    }
 
 }

@@ -1,6 +1,7 @@
 package net
 
 import net.impl.NetworkTCP
+import net.impl.NetworkUDP
 import net.impl.Processor
 import java.io.InputStream
 import java.util.*
@@ -26,18 +27,19 @@ object Server {
 
         val network = when (type) {
             NetProtocol.TCP -> NetworkTCP(Role.Server)
-            else -> NetworkTCP(Role.Server) //TODO replace with NetworkUDP when done
+            else -> NetworkUDP(Role.Server) //TODO replace with NetworkUDP when done
         }
 
-        println("Server running via:\n $network")
+        println("Server running via:\n$network")
 
-        for (i in 0..1){
+        while(true){
             if(stopFlag.get()) break
-            network.receive()
+            try {
+                network.receive()
+            } catch (ignore: Exception){}
         }
 
         Processor.shutdown()
-        network.close()
     }
 
     @JvmStatic

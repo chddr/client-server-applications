@@ -1,6 +1,10 @@
 package net.packet
 
-class Packet(val clientID: Byte, val msgID: Long, val msg: Message) {
+import java.net.InetAddress
+
+class Packet(val clientID: Byte, val msgID: Long, val msg: Message, var clientAddress: ClientAddress? = null) {
+
+    data class ClientAddress(val inetAddress: InetAddress, val port: Int)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
