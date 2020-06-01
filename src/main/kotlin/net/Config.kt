@@ -2,6 +2,7 @@ package net
 
 import net.NetProtocol.TCP
 
+const val SERVER_THREADS = 6
 const val ENCRYPTION_THREADS = 3
 const val DECRYPTION_THREADS = 3
 const val PROCESSOR_THREADS = 3

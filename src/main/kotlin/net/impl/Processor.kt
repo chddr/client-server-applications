@@ -3,9 +3,11 @@ package net.impl
 import net.Network
 import net.PROCESSOR_THREADS
 import net.packet.Message
-import net.packet.Message.CommandTypes
+import net.packet.Message.ClientCommandTypes.CLIENT_BYE
+import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_OK
 import net.packet.Packet
 import java.time.LocalDateTime
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -18,24 +20,18 @@ class Processor(private val network: Network, private val packet: Packet) : Runn
             service.submit(Processor(network, packet))
         }
 
-        fun shutdown() {
-            service.shutdown()
-            while (!service.awaitTermination(10, TimeUnit.SECONDS)) {
-                println("Processor is waiting for shutdown")
+        fun ExecutorService.waitForStop() {
+            shutdown()
+            while (!awaitTermination(10, TimeUnit.SECONDS)) {
+                println("Service is waiting for shutdown")
             }
         }
-
     }
 
 
     override fun run() {
-        println("""
-                |Thread ${Thread.currentThread().id} Received message:
-                |	'$packet'
-                |
-                """
-                .trimMargin()
-        )
+        println("[[PROCESSING]]    ${Thread.currentThread().id}-th working PROCESSOR thread")
+        println("$packet\n")
 
         //simulating real work done
         Thread.sleep(2000)
@@ -49,7 +45,11 @@ class Processor(private val network: Network, private val packet: Packet) : Runn
         network.send(Packet(
                 clientID = 0,
                 msgID = 0,
-                msg = Message(CommandTypes.SERVER_RESPONSE_OK.ordinal, userID = 0, msg = msg),
+                msg = Message(SERVER_RESPONSE_OK.ordinal, userID = 0, msg = msg),
                 clientAddress = packet.clientAddress))
+
+        if (packet.msg.cType == CLIENT_BYE.ordinal)
+            network.stop()
     }
+
 }

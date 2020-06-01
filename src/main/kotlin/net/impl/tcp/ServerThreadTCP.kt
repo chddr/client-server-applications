@@ -1,5 +1,6 @@
 package net.impl.tcp
 
+import net.Network
 import net.impl.Processor
 import net.impl.tcp.UtilsTCP.receive
 import net.impl.tcp.UtilsTCP.send
@@ -7,7 +8,7 @@ import net.packet.Packet
 import java.net.Socket
 import java.util.concurrent.atomic.AtomicBoolean
 
-class ServerThreadTCP(private val socket: Socket) : Runnable {
+class ServerThreadTCP(private val socket: Socket) : Runnable, Network {
 
     private val stopFlag = AtomicBoolean(false)
 
@@ -29,9 +30,9 @@ class ServerThreadTCP(private val socket: Socket) : Runnable {
         socket.close()
     }
 
-    fun send(packet: Packet) = socket.send(packet)
+    override fun send(packet: Packet) = socket.send(packet)
 
-    fun stop() {
+    override fun stop() {
         stopFlag.set(true)
     }
 
