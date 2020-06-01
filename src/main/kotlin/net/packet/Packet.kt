@@ -1,6 +1,6 @@
 package net.packet
 
-class Packet(var clientID: Byte, var msgID: Long, var msg: Message) {
+class Packet(val clientID: Byte, val msgID: Long, val msg: Message) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -29,6 +29,10 @@ class Packet(var clientID: Byte, var msgID: Long, var msg: Message) {
     fun toPacket(): ByteArray = EncryptorDecryptor.encrypt(this)
 
     companion object {
+        val WITHOUT_MESSAGE_LEN: Int = 22
+        val BEFORE_LEN: Int = 10
+        val MAX_SIZE: Int = Message.MAX_SIZE + 1 + 1 + 8 + 4 + 2 + 2
+
         fun fromBytes(array: ByteArray) = EncryptorDecryptor.decrypt(array)
     }
 

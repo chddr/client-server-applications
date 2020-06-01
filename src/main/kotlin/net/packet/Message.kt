@@ -3,7 +3,7 @@ package net.packet
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
-class Message(var cType: Int, var userID: Int, var msg: String) {
+class Message(val cType: Int, val userID: Int, val msg: String) {
 
     enum class CommandTypes {
         CLIENT_HELLO, CLIENT_BYE ,GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT_TO_GROUP, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE, SERVER_RESPONSE_OK, SERVER_RESPONSE_BYE
@@ -39,6 +39,11 @@ class Message(var cType: Int, var userID: Int, var msg: String) {
         if (!msg.contentEquals(other.msg)) return false
 
         return true
+    }
+
+    companion object {
+        private val MSG_MAX_SIZE = 256
+        public val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
     }
 
 }
