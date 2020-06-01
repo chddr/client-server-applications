@@ -12,6 +12,6 @@ enum class Role {
     Server, Client
 }
 
-
+const val HOST = "localhost"
 const val SERVER_PORT = 2305
 val type = NetProtocol.TCP
