@@ -7,15 +7,15 @@ import net.packet.Packet
 import java.net.InetAddress
 import java.net.Socket
 
-class ClientTCP {
+class ClientTCP(private val clientID: Byte) {
     init {
         Socket(InetAddress.getByName(net.HOST), net.SERVER_PORT).use { socket ->
             val packet = Packet(
-                    1,
-                    1,
+                    clientID,
+                    0,
                     Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"))
             val secondPacket = Packet(
-                    1,
+                    clientID,
                     1,
                     Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"))
 
@@ -23,14 +23,15 @@ class ClientTCP {
             socket.receive()
 
             socket.send(secondPacket)
-            socket.receive()
+            val pack = socket.receive()
+            assert(pack.msg.msg == "BYE")
         }
     }
 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            ClientTCP()
+            ClientTCP(0)
         }
     }
 }
