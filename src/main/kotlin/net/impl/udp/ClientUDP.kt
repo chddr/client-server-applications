@@ -1,29 +1,45 @@
 package net.impl.udp
 
-import java.net.DatagramPacket
+import net.impl.udp.UtilsUDP.receive
+import net.impl.udp.UtilsUDP.send
+import net.packet.Message
+import net.packet.Packet
 import java.net.DatagramSocket
 import java.net.InetAddress
-import java.nio.charset.StandardCharsets
 
-fun main() {
-    for (i in 1..1000) {
-        DatagramSocket(net.impl.tcp.SERVER_PORT +1).use { serverSocket ->
-            serverSocket.soTimeout = 10_000
-            println(serverSocket.localPort)
+class ClientUDP(private val clientID: Byte) {
 
-            val bytes = "Hello from client".toByteArray()
-            val packet = DatagramPacket(bytes, bytes.size, InetAddress.getByName(null), net.impl.tcp.SERVER_PORT +1)
-            serverSocket.send(packet)
+    init {
+        DatagramSocket(net.SERVER_PORT + 1).use { socket ->
 
-
-            val inputMessage = ByteArray(100)
-            val response = DatagramPacket(inputMessage, inputMessage.size)
-            serverSocket.receive(response)
-
-            val realMessageSize = packet.length
-            println("Message from server: \"${String(inputMessage, 0, realMessageSize, StandardCharsets.UTF_8)}\"")
+            val packet = Packet(
+                    clientID,
+                    0,
+                    Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"),
+                    Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
+            val secondPacket = Packet(
+                    clientID,
+                    1,
+                    Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"),
+                    Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
 
 
+            socket.send(packet)
+            socket.receive()
+
+            socket.send(secondPacket)
+            val response = socket.receive()
+
+            assert(response.msg.msg == "BYE")
+
+        }
+
+    }
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>){
+            ClientUDP(0)
         }
     }
 }
