@@ -3,7 +3,7 @@ package net.impl
 import net.Network
 import net.PROCESSOR_THREADS
 import net.packet.Message
-import net.packet.Message.ClientCommandTypes.CLIENT_BYE
+import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_BYE
 import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_OK
 import net.packet.Packet
 import java.time.LocalDateTime
@@ -22,10 +22,13 @@ class Processor(private val network: Network, private val packet: Packet) : Runn
 
         fun ExecutorService.waitForStop() {
             shutdown()
-            while (!awaitTermination(10, TimeUnit.SECONDS)) {
+            while (!isTerminated) {
+                awaitTermination(10, TimeUnit.SECONDS)
                 println("Service is waiting for shutdown")
             }
         }
+
+        fun waitForProcessorStop() = service.waitForStop()
     }
 
 
@@ -36,20 +39,29 @@ class Processor(private val network: Network, private val packet: Packet) : Runn
         //simulating real work done
         Thread.sleep(2000)
 
-        val msg = when (packet.msg.msg) {
-            "hello" -> "Hello from server, it's ${LocalDateTime.now().toLocalTime()}"
-            else -> "BYE"
+        val msg: String
+        val cType: Int
+
+        when (packet.msg.msg) {
+            "hello" -> {
+                msg = "Hello from server, it's ${LocalDateTime.now().toLocalTime()}"
+                cType = SERVER_RESPONSE_OK.ordinal
+            }
+            else -> {
+                msg = "BYE"
+                cType = SERVER_RESPONSE_BYE.ordinal
+            }
         }
 
 
         network.send(Packet(
                 clientID = 0,
                 msgID = 0,
-                msg = Message(SERVER_RESPONSE_OK.ordinal, userID = 0, msg = msg),
+                msg = Message(cType, userID = 0, msg = msg),
                 clientAddress = packet.clientAddress))
 
-        if (packet.msg.cType == CLIENT_BYE.ordinal)
-            network.stop()
+        println("[[ENDED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread")
+
     }
 
 }
