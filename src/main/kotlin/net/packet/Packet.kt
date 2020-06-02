@@ -19,9 +19,7 @@ class Packet(val clientID: Byte, val msgID: Long, val msg: Message, var clientAd
         return true
     }
 
-    override fun toString(): String {
-        return "net.Payload(clientID=$clientID, msgID=$msgID, msg=$msg)"
-    }
+
 
     override fun hashCode(): Int {
         var result = clientID.toInt()
@@ -31,6 +29,9 @@ class Packet(val clientID: Byte, val msgID: Long, val msg: Message, var clientAd
     }
 
     fun toPacket(): ByteArray = EncryptorDecryptor.encrypt(this)
+    override fun toString(): String = """
+            Packet(clientID=$clientID, msgID=$msgID, clientAddress=$clientAddress)
+            Message: $msg""".trimIndent()
 
     companion object {
         val WITHOUT_MESSAGE_LEN: Int = 22
