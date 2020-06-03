@@ -23,9 +23,10 @@ class ClientUDP(private val clientID: Byte) {
                     Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"),
                     Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
 
-
+            for (i in 1..10) {
+                socket.send(packet)
+            }
             socket.send(packet)
-            socket.receive()
 
             socket.send(secondPacket)
             val response = socket.receive()
@@ -38,7 +39,7 @@ class ClientUDP(private val clientID: Byte) {
 
     companion object {
         @JvmStatic
-        fun main(args: Array<String>){
+        fun main(args: Array<String>) {
             ClientUDP(0)
         }
     }
