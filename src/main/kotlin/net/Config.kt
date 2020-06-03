@@ -9,8 +9,8 @@ enum class NetProtocol {
     TCP, UDP
 }
 
-const val SERVER_TIMEOUT = 0 //TODO change when in production, low value useful for tests
-const val SINGLE_THREAD_TIMEOUT = 20_000
+const val SERVER_TIMEOUT = 20_000 //TODO change when in production, low value useful for tests
+const val SINGLE_THREAD_TIMEOUT = 5_000
 const val HOST = "localhost"
 const val SERVER_PORT = 2305
 val type = NetProtocol.UDP

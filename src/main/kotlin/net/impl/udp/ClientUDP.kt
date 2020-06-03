@@ -14,7 +14,7 @@ class ClientUDP(private val clientID: Byte) {
 
             val packet = Packet(
                     clientID,
-                    456,
+                    0,
                     Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"),
                     Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
             val secondPacket = Packet(
