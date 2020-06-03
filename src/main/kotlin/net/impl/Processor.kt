@@ -37,7 +37,7 @@ class Processor(private val serverThread: ServerThread, private val packet: Pack
         println("$packet\n")
 
         //simulating real work done
-        Thread.sleep(2000)
+        Thread.sleep(200)
 
         val msg: String
         val cType: Int

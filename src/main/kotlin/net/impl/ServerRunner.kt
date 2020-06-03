@@ -12,7 +12,7 @@ import java.net.SocketException
 import java.net.SocketTimeoutException
 import kotlin.concurrent.thread
 
-class ServerRunner(type: net.NetProtocol = net.type) {
+class ServerRunner(type: NetProtocol = net.type) {
 
     private var server: Server = when(type) {
         NetProtocol.TCP -> ServerTCP()
@@ -49,8 +49,8 @@ class ServerRunner(type: net.NetProtocol = net.type) {
     private fun runConsole(inputStream: InputStream) {
         thread(start = true, isDaemon = true) {
             val input = BufferedReader(InputStreamReader(inputStream))
-            while (input.readLine() != "quit")
-                println("enter \"quit\" to end the server")
+            while (input.readLine() != "quit"){}
+//                println("enter \"quit\" to end the server")
             server.stop()
         }
     }

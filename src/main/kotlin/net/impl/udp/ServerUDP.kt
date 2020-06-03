@@ -29,10 +29,8 @@ class ServerUDP : Server {
         }
         packetData[address]!!.pass(p)
 
-        //remove connections that are already closed so they can be gcollecteded
-        for ((key, value) in packetData) {
-            if (value.isStopped()) packetData.remove(key)
-        }
+        //remove connections that are already closed so they can be garbage collected
+        packetData.values.removeIf(ServerThreadUDP::isStopped)
     }
 
     override fun stop() {

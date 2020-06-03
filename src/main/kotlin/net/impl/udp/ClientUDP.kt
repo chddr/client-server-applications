@@ -10,7 +10,7 @@ import java.net.InetAddress
 class ClientUDP(private val clientID: Byte) {
 
     init {
-        DatagramSocket(net.SERVER_PORT + 1).use { socket ->
+        DatagramSocket().use { socket ->
 
             val packet = Packet(
                     clientID,

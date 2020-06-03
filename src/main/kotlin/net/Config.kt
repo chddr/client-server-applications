@@ -9,12 +9,7 @@ enum class NetProtocol {
     TCP, UDP
 }
 
-enum class Role {
-    Server, Client
-}
-
-
-const val SOCKET_TIMEOUT_TIME_MILLISECONDS = 20_000
+const val SOCKET_TIMEOUT_TIME_MILLISECONDS = 20_000 //TODO change when in production, low value useful for tests
 const val HOST = "localhost"
 const val SERVER_PORT = 2305
 val type = NetProtocol.UDP

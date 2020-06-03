@@ -31,7 +31,7 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread {
                     is SocketException -> stop()
                     is SocketTimeoutException -> stop()
                     is IOException -> stop()
-                    else -> println("failed reading the packet")
+                    else -> {}
                 }
             }
         }
