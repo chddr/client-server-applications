@@ -1,7 +1,6 @@
 package net.interfaces
 
 interface Server {
-    fun serverCycle()
+    fun waitForThread(): ServerThread
     fun stop()
-    fun waitForStop()
 }
