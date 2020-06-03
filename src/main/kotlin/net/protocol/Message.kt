@@ -10,7 +10,7 @@ class Message(val cType: Int, val userID: Int, val msg: String) {
     }
 
     enum class ServerCommandTypes {
-        SERVER_RESPONSE_OK, SERVER_RESPONSE_BYE
+        RESPONSE_OK, RESPONSE_BYE, RESPONSE_RESEND
     }
 
     constructor(data: ByteArray) : this(

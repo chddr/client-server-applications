@@ -3,8 +3,8 @@ package net.impl
 import net.PROCESSOR_THREADS
 import net.interfaces.ServerThread
 import net.protocol.Message
-import net.protocol.Message.ServerCommandTypes.SERVER_RESPONSE_BYE
-import net.protocol.Message.ServerCommandTypes.SERVER_RESPONSE_OK
+import net.protocol.Message.ServerCommandTypes.RESPONSE_BYE
+import net.protocol.Message.ServerCommandTypes.RESPONSE_OK
 import net.protocol.Packet
 import java.time.LocalDateTime
 import java.util.concurrent.ExecutorService
@@ -45,22 +45,18 @@ class Processor(private val serverThread: ServerThread, private val packet: Pack
         when (packet.msg.msg) {
             "hello" -> {
                 msg = "Hello from server, it's ${LocalDateTime.now().toLocalTime()}"
-                cType = SERVER_RESPONSE_OK.ordinal
+                cType = RESPONSE_OK.ordinal
             }
             else -> {
                 msg = "BYE"
-                cType = SERVER_RESPONSE_BYE.ordinal
+                cType = RESPONSE_BYE.ordinal
             }
         }
 
 
-        serverThread.send(Packet(
-                clientID = 0,
-                msgID = 0,
-                msg = Message(cType, userID = 0, msg = msg),
-                clientAddress = packet.clientAddress))
+        serverThread.send(Message(cType, userID = 0, msg = msg))
 
-        if (packet.msg.cType == SERVER_RESPONSE_BYE.ordinal)
+        if (packet.msg.cType == RESPONSE_BYE.ordinal)
             serverThread.stop()
         println("[[ENDED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread")
 

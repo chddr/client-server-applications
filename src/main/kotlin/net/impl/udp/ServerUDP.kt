@@ -11,7 +11,7 @@ class ServerUDP : Server {
 
     private val packetData = HashMap<ClientAddress, ServerThreadUDP>()
     private var serverSocket = DatagramSocket(net.SERVER_PORT).also {
-        it.soTimeout = net.SOCKET_TIMEOUT_TIME_MILLISECONDS //timeout time, the same as ServerTCP
+        it.soTimeout = net.SERVER_TIMEOUT //timeout time, the same as ServerTCP TODO change here and in TCP to 0
     }
 
     override fun waitForThread(): ServerThread {
@@ -19,7 +19,7 @@ class ServerUDP : Server {
         packetData.values.removeIf(ServerThreadUDP::isStopped)
 
         while (true) {
-            val p = serverSocket.receive()
+            val p = serverSocket.receive() //TODO make here catch bad decoding exception, if it doesn't decode, just ignore
             val address = p.clientAddress!!
             if (address in packetData) {
                 packetData[address]!!.pass(p)

@@ -2,7 +2,7 @@ package net.protocol
 
 import java.net.InetAddress
 
-class Packet(val clientID: Byte, val msgID: Long, val msg: Message, var clientAddress: ClientAddress? = null) {
+class Packet(val clientID: Byte, var msgID: Long, val msg: Message, var clientAddress: ClientAddress? = null) {
 
     data class ClientAddress(val inetAddress: InetAddress, val port: Int)
 
