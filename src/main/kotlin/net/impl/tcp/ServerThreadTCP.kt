@@ -16,7 +16,7 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread {
     private val stopFlag = AtomicBoolean(false)
 
     init {
-        socket.soTimeout = net.SOCKET_TIMEOUT_TIME_MILLISECONDS/4
+        socket.soTimeout = net.SOCKET_TIMEOUT_TIME_MILLISECONDS / 4
     }
 
     override fun run() {
@@ -28,19 +28,15 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread {
                 Processor.process(this, packet)
             } catch (e: Exception) {
                 when (e) {
-                    is SocketException -> println("socket is being closed")
-                    is SocketTimeoutException -> {
-                        stop()
-                        println("socket timed out, closing")
-                    }
-                    is IOException -> println("closing the socket")
+                    is SocketException -> stop()
+                    is SocketTimeoutException -> stop()
+                    is IOException -> stop()
                     else -> println("failed reading the packet")
                 }
             }
         }
 
         println("$socket closing")
-        socket.close()
     }
 
     override fun send(packet: Packet) {
@@ -48,8 +44,10 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread {
     }
 
     override fun stop() {
+        println("socket is closing")
+        if (!socket.isClosed)
+            socket.close()
         stopFlag.set(true)
-        socket.close()
     }
 
 

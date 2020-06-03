@@ -1,7 +1,7 @@
 package net.impl
 
 import net.PROCESSOR_THREADS
-import net.Serverthread
+import net.interfaces.ServerThread
 import net.packet.Message
 import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_BYE
 import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_OK
@@ -33,7 +33,7 @@ class Processor(private val serverThread: ServerThread, private val packet: Pack
 
 
     override fun run() {
-        println("[[PROCESSING]]    ${Thread.currentThread().id}-th working PROCESSOR thread")
+        println("[[STARTED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread")
         println("$packet\n")
 
         //simulating real work done
@@ -60,6 +60,8 @@ class Processor(private val serverThread: ServerThread, private val packet: Pack
                 msg = Message(cType, userID = 0, msg = msg),
                 clientAddress = packet.clientAddress))
 
+        if (packet.msg.cType == SERVER_RESPONSE_BYE.ordinal)
+            serverThread.stop()
         println("[[ENDED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread")
 
     }

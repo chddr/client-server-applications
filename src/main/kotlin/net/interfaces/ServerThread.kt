@@ -2,6 +2,7 @@ package net.interfaces
 
 import net.packet.Packet
 
-interface ServerThread {
+interface ServerThread: Runnable {
     fun send(packet: Packet)
+    fun stop()
 }

@@ -1,132 +1,44 @@
 package net.impl.udp
 
-import net.interfaces.ServerThread
 import net.SERVER_THREADS
-import net.impl.Processor
 import net.impl.Processor.Companion.waitForStop
 import net.impl.udp.UtilsUDP.receive
-import net.impl.udp.UtilsUDP.send
-import net.packet.Packet
+import net.interfaces.Server
+import net.packet.Packet.ClientAddress
 import java.net.DatagramSocket
-import java.net.SocketException
-import java.net.SocketTimeoutException
-import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.collections.HashMap
-import kotlin.concurrent.thread
 
-class ServerUDP: ServerThread {
+class ServerUDP : Server {
 
     private val service = Executors.newFixedThreadPool(SERVER_THREADS)
 
-    private val packetData = HashMap<Int, Long>()
+    private val packetData = HashMap<ClientAddress, ServerThreadUDP>()
     private var serverSocket = DatagramSocket(net.SERVER_PORT).also {
         it.soTimeout = net.SOCKET_TIMEOUT_TIME_MILLISECONDS //timeout time, the same as ServerTCP
     }
-    private val stopFlag = AtomicBoolean(false)
-
-    init {
-        println("Starting console... (type \"quit\" to quit)\n")
-        runConsole()
-
-        println("running: ${serverSocket.localAddress}")
 
 
-        println("accepting connections")
-        loop@ while (!stopFlag.get()) {
+    override fun serverCycle() {
+        val p = serverSocket.receive()
 
-            try {
-                val p = serverSocket.receive()
-                Processor.process(this, p)
-            } catch (e: Exception) {
-                when (e) {
-                    is SocketException -> {
-                        println("socket is being closed...")
-                        break@loop
-                    }//naturally should end up here and end
-                    is SocketTimeoutException -> {
-                        println("socket has been without connections for too long, now closing")
-                        break@loop
-                    }
-                    else -> e.printStackTrace()
-                }
-            }
-
-
-
+        val address = p.clientAddress!!
+        if (address !in packetData) {
+            val thread = ServerThreadUDP(serverSocket, address)
+            service.submit(thread)
+            packetData[address] = thread
         }
+        packetData[address]!!.pass(p)
 
-        println("not starting new connections, waiting for all current messages to be processed and then shutting down")
-
-        service.waitForStop()
-        Processor.waitForProcessorStop()
-
-        println("fin")
-    }
-
-
-    private fun runConsole() {
-        thread(start = true, isDaemon = true) {
-            val input = Scanner(System.`in`)
-            while (input.next() != "quit")
-                println("enter \"quit\" to end the server")
-            stop()
+        //remove connections that are already closed so they can be gcollecteded
+        for ((key, value) in packetData) {
+            if (value.isStopped()) packetData.remove(key)
         }
     }
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            ServerUDP()
-        }
-    }
-
-    override fun send(packet: Packet) = serverSocket.send(packet)
-
-    fun stop() {
-        stopFlag.set(true)
+    override fun stop() {
         serverSocket.close()
     }
-}
 
-//fun main() {
-//    val isRun = AtomicBoolean(true)
-//
-//    thread(start = true) {
-//        try {
-//            Thread.sleep(10_000L)
-//        } catch (e: InterruptedException) {
-//            e.printStackTrace()
-//        }
-//        isRun.set(false)
-//    }
-//
-//
-//    DatagramSocket(net.SERVER_PORT).use { serverSocket ->
-//        serverSocket.soTimeout = 2_000
-//        while (isRun.get()) {
-//            try {
-//                val inputMessage = ByteArray(1000)
-//                val packet = DatagramPacket(inputMessage, inputMessage.size)
-//                serverSocket.receive(packet)
-//
-//                thread(start = true) {
-//                    val realMessageSize = packet.length
-//                    println("Message from client ${String(inputMessage, 0, realMessageSize, StandardCharsets.UTF_8)}")
-//
-//                    val bytes = "Server is ok".toByteArray()
-//
-//                    val response = DatagramPacket(bytes, bytes.size, packet.address, packet.port)
-//                    serverSocket.send(response)
-//
-//                }
-//            } catch (e: SocketTimeoutException) {
-//                println("Socket timeout")
-//            }
-//        }
-//
-//
-//    }
-//
-//}
+    override fun waitForStop() = service.waitForStop()
+
+}
