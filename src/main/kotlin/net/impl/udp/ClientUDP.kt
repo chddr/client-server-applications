@@ -2,8 +2,8 @@ package net.impl.udp
 
 import net.impl.udp.UtilsUDP.receive
 import net.impl.udp.UtilsUDP.send
-import net.packet.Message
-import net.packet.Packet
+import net.protocol.Message
+import net.protocol.Packet
 import java.net.DatagramSocket
 import java.net.InetAddress
 

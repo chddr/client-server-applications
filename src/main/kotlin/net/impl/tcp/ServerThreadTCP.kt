@@ -4,7 +4,7 @@ import net.impl.Processor
 import net.impl.tcp.UtilsTCP.receive
 import net.impl.tcp.UtilsTCP.send
 import net.interfaces.ServerThread
-import net.packet.Packet
+import net.protocol.Packet
 import java.io.IOException
 import java.net.Socket
 import java.net.SocketException

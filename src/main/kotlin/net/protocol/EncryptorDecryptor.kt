@@ -1,8 +1,8 @@
-package net.packet
+package net.protocol
 
 import java.nio.ByteBuffer
 import java.util.*
-import net.packet.CRC16.computeShort as crc16short
+import net.protocol.CRC16.computeShort as crc16short
 
 
 object EncryptorDecryptor {

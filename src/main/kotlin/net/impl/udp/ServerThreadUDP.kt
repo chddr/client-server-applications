@@ -3,7 +3,7 @@ package net.impl.udp
 import net.impl.Processor
 import net.impl.udp.UtilsUDP.send
 import net.interfaces.ServerThread
-import net.packet.Packet
+import net.protocol.Packet
 import java.net.DatagramSocket
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean

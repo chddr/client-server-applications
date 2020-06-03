@@ -2,10 +2,10 @@ package net.impl
 
 import net.PROCESSOR_THREADS
 import net.interfaces.ServerThread
-import net.packet.Message
-import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_BYE
-import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_OK
-import net.packet.Packet
+import net.protocol.Message
+import net.protocol.Message.ServerCommandTypes.SERVER_RESPONSE_BYE
+import net.protocol.Message.ServerCommandTypes.SERVER_RESPONSE_OK
+import net.protocol.Packet
 import java.time.LocalDateTime
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

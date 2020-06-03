@@ -1,4 +1,4 @@
-package net.packet
+package net.protocol
 
 const val MAGIC_BYTE: Byte = 0x13
 

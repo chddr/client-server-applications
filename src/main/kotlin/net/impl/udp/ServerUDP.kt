@@ -4,7 +4,7 @@ import net.SERVER_THREADS
 import net.impl.Processor.Companion.waitForStop
 import net.impl.udp.UtilsUDP.receive
 import net.interfaces.Server
-import net.packet.Packet.ClientAddress
+import net.protocol.Packet.ClientAddress
 import java.net.DatagramSocket
 import java.util.concurrent.Executors
 

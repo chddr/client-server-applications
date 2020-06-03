@@ -1,4 +1,4 @@
-package net.packet
+package net.protocol
 
 import java.net.InetAddress
 

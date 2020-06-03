@@ -1,6 +1,6 @@
 package net.impl.tcp
 
-import net.packet.Packet
+import net.protocol.Packet
 import java.net.Socket
 import java.nio.ByteBuffer
 

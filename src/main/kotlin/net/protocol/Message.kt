@@ -1,4 +1,4 @@
-package net.packet
+package net.protocol
 
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
@@ -47,7 +47,7 @@ class Message(val cType: Int, val userID: Int, val msg: String) {
 
     companion object {
         private val MSG_MAX_SIZE = 256
-        public val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
+        val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
     }
 
 }

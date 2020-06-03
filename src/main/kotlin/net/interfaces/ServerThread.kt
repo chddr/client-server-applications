@@ -1,6 +1,6 @@
 package net.interfaces
 
-import net.packet.Packet
+import net.protocol.Packet
 
 interface ServerThread: Runnable {
     fun send(packet: Packet)
