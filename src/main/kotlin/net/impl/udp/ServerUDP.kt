@@ -1,6 +1,6 @@
 package net.impl.udp
 
-import net.Network
+import net.interfaces.ServerThread
 import net.SERVER_THREADS
 import net.impl.Processor
 import net.impl.Processor.Companion.waitForStop
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.collections.HashMap
 import kotlin.concurrent.thread
 
-class ServerUDP: Network {
+class ServerUDP: ServerThread {
 
     private val service = Executors.newFixedThreadPool(SERVER_THREADS)
 

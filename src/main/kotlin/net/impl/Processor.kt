@@ -1,7 +1,7 @@
 package net.impl
 
-import net.Network
 import net.PROCESSOR_THREADS
+import net.Serverthread
 import net.packet.Message
 import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_BYE
 import net.packet.Message.ServerCommandTypes.SERVER_RESPONSE_OK
@@ -11,13 +11,13 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class Processor(private val network: Network, private val packet: Packet) : Runnable {
+class Processor(private val serverThread: ServerThread, private val packet: Packet) : Runnable {
 
     companion object {
         private val service = Executors.newFixedThreadPool(PROCESSOR_THREADS)
 
-        fun process(network: Network, packet: Packet) {
-            service.submit(Processor(network, packet))
+        fun process(serverThread: ServerThread, packet: Packet) {
+            service.submit(Processor(serverThread, packet))
         }
 
         fun ExecutorService.waitForStop() {
@@ -54,7 +54,7 @@ class Processor(private val network: Network, private val packet: Packet) : Runn
         }
 
 
-        network.send(Packet(
+        serverThread.send(Packet(
                 clientID = 0,
                 msgID = 0,
                 msg = Message(cType, userID = 0, msg = msg),

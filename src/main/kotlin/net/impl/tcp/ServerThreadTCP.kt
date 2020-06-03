@@ -1,6 +1,6 @@
 package net.impl.tcp
 
-import net.Network
+import net.interfaces.ServerThread
 import net.impl.Processor
 import net.impl.tcp.UtilsTCP.receive
 import net.impl.tcp.UtilsTCP.send
@@ -12,7 +12,7 @@ import java.net.SocketException
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
-class ServerThreadTCP(private val socket: Socket) : Runnable, Network {
+class ServerThreadTCP(private val socket: Socket) : Runnable, ServerThread {
 
     private val stopFlag = AtomicBoolean(false)
     private val queue = ConcurrentLinkedQueue<Packet>()

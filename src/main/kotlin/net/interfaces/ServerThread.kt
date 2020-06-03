@@ -1,7 +1,7 @@
-package net
+package net.interfaces
 
 import net.packet.Packet
 
-interface Network {
+interface ServerThread {
     fun send(packet: Packet)
 }
