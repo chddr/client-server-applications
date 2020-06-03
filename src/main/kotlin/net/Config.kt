@@ -15,6 +15,8 @@ enum class Role {
     Server, Client
 }
 
+
+const val SOCKET_TIMEOUT_TIME_MILLISECONDS = 20_000
 const val HOST = "localhost"
 const val SERVER_PORT = 2305
 val type = TCP

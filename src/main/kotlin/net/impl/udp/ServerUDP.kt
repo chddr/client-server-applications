@@ -22,7 +22,7 @@ class ServerUDP: ServerThread {
 
     private val packetData = HashMap<Int, Long>()
     private var serverSocket = DatagramSocket(net.SERVER_PORT).also {
-        it.soTimeout = 5_000 //timeout time, the same as ServerTCP
+        it.soTimeout = net.SOCKET_TIMEOUT_TIME_MILLISECONDS //timeout time, the same as ServerTCP
     }
     private val stopFlag = AtomicBoolean(false)
 

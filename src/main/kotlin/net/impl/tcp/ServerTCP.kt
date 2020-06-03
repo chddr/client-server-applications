@@ -17,7 +17,7 @@ class ServerTCP {
 
     private val service = Executors.newFixedThreadPool(SERVER_THREADS)
     private var serverSocket = ServerSocket(net.SERVER_PORT).also {
-        it.soTimeout = 5_000 //setting timeout to reset accept()
+        it.soTimeout = net.SOCKET_TIMEOUT_TIME_MILLISECONDS //setting timeout to reset accept()
     }
     init {
         println("Starting console... (type \"quit\" to quit)\n")
