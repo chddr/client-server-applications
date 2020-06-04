@@ -1,5 +1,6 @@
 package net.impl.udp
 
+import net.impl.udp.UtilsUDP.ClientAddress
 import net.impl.udp.UtilsUDP.send
 import net.impl.udp.UtilsUDP.validate
 import net.interfaces.ServerThread
@@ -9,14 +10,12 @@ import java.net.DatagramSocket
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 
-class ServerThreadUDP(private var socket: DatagramSocket, private var address: Packet.ClientAddress) : ServerThread() {
+class ServerThreadUDP(private var socket: DatagramSocket, private var address: ClientAddress) : ServerThread() {
 
     private val stopFlag = AtomicBoolean(false)
     private val packetQueue = LinkedBlockingQueue<DatagramPacket>()
 
-    override fun send(packet: Packet) {
-        socket.send(packet.apply { clientAddress = address })
-    }
+    override fun send(packet: Packet) = socket.send(packet, address)
 
     override fun run() {
         println("$address connection accepted")

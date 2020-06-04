@@ -1,5 +1,8 @@
 package net.impl.udp
 
+import net.HOST
+import net.SERVER_PORT
+import net.impl.udp.UtilsUDP.ClientAddress
 import net.impl.udp.UtilsUDP.receive
 import net.impl.udp.UtilsUDP.send
 import net.protocol.Message
@@ -12,21 +15,21 @@ class ClientUDP(private val clientID: Byte) {
     init {
         DatagramSocket().use { socket ->
 
+            val address = ClientAddress(InetAddress.getByName(HOST), SERVER_PORT)
+
             val packet = Packet(
                     clientID,
                     0,
-                    Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"),
-                    Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
+                    Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"))
             val secondPacket = Packet(
                     clientID,
                     1,
-                    Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"),
-                    Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
+                    Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"))
 
-            socket.send(packet)
+            socket.send(packet, address)
             socket.receive()
 
-            socket.send(secondPacket)
+            socket.send(secondPacket, address)
             val response = socket.receive()
 
             assert(response.msg.msg == "BYE")

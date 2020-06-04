@@ -20,9 +20,7 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread() {
 
     override fun run() {
         println("$socket accepted")
-
         processPackets()
-
         println("$socket closing")
     }
 
