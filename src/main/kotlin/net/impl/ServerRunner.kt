@@ -56,20 +56,22 @@ class ServerRunner(type: NetProtocol = net.type) {
         }
     }
 
+    fun stop() = server.stop()
+
 
     private fun runConsole(inputStream: InputStream) {
         thread(start = true, isDaemon = true) {
             val input = BufferedReader(InputStreamReader(inputStream))
             while (input.readLine() != "quit"){}
 //                println("enter \"quit\" to end the server")
-            server.stop()
+            stop()
         }
     }
 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            ServerRunner(NetProtocol.TCP)
+            ServerRunner(NetProtocol.UDP)
             Processor.waitForProcessorStop()
         }
     }
