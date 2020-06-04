@@ -9,15 +9,16 @@ import net.interfaces.Server
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 class ServerRunner(type: NetProtocol = net.type) {
 
-    private var server: Server = when(type) {
+    private val stopFlag = AtomicBoolean(false)
+    private var server: Server = when (type) {
         NetProtocol.TCP -> ServerTCP()
         NetProtocol.UDP -> ServerUDP()
     }
@@ -37,33 +38,34 @@ class ServerRunner(type: NetProtocol = net.type) {
     }
 
     private fun launch() {
-        loop@ while (true) {
+        while (!stopFlag.get()) {
             try {
                 val thread = server.waitForThread()
                 service.submit(thread)
             } catch (e: IOException) {
                 when (e) {
-                    is SocketException -> {
-                        println("socket is being closed...")
-                        break@loop
-                    }//naturally should end up here and end
-                    is SocketTimeoutException -> {
-                        println("socket has been without connections for too long, now closing")
-                        break@loop
-                    }
+                    is SocketException -> println("socket is being closed...")
+                    is SocketTimeoutException -> println("socket has been without connections for too long, now closing")//naturally should end up here and end
+                    else -> println("IOException encountered, emergency closing")
                 }
+                stop()
             }
         }
     }
 
-    fun stop() = server.stop()
+    fun stop() {
+        stopFlag.set(true)
+        server.stop()
+    }
 
 
     private fun runConsole(inputStream: InputStream) {
         thread(start = true, isDaemon = true) {
-            val input = BufferedReader(InputStreamReader(inputStream))
-            while (input.readLine() != "quit"){}
-//                println("enter \"quit\" to end the server")
+            val input = BufferedReader(inputStream.reader())
+            while (input.readLine() != "quit") {
+//                print("enter \"quit\" to end the server")
+                Unit
+            }
             stop()
         }
     }
