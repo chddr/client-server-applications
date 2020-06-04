@@ -20,7 +20,7 @@ class ServerThreadUDP(private var socket: DatagramSocket, private var address: C
     override fun run() {
         println("$address connection accepted")
         processPackets()
-        println("$address coonnection closing")
+        println("$address connection closing")
     }
 
     override fun processPackets() {//TODO since timeout here is not working (we have no thread, we need to do it ourselves) got to add some sort of closing after inactivity
