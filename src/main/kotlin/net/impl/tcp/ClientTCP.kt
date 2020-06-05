@@ -2,8 +2,8 @@ package net.impl.tcp
 
 import net.impl.tcp.UtilsTCP.receive
 import net.impl.tcp.UtilsTCP.send
-import net.packet.Message
-import net.packet.Packet
+import net.protocol.Message
+import net.protocol.Packet
 import java.net.InetAddress
 import java.net.Socket
 

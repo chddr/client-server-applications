@@ -1,10 +1,6 @@
-package net.packet
+package net.protocol
 
-import java.net.InetAddress
-
-class Packet(val clientID: Byte, val msgID: Long, val msg: Message, var clientAddress: ClientAddress? = null) {
-
-    data class ClientAddress(val inetAddress: InetAddress, val port: Int)
+class Packet(val clientID: Byte, val msgID: Long, val msg: Message) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -19,8 +15,6 @@ class Packet(val clientID: Byte, val msgID: Long, val msg: Message, var clientAd
         return true
     }
 
-
-
     override fun hashCode(): Int {
         var result = clientID.toInt()
         result = 31 * result + msgID.hashCode()
@@ -30,7 +24,7 @@ class Packet(val clientID: Byte, val msgID: Long, val msg: Message, var clientAd
 
     fun toPacket(): ByteArray = EncryptorDecryptor.encrypt(this)
     override fun toString(): String = """
-            Packet(clientID=$clientID, msgID=$msgID, clientAddress=$clientAddress)
+            Packet(clientID=$clientID, msgID=$msgID)
             Message: $msg""".trimIndent()
 
     companion object {

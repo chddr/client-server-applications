@@ -1,33 +1,35 @@
 package net.impl.udp
 
+import net.HOST
+import net.SERVER_PORT
+import net.impl.udp.UtilsUDP.ClientAddress
 import net.impl.udp.UtilsUDP.receive
 import net.impl.udp.UtilsUDP.send
-import net.packet.Message
-import net.packet.Packet
+import net.protocol.Message
+import net.protocol.Packet
 import java.net.DatagramSocket
 import java.net.InetAddress
 
 class ClientUDP(private val clientID: Byte) {
 
     init {
-        DatagramSocket(net.SERVER_PORT + 1).use { socket ->
+        DatagramSocket().use { socket ->
+
+            val address = ClientAddress(InetAddress.getByName(HOST), SERVER_PORT)
 
             val packet = Packet(
                     clientID,
                     0,
-                    Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"),
-                    Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
+                    Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"))
             val secondPacket = Packet(
                     clientID,
                     1,
-                    Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"),
-                    Packet.ClientAddress(InetAddress.getByName(net.HOST), net.SERVER_PORT))
+                    Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"))
 
-
-            socket.send(packet)
+            socket.send(packet, address)
             socket.receive()
 
-            socket.send(secondPacket)
+            socket.send(secondPacket, address)
             val response = socket.receive()
 
             assert(response.msg.msg == "BYE")
@@ -36,10 +38,8 @@ class ClientUDP(private val clientID: Byte) {
 
     }
 
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>){
-            ClientUDP(0)
-        }
-    }
+}
+
+fun main() {
+    ClientUDP(0)
 }

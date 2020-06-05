@@ -1,4 +1,4 @@
-package net.packet
+package net.protocol
 
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
@@ -10,7 +10,7 @@ class Message(val cType: Int, val userID: Int, val msg: String) {
     }
 
     enum class ServerCommandTypes {
-        SERVER_RESPONSE_OK, SERVER_RESPONSE_BYE
+        RESPONSE_OK, RESPONSE_BYE, RESPONSE_RESEND
     }
 
     constructor(data: ByteArray) : this(
@@ -47,7 +47,7 @@ class Message(val cType: Int, val userID: Int, val msg: String) {
 
     companion object {
         private val MSG_MAX_SIZE = 256
-        public val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
+        val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
     }
 
 }

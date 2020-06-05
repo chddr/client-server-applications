@@ -1,7 +1,5 @@
 package net
 
-import net.NetProtocol.TCP
-
 const val SERVER_THREADS = 6
 const val ENCRYPTION_THREADS = 3
 const val DECRYPTION_THREADS = 3
@@ -11,10 +9,8 @@ enum class NetProtocol {
     TCP, UDP
 }
 
-enum class Role {
-    Server, Client
-}
-
+const val SERVER_TIMEOUT = 20_000 //TODO change when in production, low value useful for tests
+const val SINGLE_THREAD_TIMEOUT = 5_000
 const val HOST = "localhost"
 const val SERVER_PORT = 2305
-val type = TCP
+val type = NetProtocol.UDP

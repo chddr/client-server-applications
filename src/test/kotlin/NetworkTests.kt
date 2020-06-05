@@ -1,6 +1,9 @@
 
+import net.NetProtocol
+import net.impl.Processor
+import net.impl.ServerRunner
 import net.impl.tcp.ClientTCP
-import net.impl.tcp.ServerTCP
+import net.impl.udp.ClientUDP
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 
@@ -9,15 +12,35 @@ class NetworkTests {
     @Test
     fun manyTCPConnections() {
 
-        val t = thread {
-            ServerTCP()
+        val t = thread(start = true) {
+            ServerRunner(NetProtocol.TCP)
+            Processor.waitForProcessorStop()
         }
 
-        for (i in 0 until 10){
+        repeat(10) {
             thread {
-                ClientTCP(i.toByte())//should be successful if no exceptions are thrown
+                ClientTCP(0)//should be successful if no exceptions are thrown
             }
         }
+
+
+        t.join()
+    }
+
+    @Test
+    fun manyUDPConnections() {
+
+        val t = thread(start = true) {
+            ServerRunner(NetProtocol.UDP)
+            Processor.waitForProcessorStop()
+        }
+
+        repeat(10) {
+            thread {
+                ClientUDP(0)//should be successful if no exceptions are thrown
+            }
+        }
+
 
         t.join()
     }

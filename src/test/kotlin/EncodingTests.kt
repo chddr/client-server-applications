@@ -1,9 +1,9 @@
 
-import net.packet.BadDataException
-import net.packet.EncryptorDecryptor
-import net.packet.Message
-import net.packet.Message.ClientCommandTypes.ADD_PRODUCT_TO_GROUP
-import net.packet.Packet
+import net.protocol.BadDataException
+import net.protocol.EncryptorDecryptor
+import net.protocol.Message
+import net.protocol.Message.ClientCommandTypes.ADD_PRODUCT_TO_GROUP
+import net.protocol.Packet
 import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
