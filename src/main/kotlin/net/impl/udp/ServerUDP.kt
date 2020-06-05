@@ -6,12 +6,12 @@ import net.interfaces.Server
 import net.interfaces.ServerThread
 import java.net.DatagramSocket
 
-class ServerUDP : Server {
+class ServerUDP(timeout: Int) : Server {
 
 
     private val packetData = HashMap<ClientAddress, ServerThreadUDP>()
     private val serverSocket = DatagramSocket(net.SERVER_PORT).also {
-        it.soTimeout = net.SERVER_TIMEOUT //timeout time, the same as ServerTCP
+        it.soTimeout = timeout //timeout time, the same as ServerTCP
     }
 
     override fun waitForThread(): ServerThread {

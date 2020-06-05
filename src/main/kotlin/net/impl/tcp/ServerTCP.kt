@@ -4,10 +4,10 @@ import net.interfaces.Server
 import net.interfaces.ServerThread
 import java.net.ServerSocket
 
-class ServerTCP: Server {
+class ServerTCP(timeout: Int): Server {
 
     private var serverSocket = ServerSocket(net.SERVER_PORT).also {
-        it.soTimeout = net.SERVER_TIMEOUT //setting timeout to reset accept()
+        it.soTimeout = timeout //setting timeout to reset accept()
     }
 
     override fun waitForThread(): ServerThread {

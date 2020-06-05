@@ -13,7 +13,7 @@ class NetworkTests {
     fun manyTCPConnections() {
 
         val t = thread(start = true) {
-            ServerRunner(NetProtocol.TCP)
+            ServerRunner(NetProtocol.TCP, 1000)
             Processor.waitForProcessorStop()
         }
 
@@ -31,7 +31,7 @@ class NetworkTests {
     fun manyUDPConnections() {
 
         val t = thread(start = true) {
-            ServerRunner(NetProtocol.UDP)
+            ServerRunner(NetProtocol.UDP, 1000)
             Processor.waitForProcessorStop()
         }
 

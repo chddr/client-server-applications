@@ -15,12 +15,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-class ServerRunner(type: NetProtocol = net.type) {
+class ServerRunner(type: NetProtocol = net.type, timeout: Int = net.SERVER_TIMEOUT) {
 
     private val stopFlag = AtomicBoolean(false)
     private var server: Server = when (type) {
-        NetProtocol.TCP -> ServerTCP()
-        NetProtocol.UDP -> ServerUDP()
+        NetProtocol.TCP -> ServerTCP(timeout)
+        NetProtocol.UDP -> ServerUDP(timeout)
     }
     private val service = Executors.newFixedThreadPool(SERVER_THREADS)
 
