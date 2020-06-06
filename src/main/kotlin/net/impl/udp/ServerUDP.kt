@@ -32,7 +32,7 @@ class ServerUDP(timeout: Int) : Server {
         }
     }
 
-    override fun stop() {
+    override fun close() {
         serverSocket.close()
     }
 

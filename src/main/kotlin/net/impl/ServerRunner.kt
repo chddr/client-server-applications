@@ -55,7 +55,7 @@ class ServerRunner(type: NetProtocol = net.type, timeout: Int = net.SERVER_TIMEO
 
     fun stop() {
         stopFlag.set(true)
-        server.stop()
+        server.close()
     }
 
 

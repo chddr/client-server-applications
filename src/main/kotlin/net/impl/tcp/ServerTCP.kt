@@ -14,7 +14,7 @@ class ServerTCP(timeout: Int): Server {
         return ServerThreadTCP(serverSocket.accept())
     }
 
-    override fun stop() {
+    override fun close() {
         serverSocket.close()
     }
 

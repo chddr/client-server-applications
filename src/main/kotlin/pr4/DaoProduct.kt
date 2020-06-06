@@ -1,11 +1,12 @@
 package pr4
 
 import pr4.entities.Product
+import java.io.Closeable
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
 
-class DaoProduct(db: String) {
+class DaoProduct(db: String): Closeable {
 
     private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 
@@ -116,24 +117,26 @@ class DaoProduct(db: String) {
         ).forEach { insert(it) }
     }
 
+    override fun close() = conn.close()
+
 }
 
 
 fun main() {
-    DaoProduct("file.db").run {
+    DaoProduct("file.db").use {
         val buckwheat = Product("buckwheat", 9.99)
         val rice = Product("rice", 13.0)
 
-        assert(get("buckwheat") != null)
-        assert(get("buckwheat1") == null)
+        assert(it.get("buckwheat") != null)
+        assert(it.get("buckwheat1") == null)
 
-        println(insert(buckwheat))
-        println(insert(rice))
+        println(it.insert(buckwheat))
+        println(it.insert(rice))
 
-        setPrice(1, 14.4)
+        it.setPrice(1, 14.4)
 
 
-        getList(0, 200).forEach { println(it) }
+        it.getList(0, 200).forEach { println(it) }
     }
 
 }

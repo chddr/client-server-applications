@@ -31,9 +31,9 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread() {
                 process(packet)
             } catch (e: Exception) {
                 when (e) {
-                    is SocketException -> stop()
-                    is SocketTimeoutException -> stop()
-                    is IOException -> stop()
+                    is SocketException -> close()
+                    is SocketTimeoutException -> close()
+                    is IOException -> close()
                     else -> {
                     }
                 }
@@ -43,7 +43,7 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread() {
 
     override fun send(packet: Packet) = socket.send(packet)
 
-    override fun stop() {
+    override fun close() {
         println("socket is closing")
         if (!socket.isClosed)
             socket.close()

@@ -57,7 +57,7 @@ class Processor(private val serverThread: ServerThread, private val packet: Pack
         serverThread.send(Message(cType, userID = 0, msg = msg))
 
         if (packet.msg.cType == RESPONSE_BYE.ordinal)
-            serverThread.stop()
+            serverThread.close()
         println("[[ENDED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread\n")
 
     }

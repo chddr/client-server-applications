@@ -3,8 +3,9 @@ package net.interfaces
 import net.impl.Processor
 import net.protocol.Message
 import net.protocol.Packet
+import java.io.Closeable
 
-abstract class ServerThread : Runnable {
+abstract class ServerThread : Runnable, Closeable {
 
     private var inCounter: Long = 0
     private var outCounter: Long = 0
@@ -29,6 +30,6 @@ abstract class ServerThread : Runnable {
     fun send(msg: Message) = send(Packet(0, outCounter++, msg))
 
     abstract fun send(packet: Packet)
-    abstract fun stop()
+    abstract override fun close()
     abstract fun processPackets()
 }

@@ -40,7 +40,7 @@ class ServerThreadUDP(private var socket: DatagramSocket, private var address: C
         packetQueue.add(p)
     }
 
-    override fun stop() {
+    override fun close() {
         stopFlag.set(true)
     }
 
