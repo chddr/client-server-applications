@@ -21,15 +21,15 @@ class DaoProduct(db: String): Closeable {
     /**
      * Inserts a product and returns it's id in the table if everything went ok, otherwise null
      */
-    fun insert(product: Product): Int? {
+    fun insert(product: Product): Int {
         return conn.prepareStatement("insert into products('name', 'price') values (?,?)").use {
-            it.runCatching {
+            it.run {
                 setString(1, product.name)
                 setDouble(2, product.price)
 
                 executeUpdate()
                 generatedKeys
-            }.getOrNull()?.getInt("last_insert_rowid()")
+            }.getInt("last_insert_rowid()")
         }
     }
 

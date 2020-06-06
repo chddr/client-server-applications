@@ -42,17 +42,15 @@ internal class DaoProductTest {
                 dao.isTaken(name)
         )
 
-        if (id != null) {
-            dao.delete(id)
+        dao.delete(id)
 
-            Assertions.assertFalse(
-                    dao.isTaken(name)
-            )
+        Assertions.assertFalse(
+                dao.isTaken(name)
+        )
 
-            Assertions.assertNull(
-                    dao.get(id)
-            )
-        }
+        Assertions.assertNull(
+                dao.get(id)
+        )
 
         dao.populate()
 
@@ -74,7 +72,7 @@ internal class DaoProductTest {
 
         Assertions.assertNull(dao.get(name))
 
-        val id = dao.insert(product) ?: return
+        val id = dao.insert(product)
 
         Assertions.assertNotNull(dao.get(name))
         Assertions.assertNotNull(dao.get(id))
