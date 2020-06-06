@@ -1,100 +1,139 @@
 package pr4
 
-import pr4.entities.Criteria
 import pr4.entities.Product
 import java.sql.Connection
 import java.sql.DriverManager
+import java.sql.ResultSet
 
-class DaoProduct(val db: String) {
+class DaoProduct(db: String) {
 
-    private val connection: Connection
+    private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 
     init {
-
-        Class.forName("org.sqlite.JDBC")
-        connection = DriverManager.getConnection("jdbc:sqlite:$db")
-
-        initTable()
-    }
-
-    private fun initTable() {
-        connection.createStatement().use {
+        conn.createStatement().use {
             it.execute(
-                    "create table if not exists 'products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' text not null, 'price' REAL not null, unique (name) )"
+                    "create table if not exists 'products' ('id' integer primary key autoincrement , 'name' text not null unique , 'price' real not null)"
             )
         }
     }
 
-    fun insertProduct(product: Product): Int {
-        connection.prepareStatement("insert into products('name', 'price') values (?,?)").use {
-            connection.autoCommit = false
+    /**
+     * Inserts a product and returns it's id in the table if everything went ok, otherwise null
+     */
+    fun insert(product: Product): Int? {
+        return conn.prepareStatement("insert into products('name', 'price') values (?,?)").use {
+            it.runCatching {
+                setString(1, product.name)
+                setDouble(2, product.price)
 
-            it.setString(1, product.name)
-            it.setDouble(2, product.price)
-
-            it.executeUpdate()
-
-            val res = it.generatedKeys
-
-            connection.commit()
-
-            return res.getInt("last_insert_rowid()")
+                executeUpdate()
+                generatedKeys
+            }.getOrNull()?.getInt("last_insert_rowid()")
         }
     }
 
-    fun getProductList(page: Int, size: Int, criteria: Criteria): ArrayList<Product> {
-        connection.createStatement().use {
-            val res = it.executeQuery(
-                    "select * from products LIMIT $size OFFSET ${page * size}"
-            )
+    fun getList(page: Int = 0, size: Int = 20): ArrayList<Product> {
+        if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
 
-            val products = ArrayList<Product>()
-
-            while (res.next()) {
-                products.add(
-                        Product(
-                                res.getInt("id"),
-                                res.getString("name"),
-                                res.getDouble("price")
-                        ))
+        return conn.createStatement().use {
+            it.executeQuery(
+                    "select * from products limit $size offset ${page * size}"
+            ).run {
+                ArrayList<Product>().also { prods ->
+                    while (next())
+                        prods.add(extractProduct())
+                }
             }
-
-            return products
         }
     }
 
-    fun checkIfTaken(prodName: String): Boolean {
-        connection.createStatement().use {
-            var res = it.executeQuery(
-                    "select count(*) as number_of_products from products where name = '$prodName'"
-            )
+    fun get(id: Int): Product? {
+        return conn.createStatement().use {
+            val res = it.executeQuery("select * from products where id = $id")
 
-            res.next()
-
-            return res.getInt("number_of_products") == 0
+            when {
+                res.next() -> res.extractProduct()
+                else -> null
+            }
         }
     }
+
+    fun get(name: String): Product? {
+        return conn.prepareStatement("select * from products where name = ?").use {
+            it.setString(1, name)
+            val res = it.executeQuery()
+
+            when {
+                res.next() -> res.extractProduct()
+                else -> null
+            }
+        }
+    }
+
+    fun delete(id: Int) {
+        conn.createStatement().use {
+            it.execute("delete from products where id = $id")
+        }
+    }
+
+    fun delete(name: String) {
+        conn.prepareStatement("delete from products where name = ?").use {
+            it.setString(1, name)
+            it.execute()
+        }
+    }
+
+    fun setPrice(id: Int, newPrice: Double) {
+        conn.prepareStatement("update products set price = ? WHERE id = ?").use {
+            it.setDouble(1, newPrice)
+            it.setInt(2, id)
+            it.execute()
+        }
+    }
+
+    fun isTaken(name: String) = get(name) != null
+
+    private fun ResultSet.extractProduct(): Product =
+            Product(getString("name"), getDouble("price"), getInt("id"))
 
     fun deleteAll() {
+        conn.createStatement().use {
+            it.execute("delete from products")
+        }
+    }
 
+    fun populate() {
+        listOf(
+                Product("buckwheat", 9.99),
+                Product("rice", 13.0),
+                Product("wheat", 2.0),
+                Product("tofu", 25.0),
+                Product("quinoa", 999.0),
+                Product("banana", 3.0),
+                Product("kale", 9.0),
+                Product("cabbage", 9.0)
+
+        ).forEach { insert(it) }
     }
 
 }
 
 
 fun main() {
-    val dao = DaoProduct("file.db")
+    DaoProduct("file.db").run {
+        val buckwheat = Product("buckwheat", 9.99)
+        val rice = Product("rice", 13.0)
 
-    val name = "grecha"
+        assert(get("buckwheat") != null)
+        assert(get("buckwheat1") == null)
 
-    for (i in 0..19) {
-        val product = Product("prod $i", i.toDouble())
-        val id = dao.insertProduct(product)
+        println(insert(buckwheat))
+        println(insert(rice))
+
+        setPrice(1, 14.4)
+
+
+        getList(0, 200).forEach { println(it) }
     }
 
-    dao.getProductList(0, 200, Criteria()).forEach{println(it)}
-
-    val criteria = Criteria()
-
-    println(dao.getProductList(0, 100))
 }
