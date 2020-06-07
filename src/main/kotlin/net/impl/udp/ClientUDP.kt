@@ -24,7 +24,7 @@ class ClientUDP(private val clientID: Byte) {
             val secondPacket = Packet(
                     clientID,
                     1,
-                    Message(Message.ClientCommands.CLIENT_BYE, 1, "bye"))
+                    Message(Message.ClientCommands.BYE, 1, "bye"))
 
             socket.send(packet, address)
             socket.receive()

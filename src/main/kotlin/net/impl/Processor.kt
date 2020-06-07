@@ -4,7 +4,9 @@ import net.PROCESSOR_THREADS
 import net.interfaces.ServerThread
 import net.protocol.Message
 import net.protocol.Message.ClientCommands
+import net.protocol.Message.ClientCommands.*
 import net.protocol.Message.ServerCommands.*
+import net.protocol.Message.ServerCommands.BYE
 import pr4.DaoProduct
 import pr4.DaoProduct.*
 import pr4.entities.Product
@@ -46,13 +48,13 @@ class Processor(private val serverThread: ServerThread, private val message: Mes
         val response = if (message.cType in ClientCommands)
             try {
                 when (ClientCommands[message.cType]) {
-                    ClientCommands.GET_PRODUCT_COUNT -> getProductCount(message)
-                    ClientCommands.ADD_GROUP -> internalErrorMessage() //TODO
-                    ClientCommands.ADD_PRODUCT -> addProduct(message)
-                    ClientCommands.INCREASE_PRODUCT_COUNT -> increaseProductCount(message)
-                    ClientCommands.DECREASE_PRODUCT_COUNT -> decreaseProductCount(message)
-                    ClientCommands.SET_PRODUCT_PRICE -> setProductPrice(message)
-                    ClientCommands.CLIENT_BYE -> byeMessage()
+                    GET_PRODUCT_COUNT -> getProductCount(message)
+                    ADD_GROUP -> internalErrorMessage() //TODO
+                    ADD_PRODUCT -> addProduct(message)
+                    INCREASE_PRODUCT_COUNT -> increaseProductCount(message)
+                    DECREASE_PRODUCT_COUNT -> decreaseProductCount(message)
+                    SET_PRODUCT_PRICE -> setProductPrice(message)
+                    ClientCommands.BYE -> byeMessage()
                 }
             } catch (e: Exception) {
                 internalErrorMessage()
@@ -62,8 +64,9 @@ class Processor(private val serverThread: ServerThread, private val message: Mes
 
         serverThread.send(response)
 
-        if (message.cType == BYE.ordinal)
+        if (message.cType == ClientCommands.BYE.ordinal) {
             serverThread.close()
+        }
         println("[[ENDED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread\n")
 
     }

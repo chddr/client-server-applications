@@ -6,7 +6,7 @@ import java.nio.charset.Charset
 class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
     enum class ClientCommands {
-        CLIENT_BYE ,GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE;
+        BYE ,GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE;
 
         companion object {
             operator fun contains(int: Int) = int in values().indices

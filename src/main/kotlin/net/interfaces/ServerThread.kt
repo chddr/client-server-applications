@@ -19,7 +19,7 @@ abstract class ServerThread : Runnable, Closeable {
                     0,
                     outCounter++,
                     Message(
-                            Message.ServerCommands.RESEND.ordinal,
+                            Message.ServerCommands.RESEND,
                             packet.msg.userID,
                             "Expected: $inCounter"
                     )
