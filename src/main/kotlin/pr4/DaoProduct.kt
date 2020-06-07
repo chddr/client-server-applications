@@ -141,7 +141,6 @@ class DaoProduct(db: String) : Closeable {
     fun addItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(id)) throw NoSuchIdException()
-        if (amount(id)!! < number) throw NotEnoughItemsException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity + $number WHERE id = $id ")
@@ -151,7 +150,6 @@ class DaoProduct(db: String) : Closeable {
     fun addItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(name)) throw NoSuchIdException()
-        if (amount(name)!! < number) throw NotEnoughItemsException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity + $number WHERE name = ?").use {
             it.setString(1, name)
@@ -162,6 +160,7 @@ class DaoProduct(db: String) : Closeable {
     fun removeItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(id)) throw NoSuchIdException()
+        if (amount(id)!! < number) throw NotEnoughItemsException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity - $number WHERE id = $id AND quantity >= $number")
@@ -171,6 +170,7 @@ class DaoProduct(db: String) : Closeable {
     fun removeItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(name)) throw NoSuchIdException()
+        if (amount(name)!! < number) throw NotEnoughItemsException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity - $number WHERE name = ? AND quantity >= $number").use {
             it.setString(1, name)
