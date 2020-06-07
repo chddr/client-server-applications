@@ -73,7 +73,7 @@ class ServerRunner(type: NetProtocol = net.type, timeout: Int = net.SERVER_TIMEO
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            ServerRunner(NetProtocol.UDP)
+            ServerRunner(NetProtocol.TCP)
             Processor.waitForProcessorStop()
         }
     }

@@ -1,6 +1,5 @@
 
 import net.NetProtocol
-import net.impl.Processor
 import net.impl.ServerRunner
 import net.impl.tcp.ClientTCP
 import net.impl.udp.ClientUDP
@@ -14,10 +13,9 @@ class NetworkTests {
 
         val t = thread(start = true) {
             ServerRunner(NetProtocol.TCP, 1000)
-            Processor.waitForProcessorStop()
         }
 
-        repeat(10) {
+        repeat(100) {
             thread {
                 ClientTCP(0)//should be successful if no exceptions are thrown
             }
@@ -32,10 +30,9 @@ class NetworkTests {
 
         val t = thread(start = true) {
             ServerRunner(NetProtocol.UDP, 1000)
-            Processor.waitForProcessorStop()
         }
 
-        repeat(10) {
+        repeat(100) {
             thread {
                 ClientUDP(0)//should be successful if no exceptions are thrown
             }

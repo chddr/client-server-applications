@@ -6,6 +6,7 @@ import net.protocol.Message
 import net.protocol.Packet
 import java.net.InetAddress
 import java.net.Socket
+import kotlin.concurrent.thread
 
 class ClientTCP(private val clientID: Byte) {
     init {
@@ -31,7 +32,9 @@ class ClientTCP(private val clientID: Byte) {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            ClientTCP(0)
+            repeat(100){
+                thread { ClientTCP(0) }
+            }
         }
     }
 }
