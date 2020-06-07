@@ -43,7 +43,7 @@ internal class DaoProductTest {
 
         sampleList.forEach {
             assertTrue(
-                    dao.isTaken(it.name)
+                    dao.productExists(it.name)
             )
             assertTrue(
                     retrievedList.contains(it)
@@ -127,13 +127,13 @@ internal class DaoProductTest {
         val id = dao.insert(product)
 
         assertTrue(
-                dao.isTaken(name)
+                dao.productExists(name)
         )
 
         dao.delete(id)
 
         assertFalse(
-                dao.isTaken(name)
+                dao.productExists(name)
         )
 
         assertNull(
@@ -224,10 +224,10 @@ internal class DaoProductTest {
 
         dao.insert(Product(name, 0.0))
         assertTrue(
-                dao.isTaken(name)
+                dao.productExists(name)
         )
         assertFalse(
-                dao.isTaken(name + "12414")
+                dao.productExists(name + "12414")
         )
     }
 

@@ -3,14 +3,19 @@ package net.protocol
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
-class Message(val cType: Int, val userID: Int, val msg: String) {
+class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
-    enum class ClientCommandTypes {
-        CLIENT_HELLO, CLIENT_BYE ,GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT_TO_GROUP, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE
+    enum class ClientCommands {
+        CLIENT_BYE ,GET_PRODUCT_COUNT, ADD_GROUP, ADD_PRODUCT_TO_GROUP, INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT, SET_PRODUCT_PRICE;
+
+        companion object {
+            operator fun contains(int: Int) = int in values().indices
+            operator fun get(cType: Int) = values()[cType]
+        }
     }
 
-    enum class ServerCommandTypes {
-        RESPONSE_OK, RESPONSE_BYE, RESPONSE_RESEND
+    enum class ServerCommands {
+        OK, BYE, RESEND, INTERNAL_ERROR, WRONG_COMMAND, ERROR, NO_SUCH_PRODUCT, ID_PRODUCT_COUNT
     }
 
     constructor(data: ByteArray) : this(
@@ -19,7 +24,8 @@ class Message(val cType: Int, val userID: Int, val msg: String) {
             msg = data.copyOfRange(8, data.size).toString(Charset.defaultCharset())
     )
 
-    constructor(cType: ClientCommandTypes, userID: Int, msg: String) : this(cType.ordinal, userID, msg)
+    constructor(cType: ClientCommands, userID: Int = 0, msg: String) : this(cType.ordinal, userID, msg)
+    constructor(cType: ServerCommands, userID: Int = 0, msg: String) : this(cType.ordinal, userID, msg)
 
     fun toBytes(): ByteArray =
             ByteBuffer.allocate(4 + 4 + msg.length)
@@ -44,6 +50,14 @@ class Message(val cType: Int, val userID: Int, val msg: String) {
 
         return true
     }
+
+    override fun hashCode(): Int {
+        var result = cType
+        result = 31 * result + userID
+        result = 31 * result + msg.hashCode()
+        return result
+    }
+
 
     companion object {
         private val MSG_MAX_SIZE = 256

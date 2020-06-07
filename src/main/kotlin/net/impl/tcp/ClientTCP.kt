@@ -14,11 +14,11 @@ class ClientTCP(private val clientID: Byte) {
             val packet = Packet(
                     clientID,
                     0,
-                    Message(Message.ClientCommandTypes.CLIENT_HELLO, 1, "hello"))
+                    Message(Message.ClientCommands.ADD_PRODUCT_TO_GROUP, 1, "hello"))
             val secondPacket = Packet(
                     clientID,
                     1,
-                    Message(Message.ClientCommandTypes.CLIENT_BYE, 1, "bye"))
+                    Message(Message.ClientCommands.CLIENT_BYE, 1, "bye"))
 
             socket.send(packet)
             socket.receive()

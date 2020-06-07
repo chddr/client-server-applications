@@ -2,7 +2,7 @@
 import net.protocol.BadDataException
 import net.protocol.EncryptorDecryptor
 import net.protocol.Message
-import net.protocol.Message.ClientCommandTypes.ADD_PRODUCT_TO_GROUP
+import net.protocol.Message.ClientCommands.ADD_PRODUCT_TO_GROUP
 import net.protocol.Packet
 import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Assertions

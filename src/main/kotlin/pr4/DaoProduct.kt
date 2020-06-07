@@ -9,6 +9,8 @@ import java.sql.ResultSet
 
 class DaoProduct(db: String) : Closeable {
 
+    class NoSuchIdException : Exception()
+
     private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 
     init {
@@ -104,12 +106,16 @@ class DaoProduct(db: String) : Closeable {
     }
 
     fun delete(id: Int) {
+        if (!productExists(id)) throw NoSuchIdException()
+
         conn.createStatement().use {
             it.execute("DELETE FROM products WHERE id = $id")
         }
     }
 
     fun delete(name: String) {
+        if (!productExists(name)) throw NoSuchIdException()
+
         conn.prepareStatement("DELETE FROM products WHERE name = ?").use {
             it.setString(1, name)
             it.execute()
@@ -117,15 +123,19 @@ class DaoProduct(db: String) : Closeable {
     }
 
     fun setPrice(id: Int, newPrice: Double) {
+        if (!productExists(id)) throw NoSuchIdException()
+
         conn.prepareStatement("UPDATE products SET price =  ? WHERE id = ?").use {
             it.setDouble(1, newPrice)
             it.setInt(2, id)
-            it.execute()
+
+            it.executeUpdate()
         }
     }
 
     fun addItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
+        if (!productExists(id)) throw NoSuchIdException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity + $number WHERE id = $id ")
@@ -134,6 +144,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun addItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
+        if (!productExists(name)) throw NoSuchIdException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity + $number WHERE name = ?").use {
             it.setString(1, name)
@@ -143,6 +154,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun removeItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
+        if (!productExists(id)) throw NoSuchIdException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity - $number WHERE id = $id AND quantity >= $number")
@@ -151,6 +163,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun removeItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
+        if (!productExists(name)) throw NoSuchIdException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity - $number WHERE name = ? AND quantity >= $number").use {
             it.setString(1, name)
@@ -181,7 +194,23 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun isTaken(name: String) = get(name) != null
+    fun productExists(name: String): Boolean {
+        return conn.prepareStatement("select count(*) as product_quantity from products where name = ?").use {
+            it.setString(1, name)
+
+            val res = it.executeQuery()
+            res.next()
+            res.getInt("product_quantity") != 0
+        }
+    }
+
+    fun productExists(id: Int): Boolean {
+        return conn.createStatement().use {
+            val res = it.executeQuery("select count(*) as product_quantity from products where id = $id")
+            res.next()
+            res.getInt("product_quantity") != 0
+        }
+    }
 
     private fun ResultSet.extractProduct() = Product(getString("name"), getDouble("price"), getInt("id"), getInt("quantity"))
 
@@ -192,7 +221,6 @@ class DaoProduct(db: String) : Closeable {
     }
 
     override fun close() = conn.close()
-
 }
 
 fun main() {
@@ -202,8 +230,8 @@ fun main() {
         println(it.insert(buckwheat))
         println(it.insert(rice))
 
-        assert(it.isTaken("buckwheat"))
-        assert(!it.isTaken("buckwheat1"))
+        assert(it.productExists("buckwheat"))
+        assert(!it.productExists("buckwheat1"))
 
 
         it.getList(0, 200).forEach { println(it) }

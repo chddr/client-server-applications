@@ -13,13 +13,13 @@ abstract class ServerThread : Runnable, Closeable {
     fun process(packet: Packet) {
         if (packet.msgID == inCounter) {
             inCounter++
-            Processor.process(this, packet)
+            Processor.process(this, packet.msg)
         } else {
             send(Packet(
                     0,
                     outCounter++,
                     Message(
-                            Message.ServerCommandTypes.RESPONSE_RESEND.ordinal,
+                            Message.ServerCommands.RESEND.ordinal,
                             packet.msg.userID,
                             "Expected: $inCounter"
                     )
