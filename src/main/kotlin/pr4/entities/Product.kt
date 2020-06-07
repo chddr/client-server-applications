@@ -1,6 +1,6 @@
 package pr4.entities
 
-data class Product(val name: String, val price: Double, val id: Int? = null) {
+data class Product(val name: String, val price: Double, val id: Int? = null, val number: Int? = null) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

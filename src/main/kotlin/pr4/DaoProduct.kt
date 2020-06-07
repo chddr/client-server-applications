@@ -14,7 +14,7 @@ class DaoProduct(db: String) : Closeable {
     init {
         conn.createStatement().use {
             it.execute(
-                    "create table if not exists 'products' ('id' integer primary key autoincrement , 'name' text not null unique , 'price' real not null)"
+                    "CREATE TABLE IF NOT EXISTS 'products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE , 'price' REAL NOT NULL, 'quantity' INTEGER NOT NULL DEFAULT 0)"
             )
         }
     }
@@ -41,7 +41,7 @@ class DaoProduct(db: String) : Closeable {
             val conditions = generateWhereClause(criterion)
             val query = "SELECT * FROM products $conditions LIMIT $size OFFSET ${page * size}"
 
-            println(query)
+//            println(query)
             it.executeQuery(query).run {
                 ArrayList<Product>().also { prods ->
                     while (next())
@@ -60,7 +60,6 @@ class DaoProduct(db: String) : Closeable {
         ).ifEmpty { return "" }.joinToString(" AND ")
 
         return "WHERE $conditions"
-
     }
 
     //TODO not sql-injection safe
@@ -118,21 +117,77 @@ class DaoProduct(db: String) : Closeable {
     }
 
     fun setPrice(id: Int, newPrice: Double) {
-        conn.prepareStatement("UPDATE products SET price = ? WHERE id = ?").use {
+        conn.prepareStatement("UPDATE products SET price =  ? WHERE id = ?").use {
             it.setDouble(1, newPrice)
             it.setInt(2, id)
             it.execute()
         }
     }
 
+    fun addItems(id: Int, number: Int) {
+        if (number <= 0) throw IllegalArgumentException("Must be positive")
+
+        conn.createStatement().use {
+            it.execute("UPDATE products SET quantity = quantity + $number WHERE id = $id ")
+        }
+    }
+
+    fun addItems(name: String, number: Int) {
+        if (number <= 0) throw IllegalArgumentException("Must be positive")
+
+        conn.prepareStatement("UPDATE products SET quantity = quantity + $number WHERE name = ?").use {
+            it.setString(1, name)
+            it.execute()
+        }
+    }
+
+    fun removeItems(id: Int, number: Int) {
+        if (number <= 0) throw IllegalArgumentException("Must be positive")
+
+        conn.createStatement().use {
+            it.execute("UPDATE products SET quantity = quantity - $number WHERE id = $id AND quantity >= $number")
+        }
+    }
+
+    fun removeItems(name: String, number: Int) {
+        if (number <= 0) throw IllegalArgumentException("Must be positive")
+
+        conn.prepareStatement("UPDATE products SET quantity = quantity - $number WHERE name = ? AND quantity >= $number").use {
+            it.setString(1, name)
+            it.execute()
+        }
+    }
+
+    fun amount(id: Int): Int? {
+        return conn.createStatement().use {
+            it.executeQuery("SELECT quantity FROM products WHERE id = $id").run {
+                when {
+                    next() -> getInt("quantity")
+                    else -> null
+                }
+            }
+        }
+    }
+
+    fun amount(name: String): Int? {
+        return conn.prepareStatement("SELECT quantity FROM products WHERE name = ?").use {
+            it.setString(1, name)
+            it.executeQuery().run {
+                when {
+                    next() -> getInt("quantity")
+                    else -> null
+                }
+            }
+        }
+    }
+
     fun isTaken(name: String) = get(name) != null
 
-    private fun ResultSet.extractProduct(): Product =
-            Product(getString("name"), getDouble("price"), getInt("id"))
+    private fun ResultSet.extractProduct() = Product(getString("name"), getDouble("price"), getInt("id"), getInt("quantity"))
 
     fun deleteAll() {
         conn.createStatement().use {
-            it.execute("delete from products")
+            it.execute("DELETE FROM products")
         }
     }
 
@@ -142,14 +197,14 @@ class DaoProduct(db: String) : Closeable {
 
 fun main() {
     DaoProduct("file.db").use {
-//        val buckwheat = Product("buckwheat", 9.99)
-//        val rice = Product("rice", 13.0)
+        val buckwheat = Product("buckwheat", 9.99)
+        val rice = Product("rice", 13.0)
+        println(it.insert(buckwheat))
+        println(it.insert(rice))
 
         assert(it.isTaken("buckwheat"))
         assert(!it.isTaken("buckwheat1"))
 
-        //println(it.insert(buckwheat))
-        //println(it.insert(rice))
 
         it.getList(0, 200).forEach { println(it) }
     }

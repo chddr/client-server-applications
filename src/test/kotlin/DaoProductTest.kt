@@ -150,6 +150,34 @@ internal class DaoProductTest {
     }
 
     @Test
+    fun numberTesting() {
+        val name = "buckwheat"
+        assertEquals(dao.amount(name), 0)
+
+        val increment = 41
+        dao.addItems(name, increment)
+
+        assertEquals(dao.amount(name), increment)
+
+        val decrement = 13
+        dao.removeItems(name, decrement)
+
+        assertEquals(dao.amount(name), increment - decrement)
+
+        assertNull(dao.amount("non-existent product"))
+        assertNull(dao.amount(-1))
+
+    }
+
+    @Test
+    fun numberThrows() {
+        assertThrows(IllegalArgumentException::class.java) {dao.addItems(0,0)}
+        assertThrows(IllegalArgumentException::class.java) {dao.addItems("",0)}
+        assertThrows(IllegalArgumentException::class.java) {dao.removeItems(0,0)}
+        assertThrows(IllegalArgumentException::class.java) {dao.removeItems("",0)}
+    }
+
+    @Test
     fun get() {
         val name = "sandwich"
         val price = 34.0
