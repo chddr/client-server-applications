@@ -1,4 +1,4 @@
-package net.protocol
+package protocol
 
 object CRC16 {
     private val table = intArrayOf(

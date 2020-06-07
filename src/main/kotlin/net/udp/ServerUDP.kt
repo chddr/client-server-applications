@@ -1,9 +1,9 @@
-package net.impl.udp
+package net.udp
 
-import net.impl.udp.UtilsUDP.ClientAddress
-import net.impl.udp.UtilsUDP.receiveDatagram
-import net.interfaces.Server
-import net.interfaces.ServerThread
+import net.udp.UtilsUDP.ClientAddress
+import net.udp.UtilsUDP.receiveDatagram
+import net.common.Server
+import net.common.ServerThread
 import java.net.DatagramSocket
 
 class ServerUDP(timeout: Int) : Server {

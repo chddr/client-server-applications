@@ -1,11 +1,11 @@
-package net.impl
+package net.common
 
 import net.NetProtocol
 import net.SERVER_THREADS
-import net.impl.Processor.Companion.waitForStop
-import net.impl.tcp.ServerTCP
-import net.impl.udp.ServerUDP
-import net.interfaces.Server
+import net.SERVER_TIMEOUT
+import net.common.Processor.Companion.waitForStop
+import net.tcp.ServerTCP
+import net.udp.ServerUDP
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -15,7 +15,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-class ServerRunner(type: NetProtocol = net.type, timeout: Int = net.SERVER_TIMEOUT) {
+class ServerRunner(type: NetProtocol = net.type, timeout: Int = SERVER_TIMEOUT) {
 
     private val stopFlag = AtomicBoolean(false)
     private var server: Server = when (type) {

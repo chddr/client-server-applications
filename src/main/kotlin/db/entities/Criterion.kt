@@ -1,4 +1,4 @@
-package pr4.entities
+package db.entities
 
 class Criterion(var query: String? = null, var ids: Set<Int>? = null, var lower: Double? = null, var upper: Double? = null) {
 

@@ -1,15 +1,14 @@
-package net.impl
+package net.common
 
 import net.PROCESSOR_THREADS
-import net.interfaces.ServerThread
-import net.protocol.Message
-import net.protocol.Message.ClientCommands
-import net.protocol.Message.ClientCommands.*
-import net.protocol.Message.ServerCommands.*
-import net.protocol.Message.ServerCommands.BYE
-import pr4.DaoProduct
-import pr4.DaoProduct.*
-import pr4.entities.Product
+import protocol.Message
+import protocol.Message.ClientCommands
+import protocol.Message.ClientCommands.*
+import protocol.Message.ServerCommands.*
+import protocol.Message.ServerCommands.BYE
+import db.DaoProduct
+import db.DaoProduct.*
+import db.entities.Product
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit

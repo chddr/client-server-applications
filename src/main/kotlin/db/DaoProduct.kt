@@ -1,7 +1,7 @@
-package pr4
+package db
 
-import pr4.entities.Criterion
-import pr4.entities.Product
+import db.entities.Criterion
+import db.entities.Product
 import java.io.Closeable
 import java.sql.Connection
 import java.sql.DriverManager

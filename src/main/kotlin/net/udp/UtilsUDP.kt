@@ -1,6 +1,6 @@
-package net.impl.udp
+package net.udp
 
-import net.protocol.Packet
+import protocol.Packet
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress

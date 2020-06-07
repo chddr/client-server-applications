@@ -1,8 +1,7 @@
-package net.interfaces
+package net.common
 
-import net.impl.Processor
-import net.protocol.Message
-import net.protocol.Packet
+import protocol.Message
+import protocol.Packet
 import java.io.Closeable
 
 abstract class ServerThread : Runnable, Closeable {

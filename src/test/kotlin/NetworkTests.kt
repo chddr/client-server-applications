@@ -1,8 +1,8 @@
 
 import net.NetProtocol
-import net.impl.ServerRunner
-import net.impl.tcp.ClientTCP
-import net.impl.udp.ClientUDP
+import net.common.ServerRunner
+import net.tcp.ClientTCP
+import net.udp.ClientUDP
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 

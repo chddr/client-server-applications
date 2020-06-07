@@ -1,4 +1,4 @@
-package net.interfaces
+package net.common
 
 import java.io.Closeable
 import java.io.IOException

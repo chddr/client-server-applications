@@ -1,12 +1,12 @@
-package net.impl.udp
+package net.udp
 
 import net.HOST
 import net.SERVER_PORT
-import net.impl.udp.UtilsUDP.ClientAddress
-import net.impl.udp.UtilsUDP.receive
-import net.impl.udp.UtilsUDP.send
-import net.protocol.Message
-import net.protocol.Packet
+import net.udp.UtilsUDP.ClientAddress
+import net.udp.UtilsUDP.receive
+import net.udp.UtilsUDP.send
+import protocol.Message
+import protocol.Packet
 import java.net.DatagramSocket
 import java.net.InetAddress
 

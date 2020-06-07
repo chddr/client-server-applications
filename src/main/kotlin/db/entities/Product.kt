@@ -1,4 +1,4 @@
-package pr4.entities
+package db.entities
 
 data class Product(val name: String, val price: Double, val id: Int? = null, val number: Int? = null) {
 

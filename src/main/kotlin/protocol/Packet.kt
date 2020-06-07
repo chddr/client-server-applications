@@ -1,4 +1,4 @@
-package net.protocol
+package protocol
 
 class Packet(val clientID: Byte, val msgID: Long, val msg: Message) {
 

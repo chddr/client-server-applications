@@ -3,9 +3,9 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import pr4.DaoProduct
-import pr4.entities.Criterion
-import pr4.entities.Product
+import db.DaoProduct
+import db.entities.Criterion
+import db.entities.Product
 
 internal class DaoProductTest {
 

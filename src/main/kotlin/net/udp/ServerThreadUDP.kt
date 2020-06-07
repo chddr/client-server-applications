@@ -1,10 +1,10 @@
-package net.impl.udp
+package net.udp
 
-import net.impl.udp.UtilsUDP.ClientAddress
-import net.impl.udp.UtilsUDP.send
-import net.impl.udp.UtilsUDP.validate
-import net.interfaces.ServerThread
-import net.protocol.Packet
+import net.udp.UtilsUDP.ClientAddress
+import net.udp.UtilsUDP.send
+import net.udp.UtilsUDP.validate
+import net.common.ServerThread
+import protocol.Packet
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.util.concurrent.LinkedBlockingQueue

@@ -1,7 +1,7 @@
-package net.impl.tcp
+package net.tcp
 
-import net.interfaces.Server
-import net.interfaces.ServerThread
+import net.common.Server
+import net.common.ServerThread
 import java.net.ServerSocket
 
 class ServerTCP(timeout: Int): Server {
