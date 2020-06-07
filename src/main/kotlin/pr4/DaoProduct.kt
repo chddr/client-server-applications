@@ -10,6 +10,8 @@ import java.sql.ResultSet
 class DaoProduct(db: String) : Closeable {
 
     class NoSuchIdException : Exception()
+    class NotEnoughItemsException : Exception()
+    class NameTakenException : Exception()
 
     private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 
@@ -25,6 +27,8 @@ class DaoProduct(db: String) : Closeable {
      * Inserts a product and returns it's id in the table if everything went ok, otherwise null
      */
     fun insert(product: Product): Int {
+        if(productExists(product.name)) throw NameTakenException()
+
         return conn.prepareStatement("INSERT INTO products('name', 'price') VALUES (?,?)").use {
             it.run {
                 setString(1, product.name)
@@ -123,6 +127,7 @@ class DaoProduct(db: String) : Closeable {
     }
 
     fun setPrice(id: Int, newPrice: Double) {
+        if (!newPrice.isFinite() || newPrice <= 0) throw IllegalArgumentException("Price is wrong")
         if (!productExists(id)) throw NoSuchIdException()
 
         conn.prepareStatement("UPDATE products SET price =  ? WHERE id = ?").use {
@@ -136,6 +141,7 @@ class DaoProduct(db: String) : Closeable {
     fun addItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(id)) throw NoSuchIdException()
+        if (amount(id)!! < number) throw NotEnoughItemsException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity + $number WHERE id = $id ")
@@ -145,6 +151,7 @@ class DaoProduct(db: String) : Closeable {
     fun addItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(name)) throw NoSuchIdException()
+        if (amount(name)!! < number) throw NotEnoughItemsException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity + $number WHERE name = ?").use {
             it.setString(1, name)

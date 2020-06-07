@@ -20,7 +20,7 @@ class ClientUDP(private val clientID: Byte) {
             val packet = Packet(
                     clientID,
                     0,
-                    Message(Message.ClientCommands.ADD_PRODUCT_TO_GROUP, 1, "hello"))
+                    Message(Message.ClientCommands.ADD_PRODUCT, 1, "test:9.42"))
             val secondPacket = Packet(
                     clientID,
                     1,
