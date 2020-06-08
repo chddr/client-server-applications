@@ -1,9 +1,9 @@
 package net.udp
 
+import net.common.ServerThread
 import net.udp.UtilsUDP.ClientAddress
 import net.udp.UtilsUDP.send
 import net.udp.UtilsUDP.validate
-import net.common.ServerThread
 import protocol.Packet
 import java.net.DatagramPacket
 import java.net.DatagramSocket
@@ -41,6 +41,7 @@ class ServerThreadUDP(private var socket: DatagramSocket, private var address: C
     }
 
     override fun close() {
+        super.close()
         stopFlag.set(true)
     }
 

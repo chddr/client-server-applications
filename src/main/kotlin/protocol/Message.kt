@@ -7,7 +7,7 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
     enum class ClientCommands {
 
-        GET_PRODUCT, GET_TIME, GET_GROUP_NAME,
+        GET_PRODUCT, GET_TIME, GET_GROUP,
         ADD_GROUP, ADD_PRODUCT,
         //REMOVE_PRODUCT, REMOVE GROUP,
         CHANGE_PRODUCT_NAME, CHANGE_GROUP_NAME, SET_PRODUCT_PRICE,
@@ -22,8 +22,10 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
     enum class ServerCommands {
         OK, BYE, RESEND,
-        INTERNAL_ERROR, WRONG_COMMAND, ERROR, NO_SUCH_PRODUCT,
-        PRODUCT, ID, SERVER_TIME, GROUP
+        INTERNAL_ERROR, WRONG_COMMAND, NO_SUCH_ID_ERROR, NAME_TAKEN_ERROR, WRONG_MESSAGE_FORMAT_ERROR,
+        NOT_ENOUGH_ITEMS_ERROR, WRONG_NAME_ERROR,
+        GENERIC_ERROR,
+        PRODUCT, SERVER_TIME, GROUP
     }
 
     constructor(data: ByteArray) : this(

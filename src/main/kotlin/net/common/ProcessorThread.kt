@@ -1,11 +1,12 @@
 package net.common
 
 import db.DaoProduct.*
+import net.common.ProcessorUtils.MessageGenerators.addGroup
 import net.common.ProcessorUtils.MessageGenerators.addProduct
 import net.common.ProcessorUtils.MessageGenerators.changeGroupName
 import net.common.ProcessorUtils.MessageGenerators.changeProductName
 import net.common.ProcessorUtils.MessageGenerators.decreaseProductCount
-import net.common.ProcessorUtils.MessageGenerators.getGroupName
+import net.common.ProcessorUtils.MessageGenerators.getGroup
 import net.common.ProcessorUtils.MessageGenerators.getProduct
 import net.common.ProcessorUtils.MessageGenerators.increaseProductCount
 import net.common.ProcessorUtils.MessageGenerators.setProductPrice
@@ -17,6 +18,7 @@ import net.common.ProcessorUtils.Messages.notEnoughItemsMessage
 import net.common.ProcessorUtils.Messages.timeMessage
 import net.common.ProcessorUtils.Messages.wrongCommand
 import net.common.ProcessorUtils.Messages.wrongMsgFormatMessage
+import net.common.ProcessorUtils.Messages.wrongNameFormatMessage
 import net.common.ProcessorUtils.Parser.ParseException
 import protocol.Message
 import protocol.Message.ClientCommands
@@ -57,6 +59,8 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         is NoSuchGroupIdException -> noSuchIdMessage()
         is NameTakenException -> nameTakenMessage()
         is ParseException -> wrongMsgFormatMessage()
+        is WrongNameFormatException -> wrongNameFormatMessage()
+        is IllegalArgumentException -> wrongMsgFormatMessage()
         else -> internalErrorMessage()
     }
 
@@ -65,7 +69,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             GET_PRODUCT ->
                 getProduct(message)
             ADD_GROUP ->
-                internalErrorMessage() //TODO
+                addGroup(message)
             ADD_PRODUCT ->
                 addProduct(message)
             INCREASE_PRODUCT_COUNT ->
@@ -78,8 +82,8 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
                 byeMessage()
             GET_TIME ->
                 timeMessage()
-            GET_GROUP_NAME ->
-                getGroupName(message)
+            GET_GROUP ->
+                getGroup(message)
             CHANGE_PRODUCT_NAME ->
                 changeProductName(message)
             CHANGE_GROUP_NAME ->

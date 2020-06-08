@@ -6,13 +6,12 @@ import net.common.Processor.db
 import net.common.ProcessorUtils.Messages.groupMessage
 import net.common.ProcessorUtils.Messages.productMessage
 import net.common.ProcessorUtils.Parser.id
-import net.common.ProcessorUtils.Parser.idAndFloat
+import net.common.ProcessorUtils.Parser.idAndDouble
 import net.common.ProcessorUtils.Parser.idAndInt
 import net.common.ProcessorUtils.Parser.idAndName
 import net.common.ProcessorUtils.Parser.product
 import protocol.Message
-import protocol.Message.ServerCommands
-import protocol.Message.ServerCommands.ID
+import protocol.Message.ServerCommands.*
 import java.time.LocalTime
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
@@ -28,7 +27,7 @@ object ProcessorUtils {
     }
 
     object MessageGenerators {
-        fun getGroupName(message: Message): Message {
+        fun getGroup(message: Message): Message {
             val id = message.msg.id()
             val group = db.getGroup(id)
             return groupMessage(group)
@@ -37,14 +36,15 @@ object ProcessorUtils {
         fun addProduct(message: Message): Message {
             val prod = message.msg.product()
             val id = db.insertProduct(prod)
-            return Message(ID, msg = "$id")
+            val product = db.getProduct(id)
+            return productMessage(product)
         }
 
-
         fun setProductPrice(message: Message): Message {
-            val (id, price) = message.msg.idAndFloat()
+            val (id, price) = message.msg.idAndDouble()
             db.setPrice(id, price)
-            return Message(ServerCommands.OK, msg = "OK")
+            val product = db.getProduct(id)
+            return productMessage(product)
         }
 
         fun decreaseProductCount(message: Message): Message {
@@ -81,6 +81,13 @@ object ProcessorUtils {
             return groupMessage(group)
         }
 
+        fun addGroup(message: Message): Message {
+            val name = message.msg
+            val id = db.addGroup(name)
+            val group = db.getGroup(id)
+            return groupMessage(group)
+        }
+
 
     }
 
@@ -97,8 +104,8 @@ object ProcessorUtils {
 
         fun String.idAndName(): Pair<Int, String> {
             return try {
-                split(",").also {
-                    assert(it.size != 2)
+                split(":").map { it.trim() }.also {
+                    assert(it.size == 2)
                 }.run { first().toInt() to last() }
             } catch (e: Throwable) {
                 throw ParseException(e)
@@ -107,18 +114,18 @@ object ProcessorUtils {
 
         fun String.idAndInt(): Pair<Int, Int> {
             return try {
-                split(",").also {
-                    assert(it.size != 2)
+                split(":").map { it.trim() }.also {
+                    assert(it.size == 2)
                 }.map(String::toInt).run { first() to last() }
             } catch (e: Throwable) {
                 throw ParseException(e)
             }
         }
 
-        fun String.idAndFloat(): Pair<Int, Double> {
+        fun String.idAndDouble(): Pair<Int, Double> {
             return try {
-                split(",").also {
-                    assert(it.size != 2)
+                split(":").map { it.trim() }.also {
+                    assert(it.size == 2)
                 }.run { first().toInt() to last().toDouble() }
             } catch (e: Throwable) {
                 throw ParseException(e)
@@ -127,8 +134,8 @@ object ProcessorUtils {
 
         fun String.product(): Product {
             return try {
-                split(",").also {
-                    assert(it.size != 2)
+                split(":").map { it.trim() }.also {
+                    assert(it.size == 2)
                 }.run { Product(first(), last().toDouble()) }
             } catch (e: Throwable) {
                 throw ParseException(e)
@@ -137,15 +144,16 @@ object ProcessorUtils {
     }
 
     object Messages {
-        fun timeMessage() = Message(ServerCommands.SERVER_TIME, msg = "Time is: ${LocalTime.now()}")
-        fun notEnoughItemsMessage() = Message(ServerCommands.ERROR, msg = "Not enough items to remove")
-        fun productMessage(product: Product) = Message(ServerCommands.PRODUCT, msg = "$product")
-        fun groupMessage(group: Group): Message = Message(ServerCommands.GROUP, msg = "$group")
-        fun internalErrorMessage() = Message(ServerCommands.INTERNAL_ERROR, msg = "Report to the dev!")
-        fun wrongMsgFormatMessage() = Message(ServerCommands.ERROR, msg = "Wrong message format")
-        fun noSuchIdMessage() = Message(ServerCommands.NO_SUCH_PRODUCT, msg = "No such ID in table")
-        fun wrongCommand() = Message(ServerCommands.WRONG_COMMAND, msg = "")
-        fun byeMessage() = Message(ServerCommands.BYE, msg = "Bye!")
-        fun nameTakenMessage() = Message(ServerCommands.ERROR, msg = "Name is already taken")
+        fun timeMessage() = Message(SERVER_TIME, msg = "Time is: ${LocalTime.now()}")
+        fun notEnoughItemsMessage() = Message(NOT_ENOUGH_ITEMS_ERROR, msg = "Not enough items to remove")
+        fun productMessage(product: Product) = Message(PRODUCT, msg = "$product")
+        fun groupMessage(group: Group): Message = Message(GROUP, msg = "$group")
+        fun internalErrorMessage() = Message(INTERNAL_ERROR, msg = "Report to the dev!")
+        fun wrongMsgFormatMessage() = Message(WRONG_MESSAGE_FORMAT_ERROR, msg = "Wrong message format")
+        fun noSuchIdMessage() = Message(NO_SUCH_ID_ERROR, msg = "No such ID in table")
+        fun wrongCommand() = Message(WRONG_COMMAND, msg = "")
+        fun byeMessage() = Message(BYE, msg = "Bye!")
+        fun wrongNameFormatMessage() = Message(WRONG_NAME_ERROR, msg = "Name you entered is in wrong format")
+        fun nameTakenMessage() = Message(NAME_TAKEN_ERROR, msg = "Name is already taken")
     }
 }

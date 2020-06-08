@@ -15,6 +15,7 @@ class DaoProduct(db: String) : Closeable {
     class NoSuchGroupIdException : DBException()
     class NotEnoughItemsException : DBException()
     class NameTakenException : DBException()
+    class WrongNameFormatException : DBException()
 
     private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 
@@ -30,6 +31,7 @@ class DaoProduct(db: String) : Closeable {
      */
     fun insertProduct(product: Product): Int {
         if (productExists(product.name)) throw NameTakenException()
+        if (!checkName(product.name)) throw WrongNameFormatException()
 
         return conn.prepareStatement("INSERT INTO products('name', 'price') VALUES (?,?)").use {
             it.run {
@@ -44,6 +46,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun addGroup(name: String): Int {
         if (groupExists(name)) throw NameTakenException()
+        if (!checkName(name)) throw WrongNameFormatException()
 
         return conn.prepareStatement("INSERT INTO groups('name') VALUES (?)").use {
             it.run {
@@ -182,6 +185,7 @@ class DaoProduct(db: String) : Closeable {
     fun changeProductName(id: Int, name: String) {
         if (productExists(name)) throw NameTakenException()
         if (!productExists(id)) throw NoSuchProductIdException()
+        if (!checkName(name)) throw WrongNameFormatException()
 
         conn.prepareStatement("UPDATE products SET name = ? WHERE id = $id").use {
             it.setString(1, name)
@@ -203,6 +207,7 @@ class DaoProduct(db: String) : Closeable {
     fun changeGroupName(id: Int, name: String) {
         if (groupExists(name)) throw NameTakenException()
         if (!groupExists(id)) throw NoSuchGroupIdException()
+        if (!checkName(name)) throw WrongNameFormatException()
 
         conn.prepareStatement("UPDATE groups SET name = ? WHERE id = $id").use {
             it.setString(1, name)
@@ -332,6 +337,10 @@ class DaoProduct(db: String) : Closeable {
     }
 
     private fun ResultSet.extractGroup() = Group(getInt("id"), getString("name"))
+
+    private fun checkName(name: String): Boolean {
+        return name.matches(Regex("[\\w -]{3,20}")) && !name.startsWith(" ") && !name.endsWith(" ")
+    }
 
 
     internal fun deleteAll() {

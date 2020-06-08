@@ -1,8 +1,8 @@
 package net.tcp
 
+import net.common.ServerThread
 import net.tcp.UtilsTCP.receive
 import net.tcp.UtilsTCP.send
-import net.common.ServerThread
 import protocol.Packet
 import java.io.IOException
 import java.net.Socket
@@ -44,7 +44,7 @@ class ServerThreadTCP(private val socket: Socket) : ServerThread() {
     override fun send(packet: Packet) = socket.send(packet)
 
     override fun close() {
-        println("socket is closing")
+        super.close()
         if (!socket.isClosed)
             socket.close()
         stopFlag.set(true)
