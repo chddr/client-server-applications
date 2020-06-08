@@ -9,9 +9,10 @@ import java.sql.ResultSet
 
 class DaoProduct(db: String) : Closeable {
 
-    class NoSuchIdException : Exception()
-    class NotEnoughItemsException : Exception()
-    class NameTakenException : Exception()
+    open class DBException: Exception()
+    class NoSuchIdException : DBException()
+    class NotEnoughItemsException : DBException()
+    class NameTakenException : DBException()
 
     private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 
@@ -26,12 +27,25 @@ class DaoProduct(db: String) : Closeable {
      * Inserts a product and returns it's id in the table if everything went ok, otherwise null
      */
     fun insert(product: Product): Int {
-        if(productExists(product.name)) throw NameTakenException()
+        if (productExists(product.name)) throw NameTakenException()
 
         return conn.prepareStatement("INSERT INTO products('name', 'price') VALUES (?,?)").use {
             it.run {
                 setString(1, product.name)
                 setDouble(2, product.price)
+
+                executeUpdate()
+                generatedKeys
+            }.getInt("last_insert_rowid()")
+        }
+    }
+
+    fun addGroup(name: String): Int {
+        if (groupExists(name)) throw NameTakenException()
+
+        return conn.prepareStatement("INSERT INTO groups('name') VALUES (?)").use {
+            it.run {
+                setString(1, name)
 
                 executeUpdate()
                 generatedKeys
@@ -210,6 +224,16 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
+    fun groupExists(name: String): Boolean {
+        return conn.prepareStatement("select count(*) as group_quantity from groups where name = ?").use {
+            it.setString(1, name)
+
+            val res = it.executeQuery()
+            res.next()
+            res.getInt("group_quantity") != 0
+        }
+    }
+
     fun productExists(id: Int): Boolean {
         return conn.createStatement().use {
             val res = it.executeQuery("select count(*) as product_quantity from products where id = $id")
@@ -218,11 +242,25 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    private fun ResultSet.extractProduct() = Product(getString("name"), getDouble("price"), getInt("id"), getInt("quantity"))
+    fun groupExists(id: Int): Boolean {
+        return conn.createStatement().use {
+            val res = it.executeQuery("select count(*) as group_quantity from groups where id = $id")
+
+            res.next()
+            res.getInt("group_quantity") != 0
+        }
+    }
+
+    private fun ResultSet.extractProduct(): Product {
+
+        val groupId: Int? = getInt("groupId").takeIf { it != 0 }
+        return Product(getString("name"), getDouble("price"), getInt("id"), getInt("quantity"), groupId)
+    }
 
     fun deleteAll() {
         conn.createStatement().use {
             it.execute("DELETE FROM products")
+            it.execute("DELETE FROM groups")
         }
     }
 
@@ -231,9 +269,8 @@ class DaoProduct(db: String) : Closeable {
 
 fun main() {
     DaoProduct("file.db").use {
-        val buckwheat = Product("buckwheat", 9.99)
         val rice = Product("rice", 13.0)
-        println(it.insert(buckwheat))
+
         println(it.insert(rice))
 
         assert(it.productExists("buckwheat"))

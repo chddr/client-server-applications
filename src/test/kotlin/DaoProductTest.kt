@@ -1,15 +1,14 @@
-
+import db.DaoProduct
+import db.entities.Criterion
+import db.entities.Product
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import db.DaoProduct
-import db.entities.Criterion
-import db.entities.Product
 
 internal class DaoProductTest {
 
-    private val sampleList = arrayListOf(
+    private val sampleProds = arrayListOf(
             Product("wheat", 4.0),
             Product("banana", 3.0),
             Product("kale", 5.0),
@@ -21,8 +20,16 @@ internal class DaoProductTest {
             Product("yeast", 6.0)
     )
 
+    private val sampleGroups = arrayListOf(
+            "grains",
+            "legumes",
+            "fruits",
+            "vegetables"
+    )
+
     private fun DaoProduct.populate() {
-        sampleList.forEach { insert(it) }
+        sampleProds.forEach { insert(it) }
+        sampleGroups.forEach { addGroup(it) }
     }
 
     private val dao = DaoProduct("file.db:memory")
@@ -41,7 +48,7 @@ internal class DaoProductTest {
     fun getList() {
         val retrievedList = dao.getList()
 
-        sampleList.forEach {
+        sampleProds.forEach {
             assertTrue(
                     dao.productExists(it.name)
             )
@@ -58,7 +65,7 @@ internal class DaoProductTest {
         var criterion = Criterion().upper(price)
 
         assertArrayEquals(
-                sampleList.filter { it.price <= price }.toTypedArray(),
+                sampleProds.filter { it.price <= price }.toTypedArray(),
                 dao.getList(criterion = criterion).toArray()
         )
 
@@ -67,7 +74,7 @@ internal class DaoProductTest {
         criterion = Criterion().lower(price)
 
         assertArrayEquals(
-                sampleList.filter { it.price >= price }.toTypedArray(),
+                sampleProds.filter { it.price >= price }.toTypedArray(),
                 dao.getList(criterion = criterion).toArray()
         )
 
@@ -75,13 +82,13 @@ internal class DaoProductTest {
         criterion = Criterion().query(query)
 
         assertArrayEquals(
-                sampleList.filter { query in it.name }.toTypedArray(),
+                sampleProds.filter { query in it.name }.toTypedArray(),
                 dao.getList(criterion = criterion).toArray()
         )
 
         dao.deleteAll()
 
-        val prodSlice = sampleList.slice(1..3)
+        val prodSlice = sampleProds.slice(1..3)
         val ids = prodSlice.map { dao.insert(it) }.toSet()
 
         criterion = Criterion().ids(ids)
@@ -108,7 +115,7 @@ internal class DaoProductTest {
 
         println(retrievedList)
 
-        val filteredSamples = sampleList.filter { it.price in lower..upper && query in it.name }
+        val filteredSamples = sampleProds.filter { it.price in lower..upper && query in it.name }
 
         println(filteredSamples)
 
@@ -170,11 +177,25 @@ internal class DaoProductTest {
     }
 
     @Test
+    fun groupTests() {
+        assertTrue(dao.groupExists("grains"))
+
+        val name = "test"
+        dao.addGroup(name)
+
+        assertTrue(dao.groupExists(name))
+
+
+
+
+    }
+
+    @Test
     fun numberThrows() {
-        assertThrows(IllegalArgumentException::class.java) {dao.addItems(0,0)}
-        assertThrows(IllegalArgumentException::class.java) {dao.addItems("",0)}
-        assertThrows(IllegalArgumentException::class.java) {dao.removeItems(0,0)}
-        assertThrows(IllegalArgumentException::class.java) {dao.removeItems("",0)}
+        assertThrows(IllegalArgumentException::class.java) { dao.addItems(0, 0) }
+        assertThrows(IllegalArgumentException::class.java) { dao.addItems("", 0) }
+        assertThrows(IllegalArgumentException::class.java) { dao.removeItems(0, 0) }
+        assertThrows(IllegalArgumentException::class.java) { dao.removeItems("", 0) }
     }
 
     @Test
