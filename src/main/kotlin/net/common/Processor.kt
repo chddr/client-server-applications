@@ -1,14 +1,14 @@
 package net.common
 
+import db.DaoProduct
+import db.DaoProduct.*
+import db.entities.Product
 import net.PROCESSOR_THREADS
 import protocol.Message
 import protocol.Message.ClientCommands
 import protocol.Message.ClientCommands.*
 import protocol.Message.ServerCommands.*
 import protocol.Message.ServerCommands.BYE
-import db.DaoProduct
-import db.DaoProduct.*
-import db.entities.Product
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -43,24 +43,7 @@ class Processor(private val serverThread: ServerThread, private val message: Mes
         //simulating real work done
         Thread.sleep(200)
 
-
-        val response = if (message.cType in ClientCommands)
-            try {
-                when (ClientCommands[message.cType]) {
-                    GET_PRODUCT_COUNT -> getProductCount(message)
-                    ADD_GROUP -> internalErrorMessage() //TODO
-                    ADD_PRODUCT -> addProduct(message)
-                    INCREASE_PRODUCT_COUNT -> increaseProductCount(message)
-                    DECREASE_PRODUCT_COUNT -> decreaseProductCount(message)
-                    SET_PRODUCT_PRICE -> setProductPrice(message)
-                    ClientCommands.BYE -> byeMessage()
-                }
-            } catch (e: Exception) {
-                internalErrorMessage()
-            }
-        else wrongCommand()
-
-
+        val response = process()
         serverThread.send(response)
 
         if (message.cType == ClientCommands.BYE.ordinal) {
@@ -68,6 +51,28 @@ class Processor(private val serverThread: ServerThread, private val message: Mes
         }
         println("[[ENDED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread\n")
 
+    }
+
+    private fun process(): Message {
+        return if (message.cType in ClientCommands)
+            try {
+                chooseResponse()
+            } catch (e: Exception) {
+                internalErrorMessage()
+            }
+        else wrongCommand()
+    }
+
+    private fun chooseResponse(): Message {
+        return when (ClientCommands[message.cType]) {
+            GET_PRODUCT_COUNT -> getProductCount(message)
+            ADD_GROUP -> internalErrorMessage() //TODO
+            ADD_PRODUCT -> addProduct(message)
+            INCREASE_PRODUCT_COUNT -> increaseProductCount(message)
+            DECREASE_PRODUCT_COUNT -> decreaseProductCount(message)
+            SET_PRODUCT_PRICE -> setProductPrice(message)
+            ClientCommands.BYE -> byeMessage()
+        }
     }
 
     private fun addProduct(message: Message): Message {
