@@ -7,9 +7,9 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
     enum class ClientCommands {
 
-        GET_PRODUCT, GET_TIME, GET_GROUP,
+        GET_PRODUCT, GET_TIME, GET_GROUP,// GET_PRODUCT_LIST, GET_GROUP_LIST,
         ADD_GROUP, ADD_PRODUCT,
-        //REMOVE_PRODUCT, REMOVE GROUP,
+        DELETE_PRODUCT, DELETE_GROUP,
         CHANGE_PRODUCT_NAME, CHANGE_GROUP_NAME, SET_PRODUCT_PRICE,
         INCREASE_PRODUCT_COUNT, DECREASE_PRODUCT_COUNT,
         BYE;
@@ -23,9 +23,15 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
     enum class ServerCommands {
         BYE, RESEND,
         INTERNAL_ERROR, WRONG_COMMAND, NO_SUCH_ID_ERROR, NAME_TAKEN_ERROR, WRONG_MESSAGE_FORMAT_ERROR,
-        NOT_ENOUGH_ITEMS_ERROR, WRONG_NAME_ERROR,
+        NOT_ENOUGH_ITEMS_ERROR, WRONG_NAME_ERROR, NON_EMPTY_PRODUCT_ERROR,
         GENERIC_ERROR,
-        PRODUCT, SERVER_TIME, GROUP
+        SUCCESSFUL_DELETION,
+        PRODUCT, SERVER_TIME, GROUP;
+
+        companion object {
+            operator fun contains(int: Int) = int in ClientCommands.values().indices
+            operator fun get(cType: Int) = ClientCommands.values()[cType]
+        }
     }
 
     constructor(data: ByteArray) : this(

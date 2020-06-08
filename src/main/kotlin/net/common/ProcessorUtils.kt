@@ -5,6 +5,7 @@ import db.entities.Product
 import net.common.Processor.db
 import net.common.ProcessorUtils.Messages.groupMessage
 import net.common.ProcessorUtils.Messages.productMessage
+import net.common.ProcessorUtils.Messages.successfulDeletionMessage
 import net.common.ProcessorUtils.Parser.id
 import net.common.ProcessorUtils.Parser.idAndDouble
 import net.common.ProcessorUtils.Parser.idAndInt
@@ -88,6 +89,18 @@ object ProcessorUtils {
             return groupMessage(group)
         }
 
+        fun removeGroup(message: Message): Message {
+            val id = message.msg.id()
+            db.deleteGroup(id)
+            return successfulDeletionMessage(id)
+        }
+
+        fun removeProduct(message: Message): Message {
+            val id = message.msg.id()
+            db.deleteProduct(id)
+            return successfulDeletionMessage(id)
+        }
+
 
     }
 
@@ -155,5 +168,7 @@ object ProcessorUtils {
         fun byeMessage() = Message(BYE, msg = "Bye!")
         fun wrongNameFormatMessage() = Message(WRONG_NAME_ERROR, msg = "Name you entered is in wrong format")
         fun nameTakenMessage() = Message(NAME_TAKEN_ERROR, msg = "Name is already taken")
+        fun successfulDeletionMessage(id: Int) = Message(SUCCESSFUL_DELETION, msg = "Successfully deleted $id")
+        fun nonEmptyProductMessage() = Message(NON_EMPTY_PRODUCT_ERROR, msg = "Can't delete product where quantity != 0")
     }
 }

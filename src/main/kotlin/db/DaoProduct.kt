@@ -19,6 +19,7 @@ class DaoProduct(db: String) : Closeable {
     class NotEnoughItemsException : DBException()
     class NameTakenException : DBException()
     class WrongNameFormatException : DBException()
+    class NonEmptyProductException : DBException()
 
     private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 
@@ -134,13 +135,14 @@ class DaoProduct(db: String) : Closeable {
 
     fun deleteProduct(id: Int) {
         if (!productExists(id)) throw NoSuchProductIdException()
+        if (productAmount(id) != 0) throw NonEmptyProductException()
 
         conn.createStatement().use {
             it.execute("DELETE FROM products WHERE id = $id")
         }
     }
 
-    fun deleteProduct(name: String) {
+    internal fun deleteProduct(name: String) {
         if (!productExists(name)) throw NoSuchProductIdException()
 
         conn.prepareStatement("DELETE FROM products WHERE name = ?").use {

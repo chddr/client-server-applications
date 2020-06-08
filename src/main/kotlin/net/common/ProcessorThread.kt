@@ -9,11 +9,14 @@ import net.common.ProcessorUtils.MessageGenerators.decreaseProductCount
 import net.common.ProcessorUtils.MessageGenerators.getGroup
 import net.common.ProcessorUtils.MessageGenerators.getProduct
 import net.common.ProcessorUtils.MessageGenerators.increaseProductCount
+import net.common.ProcessorUtils.MessageGenerators.removeGroup
+import net.common.ProcessorUtils.MessageGenerators.removeProduct
 import net.common.ProcessorUtils.MessageGenerators.setProductPrice
 import net.common.ProcessorUtils.Messages.byeMessage
 import net.common.ProcessorUtils.Messages.internalErrorMessage
 import net.common.ProcessorUtils.Messages.nameTakenMessage
 import net.common.ProcessorUtils.Messages.noSuchIdMessage
+import net.common.ProcessorUtils.Messages.nonEmptyProductMessage
 import net.common.ProcessorUtils.Messages.notEnoughItemsMessage
 import net.common.ProcessorUtils.Messages.timeMessage
 import net.common.ProcessorUtils.Messages.wrongCommand
@@ -36,7 +39,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         val response = process()
         serverThread.send(response)
 
-        if (message.cType == ClientCommands.BYE.ordinal)
+        if (message.cType == BYE.ordinal)
             serverThread.close()
 
         println("[[ENDED THREAD]]    ${Thread.currentThread().id}-th working PROCESSOR thread\n")
@@ -61,6 +64,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         is ParseException -> wrongMsgFormatMessage()
         is WrongNameFormatException -> wrongNameFormatMessage()
         is IllegalArgumentException -> wrongMsgFormatMessage()
+        is NonEmptyProductException -> nonEmptyProductMessage()
         else -> internalErrorMessage()
     }
 
@@ -88,7 +92,10 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
                 changeProductName(message)
             CHANGE_GROUP_NAME ->
                 changeGroupName(message)
+            DELETE_PRODUCT ->
+                removeProduct(message)
+            DELETE_GROUP ->
+                removeGroup(message)
         }
     }
-
 }
