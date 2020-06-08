@@ -19,7 +19,7 @@ object Processor {
     fun ExecutorService.waitForStop(what: String) {
         shutdown()
         while (!isTerminated) {
-            println("$what is waiting for shutdown")
+            println("$what is waiting for shutdown") //TODO move it from here to Utils along with everythin in pRocessorhread
             awaitTermination(10, TimeUnit.SECONDS)
         }
     }

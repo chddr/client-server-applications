@@ -1,6 +1,7 @@
 package db
 
 import db.entities.Criterion
+import db.entities.Group
 import db.entities.Product
 import java.io.Closeable
 import java.sql.Connection
@@ -88,21 +89,20 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun getGroupList(page: Int = 0, size: Int = 20): ArrayList<Pair<Int, String>> {
+    fun getGroupList(page: Int = 0, size: Int = 20): ArrayList<Group> {
         if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
 
         return conn.createStatement().use {
             val query = "SELECT * FROM groups LIMIT $size OFFSET ${page * size}"
 
             it.executeQuery(query).run {
-                ArrayList<Pair<Int, String>>().also { prods ->
+                ArrayList<Group>().also { prods ->
                     while (next())
-                        prods.add(getInt("id") to getString("name"))
+                        prods.add(extractGroup())
                 }
             }
         }
     }
-
     private fun generateWhereClause(criterion: Criterion): String {
         val conditions = listOfNotNull(
                 like(criterion.query),
@@ -189,13 +189,13 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun getGroupName(id: Int): String {
+    fun getGroup(id: Int): Group {
         if (!groupExists(id)) throw NoSuchGroupIdException()
 
         return conn.createStatement().use {
             val res = it.executeQuery("SELECT * FROM groups WHERE id = $id")
             res.next()
-            res.getString("name")
+            res.extractGroup()
         }
     }
 
@@ -287,7 +287,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun productExists(name: String): Boolean {
+    internal fun productExists(name: String): Boolean {
         return conn.prepareStatement("select count(*) as product_quantity from products where name = ?").use {
             it.setString(1, name)
 
@@ -297,7 +297,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun groupExists(name: String): Boolean {
+    internal fun groupExists(name: String): Boolean {
         return conn.prepareStatement("select count(*) as group_quantity from groups where name = ?").use {
             it.setString(1, name)
 
@@ -307,7 +307,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun productExists(id: Int): Boolean {
+    private fun productExists(id: Int): Boolean {
         return conn.createStatement().use {
             val res = it.executeQuery("select count(*) as product_quantity from products where id = $id")
             res.next()
@@ -315,7 +315,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun groupExists(id: Int): Boolean {
+    internal fun groupExists(id: Int): Boolean {
         return conn.createStatement().use {
             val res = it.executeQuery("select count(*) as group_quantity from groups where id = $id")
 
@@ -330,7 +330,10 @@ class DaoProduct(db: String) : Closeable {
         return Product(getString("name"), getDouble("price"), getInt("id"), getInt("quantity"), groupId)
     }
 
-    fun deleteAll() {
+    private fun ResultSet.extractGroup() = Group(getInt("id"), getString("name"))
+
+
+    internal fun deleteAll() {
         conn.createStatement().use {
             it.execute("DELETE FROM products")
             it.execute("DELETE FROM groups")

@@ -29,6 +29,6 @@ abstract class ServerThread : Runnable, Closeable {
     fun send(msg: Message) = send(Packet(0, outCounter++, msg))
 
     abstract fun send(packet: Packet)
-    abstract override fun close()
+    abstract override fun close() //TODO proper timeout for single thread
     abstract fun processPackets()
 }

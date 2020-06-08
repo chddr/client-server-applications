@@ -1,6 +1,7 @@
 package net.common
 
 import db.DaoProduct.*
+import db.entities.Group
 import db.entities.Product
 import net.common.Processor.db
 import protocol.Message
@@ -41,7 +42,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
 
     private fun chooseResponse(): Message {
         return when (ClientCommands[message.cType]) {
-            GET_PRODUCT_COUNT -> getProductCount(message)
+            GET_PRODUCT -> getProduct(message)
             ADD_GROUP -> internalErrorMessage() //TODO
             ADD_PRODUCT -> addProduct(message)
             INCREASE_PRODUCT_COUNT -> increaseProductCount(message)
@@ -49,9 +50,23 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             SET_PRODUCT_PRICE -> setProductPrice(message)
             ClientCommands.BYE -> byeMessage()
             GET_TIME -> timeMessage()
+            GET_GROUP_NAME -> getGroupName(message)
+            CHANGE_PRODUCT_NAME -> TODO()
+            CHANGE_GROUP_NAME -> TODO()
         }
     }
 
+    private fun getGroupName(message: Message): Message {
+        return try {
+            val id = message.msg.toInt()
+            val group = db.getGroup(id)
+            groupMessage(group)
+        } catch (e: NumberFormatException) {
+            return wrongMsgFormatMessage()
+        } catch (e: NoSuchGroupIdException) {
+            return noSuchIdMessage()
+        }
+    }
 
     private fun addProduct(message: Message): Message {
         return try {
@@ -85,8 +100,8 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         return try {
             val (id, decrement) = idAndInt(message.msg)
             db.removeItems(id, decrement)
-            val amount = db.productAmount(id)
-            idAmountMessage(id, amount)
+            val product = db.getProduct(id)
+            productMessage(product)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
         } catch (e: NoSuchProductIdException) {
@@ -100,8 +115,8 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         return try {
             val (id, increment) = idAndInt(message.msg)
             db.addItems(id, increment)
-            val amount = db.productAmount(id)
-            idAmountMessage(id, amount)
+            val product = db.getProduct(id)
+            productMessage(product)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
         } catch (e: NoSuchProductIdException) {
@@ -141,20 +156,21 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         }
     }
 
-    private fun getProductCount(message: Message): Message {
+    private fun getProduct(message: Message): Message {
         val id = try {
             message.msg.toInt()
         } catch (e: NumberFormatException) {
             return wrongMsgFormatMessage()
         }
-        val amount = db.productAmount(id)
+        val product = db.getProduct(id)
 
-        return idAmountMessage(id, amount)
+        return productMessage(product)
     }
 
     private fun timeMessage() = Message(SERVER_TIME, msg = "Time is: ${LocalTime.now()}")
     private fun notEnoughItemsMessage() = Message(ERROR, msg = "Not enough items to remove")
-    private fun idAmountMessage(id: Int, amount: Int) = Message(ID_PRODUCT_COUNT, msg = "$id:$amount")
+    private fun productMessage(product: Product) = Message(PRODUCT, msg = "$product")
+    private fun groupMessage(group: Group): Message = Message(GROUP, msg = "$group")
     private fun internalErrorMessage() = Message(INTERNAL_ERROR, msg = "Report to the dev!")
     private fun wrongMsgFormatMessage() = Message(ERROR, msg = "Wrong message format")
     private fun noSuchIdMessage() = Message(NO_SUCH_PRODUCT, msg = "No such ID in table")

@@ -134,13 +134,13 @@ internal class DaoProductTest {
 
         assertArrayEquals(
                 sampleGroups.toArray(),
-                groups.map { it.second }.toTypedArray()
+                groups.map { it.name }.toTypedArray()
         )
 
         val name = "TEST GROUP"
         dao.addGroup(name)
 
-        assertTrue(dao.getGroupList().map { it.second }.contains(name))
+        assertTrue(dao.getGroupList().map { it.name }.contains(name))
 
 
     }
@@ -304,7 +304,7 @@ internal class DaoProductTest {
 
         assertEquals(
                 newName,
-                dao.getGroupName(id)
+                dao.getGroup(id).name
         )
 
     }
@@ -390,7 +390,7 @@ internal class DaoProductTest {
         }
 
         assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
-            dao.getGroupName(165215)
+            dao.getGroup(165215)
         }
 
         assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
