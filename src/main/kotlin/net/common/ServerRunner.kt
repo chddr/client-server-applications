@@ -3,7 +3,7 @@ package net.common
 import net.NetProtocol
 import net.SERVER_THREADS
 import net.SERVER_TIMEOUT
-import net.common.Processor.Companion.waitForStop
+import net.common.Processor.waitForStop
 import net.tcp.ServerTCP
 import net.udp.ServerUDP
 import java.io.BufferedReader
@@ -29,11 +29,11 @@ class ServerRunner(type: NetProtocol = net.type, timeout: Int = SERVER_TIMEOUT) 
         println("Starting console... (type \"quit\" to quit)\n")
         runConsole(System.`in`)
 
-        println("accepting connections")
+        println("accepting connections through $type")
         launch()
         println("not starting new connections, waiting for all current messages to be processed and then shutting down")
 
-        service.waitForStop()
+        service.waitForStop("ServerRunner")
         println("fin")
     }
 
