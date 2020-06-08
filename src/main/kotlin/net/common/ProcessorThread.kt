@@ -56,7 +56,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
     private fun addProduct(message: Message): Message {
         return try {
             val prod = productFromString(message.msg)
-            val id = db.insert(prod)
+            val id = db.insertProduct(prod)
             Message(ID, msg = "$id")
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
@@ -85,7 +85,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         return try {
             val (id, decrement) = idAndInt(message.msg)
             db.removeItems(id, decrement)
-            val amount = db.amount(id)
+            val amount = db.productAmount(id)
             idAmountMessage(id, amount!!)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
@@ -100,7 +100,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         return try {
             val (id, increment) = idAndInt(message.msg)
             db.addItems(id, increment)
-            val amount = db.amount(id)
+            val amount = db.productAmount(id)
             idAmountMessage(id, amount!!)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
@@ -147,7 +147,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         } catch (e: NumberFormatException) {
             return wrongMsgFormatMessage()
         }
-        val amount = db.amount(id)
+        val amount = db.productAmount(id)
 
         return if (amount == null)
             noSuchIdMessage()

@@ -20,14 +20,14 @@ class DaoProduct(db: String) : Closeable {
     init {
         conn.createStatement().use {
             it.execute("CREATE TABLE IF NOT EXISTS 'groups' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE)")
-            it.execute("CREATE TABLE IF NOT EXISTS 'products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE , 'price' REAL NOT NULL, 'quantity' INTEGER NOT NULL DEFAULT 0, 'groupId' INTEGER, FOREIGN KEY (groupId) REFERENCES groups(id))")
+            it.execute("CREATE TABLE IF NOT EXISTS 'products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE , 'price' REAL NOT NULL, 'quantity' INTEGER NOT NULL DEFAULT 0, 'groupId' INTEGER DEFAULT NULL, FOREIGN KEY (groupId) REFERENCES groups(id) ON DELETE SET NULL )")
         }
     }
 
     /**
      * Inserts a product and returns it's id in the table if everything went ok, otherwise null
      */
-    fun insert(product: Product): Int {
+    fun insertProduct(product: Product): Int {
         if (productExists(product.name)) throw NameTakenException()
 
         return conn.prepareStatement("INSERT INTO products('name', 'price') VALUES (?,?)").use {
@@ -54,6 +54,14 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
+    fun deleteGroup(id: Int) {
+        if (!groupExists(id)) throw NoSuchGroupIdException()
+
+        conn.createStatement().use {
+            it.execute("DELETE FROM groups WHERE id = $id")
+        }
+    }
+
     fun setToGroup(prodId: Int, groupId: Int) {
         if (!groupExists(groupId)) throw NoSuchGroupIdException()
         if (!productExists(prodId)) throw NoSuchProductIdException()
@@ -63,7 +71,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun getList(page: Int = 0, size: Int = 20, criterion: Criterion = Criterion()): ArrayList<Product> {
+    fun getProductList(page: Int = 0, size: Int = 20, criterion: Criterion = Criterion()): ArrayList<Product> {
         if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
 
         return conn.createStatement().use {
@@ -75,6 +83,21 @@ class DaoProduct(db: String) : Closeable {
                 ArrayList<Product>().also { prods ->
                     while (next())
                         prods.add(extractProduct())
+                }
+            }
+        }
+    }
+
+    fun getGroupList(page: Int = 0, size: Int = 20): ArrayList<Pair<Int, String>> {
+        if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
+
+        return conn.createStatement().use {
+            val query = "SELECT * FROM groups LIMIT $size OFFSET ${page * size}"
+
+            it.executeQuery(query).run {
+                ArrayList<Pair<Int, String>>().also { prods ->
+                    while (next())
+                        prods.add(getInt("id") to getString("name"))
                 }
             }
         }
@@ -115,7 +138,7 @@ class DaoProduct(db: String) : Closeable {
         else -> null
     }
 
-    fun get(id: Int): Product? {
+    fun getProduct(id: Int): Product? {
         return conn.createStatement().use {
             val res = it.executeQuery("SELECT * FROM products WHERE id = $id")
 
@@ -126,7 +149,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun get(name: String): Product? {
+    fun getProduct(name: String): Product? {
         return conn.prepareStatement("SELECT * FROM products WHERE name = ?").use {
             it.setString(1, name)
             val res = it.executeQuery()
@@ -138,7 +161,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun delete(id: Int) {
+    fun deleteProduct(id: Int) {
         if (!productExists(id)) throw NoSuchProductIdException()
 
         conn.createStatement().use {
@@ -146,7 +169,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun delete(name: String) {
+    fun deleteProduct(name: String) {
         if (!productExists(name)) throw NoSuchProductIdException()
 
         conn.prepareStatement("DELETE FROM products WHERE name = ?").use {
@@ -189,7 +212,7 @@ class DaoProduct(db: String) : Closeable {
     fun removeItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(id)) throw NoSuchProductIdException()
-        if (amount(id)!! < number) throw NotEnoughItemsException()
+        if (productAmount(id)!! < number) throw NotEnoughItemsException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity - $number WHERE id = $id AND quantity >= $number")
@@ -199,7 +222,7 @@ class DaoProduct(db: String) : Closeable {
     fun removeItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(name)) throw NoSuchProductIdException()
-        if (amount(name)!! < number) throw NotEnoughItemsException()
+        if (productAmount(name)!! < number) throw NotEnoughItemsException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity - $number WHERE name = ? AND quantity >= $number").use {
             it.setString(1, name)
@@ -207,7 +230,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun amount(id: Int): Int? {
+    fun productAmount(id: Int): Int? {
         return conn.createStatement().use {
             it.executeQuery("SELECT quantity FROM products WHERE id = $id").run {
                 when {
@@ -218,7 +241,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun amount(name: String): Int? {
+    fun productAmount(name: String): Int? {
         return conn.prepareStatement("SELECT quantity FROM products WHERE name = ?").use {
             it.setString(1, name)
             it.executeQuery().run {
@@ -285,15 +308,15 @@ class DaoProduct(db: String) : Closeable {
 
 fun main() {
     DaoProduct("file.db").use {
-//        val rice = Product("rice", 13.0)
-//
-//        println(it.insert(rice))
+        val rice = Product("rice", 13.0)
 
-        it.setToGroup(1, 1)
-        it.setToGroup(2, 1)
-        it.setToGroup(3, 1)
+        println(it.insertProduct(rice))
 
-        it.getList(0, 200).forEach { println(it) }
+//        it.setToGroup(1, 1)
+//        it.setToGroup(2, 1)
+//        it.setToGroup(3, 1)
+
+        it.getProductList(0, 200).forEach { println(it) }
     }
 
 }

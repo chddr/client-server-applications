@@ -28,7 +28,7 @@ internal class DaoProductTest {
     )
 
     private fun DaoProduct.populate() {
-        sampleProds.forEach { insert(it) }
+        sampleProds.forEach { insertProduct(it) }
         sampleGroups.forEach { addGroup(it) }
     }
 
@@ -46,7 +46,7 @@ internal class DaoProductTest {
 
     @Test
     fun getList() {
-        val retrievedList = dao.getList()
+        val retrievedList = dao.getProductList()
 
         sampleProds.forEach {
             assertTrue(
@@ -66,7 +66,7 @@ internal class DaoProductTest {
 
         assertArrayEquals(
                 sampleProds.filter { it.price <= price }.toTypedArray(),
-                dao.getList(criterion = criterion).toArray()
+                dao.getProductList(criterion = criterion).toArray()
         )
 
 
@@ -75,7 +75,7 @@ internal class DaoProductTest {
 
         assertArrayEquals(
                 sampleProds.filter { it.price >= price }.toTypedArray(),
-                dao.getList(criterion = criterion).toArray()
+                dao.getProductList(criterion = criterion).toArray()
         )
 
         val query = "ea"
@@ -83,33 +83,66 @@ internal class DaoProductTest {
 
         assertArrayEquals(
                 sampleProds.filter { query in it.name }.toTypedArray(),
-                dao.getList(criterion = criterion).toArray()
+                dao.getProductList(criterion = criterion).toArray()
         )
 
         dao.deleteAll()
 
         val prodSlice = sampleProds.slice(1..3)
-        val ids = prodSlice.map { dao.insert(it) }.toSet()
+        val ids = prodSlice.map { dao.insertProduct(it) }.toSet()
 
         criterion = Criterion().ids(ids)
 
         assertArrayEquals(
                 prodSlice.toTypedArray(),
-                dao.getList(criterion = criterion).toArray()
+                dao.getProductList(criterion = criterion).toArray()
         )
 
         val groupId = dao.addGroup("testGroup")
 
         val prods = (1..10).map { "prod$it" }.map { Product(it, 0.00) }
         //insert all products and add to group
-        prods.map { dao.insert(it) }.forEach{ dao.setToGroup(it, groupId)}
+        prods.map { dao.insertProduct(it) }.forEach { dao.setToGroup(it, groupId) }
 
         criterion = Criterion().groupId(groupId)
 
         assertArrayEquals(
                 prods.toTypedArray(),
-                dao.getList(criterion = criterion).toArray()
+                dao.getProductList(criterion = criterion).toArray()
         )
+    }
+
+    @Test
+    fun groupExistence() {
+        val name = "test"
+        val groupId = dao.addGroup(name)
+
+        assertTrue(dao.groupExists(name))
+
+        dao.deleteGroup(groupId)
+
+        assertTrue(!dao.groupExists(groupId))
+
+        assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
+            dao.deleteGroup(groupId)
+        }
+    }
+
+    @Test
+    fun groupList() {
+        val groups = dao.getGroupList()
+
+        assertArrayEquals(
+                sampleGroups.toArray(),
+                groups.map { it.second }.toTypedArray()
+        )
+
+        val name = "TEST GROUP"
+        dao.addGroup(name)
+
+        assertTrue(dao.getGroupList().map { it.second }.contains(name))
+
+
     }
 
     @Test
@@ -124,7 +157,7 @@ internal class DaoProductTest {
                 .upper(upper)
                 .query(query)
 
-        val retrievedList = dao.getList(criterion = criterion)
+        val retrievedList = dao.getProductList(criterion = criterion)
 
 
         val filteredSamples = sampleProds.filter { it.price in lower..upper && query in it.name }
@@ -140,48 +173,48 @@ internal class DaoProductTest {
     internal fun delete() {
         val name = "sandwich"
         val product = Product(name, 0.0)
-        val id = dao.insert(product)
+        val id = dao.insertProduct(product)
 
         assertTrue(
                 dao.productExists(name)
         )
 
-        dao.delete(id)
+        dao.deleteProduct(id)
 
         assertFalse(
                 dao.productExists(name)
         )
 
         assertNull(
-                dao.get(id)
+                dao.getProduct(id)
         )
 
-        dao.getList().forEach {
-            dao.delete(it.name)
+        dao.getProductList().forEach {
+            dao.deleteProduct(it.name)
         }
 
         assertTrue(
-                dao.getList().isEmpty()
+                dao.getProductList().isEmpty()
         )
     }
 
     @Test
     fun numberTesting() {
         val name = "buckwheat"
-        assertEquals(dao.amount(name), 0)
+        assertEquals(dao.productAmount(name), 0)
 
         val increment = 41
         dao.addItems(name, increment)
 
-        assertEquals(dao.amount(name), increment)
+        assertEquals(dao.productAmount(name), increment)
 
         val decrement = 13
         dao.removeItems(name, decrement)
 
-        assertEquals(dao.amount(name), increment - decrement)
+        assertEquals(dao.productAmount(name), increment - decrement)
 
-        assertNull(dao.amount("non-existent product"))
-        assertNull(dao.amount(-1))
+        assertNull(dao.productAmount("non-existent product"))
+        assertNull(dao.productAmount(-1))
 
     }
 
@@ -194,11 +227,11 @@ internal class DaoProductTest {
 
         assertTrue(dao.groupExists(name))
 
-        val prodId = dao.get("buckwheat")!!.id!!
+        val prodId = dao.getProduct("buckwheat")!!.id!!
 
         dao.setToGroup(prodId, groupId)
 
-        val prod = dao.get(prodId)!!
+        val prod = dao.getProduct(prodId)!!
 
         assertTrue(prod.groupId == groupId)
 
@@ -220,17 +253,17 @@ internal class DaoProductTest {
         val product = Product(name, price)
 
 
-        assertNull(dao.get(name))
+        assertNull(dao.getProduct(name))
 
-        val id = dao.insert(product)
+        val id = dao.insertProduct(product)
 
-        assertNotNull(dao.get(name))
-        assertNotNull(dao.get(id))
+        assertNotNull(dao.getProduct(name))
+        assertNotNull(dao.getProduct(id))
 
-        dao.delete(id)
+        dao.deleteProduct(id)
 
-        assertNull(dao.get(name))
-        assertNull(dao.get(id))
+        assertNull(dao.getProduct(name))
+        assertNull(dao.getProduct(id))
 
     }
 
@@ -239,15 +272,15 @@ internal class DaoProductTest {
         val name = "sandwich"
         val price = 34.0
         val newPrice = 41241.0
-        dao.insert(Product(name, price))
+        dao.insertProduct(Product(name, price))
 
-        var retrieved = dao.get(name) ?: return
+        var retrieved = dao.getProduct(name) ?: return
 
         assertEquals(retrieved.price, price)
 
         dao.setPrice(retrieved.id!!, newPrice)
 
-        retrieved = dao.get(name) ?: return
+        retrieved = dao.getProduct(name) ?: return
 
         assertEquals(retrieved.price, newPrice)
 
@@ -258,7 +291,7 @@ internal class DaoProductTest {
     fun isTaken() {
         val name = "testname"
 
-        dao.insert(Product(name, 0.0))
+        dao.insertProduct(Product(name, 0.0))
         assertTrue(
                 dao.productExists(name)
         )
@@ -269,11 +302,11 @@ internal class DaoProductTest {
 
     @Test
     fun deleteAll() {
-        assertTrue(dao.getList().isNotEmpty())
+        assertTrue(dao.getProductList().isNotEmpty())
 
         dao.deleteAll()
         assertTrue(
-                dao.getList().isEmpty()
+                dao.getProductList().isEmpty()
         )
     }
 }
