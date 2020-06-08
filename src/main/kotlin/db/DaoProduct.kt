@@ -103,6 +103,7 @@ class DaoProduct(db: String) : Closeable {
             }
         }
     }
+
     private fun generateWhereClause(criterion: Criterion): String {
         val conditions = listOfNotNull(
                 like(criterion.query),
@@ -341,19 +342,21 @@ class DaoProduct(db: String) : Closeable {
     }
 
     override fun close() = conn.close()
-}
 
-fun main() {
-    DaoProduct("file.db").use {
-        val rice = Product("rice", 13.0)
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            DaoProduct("file.db").use {
+                val rice = Product("rice", 13.0)
 
-        println(it.insertProduct(rice))
+                println(it.insertProduct(rice))
 
 //        it.setToGroup(1, 1)
 //        it.setToGroup(2, 1)
 //        it.setToGroup(3, 1)
 
-        it.getProductList(0, 200).forEach { println(it) }
+                it.getProductList(0, 200).forEach { println(it) }
+            }
+        }
     }
-
 }

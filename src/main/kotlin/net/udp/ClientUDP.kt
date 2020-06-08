@@ -38,8 +38,11 @@ class ClientUDP(private val clientID: Byte) {
 
     }
 
-}
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            ClientUDP(0)
+        }
+    }
 
-fun main() {
-    ClientUDP(0)
 }

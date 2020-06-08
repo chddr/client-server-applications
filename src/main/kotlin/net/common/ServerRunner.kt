@@ -3,7 +3,7 @@ package net.common
 import net.NetProtocol
 import net.SERVER_THREADS
 import net.SERVER_TIMEOUT
-import net.common.Processor.waitForStop
+import net.common.ProcessorUtils.waitForStop
 import net.tcp.ServerTCP
 import net.udp.ServerUDP
 import java.io.BufferedReader
@@ -73,7 +73,7 @@ class ServerRunner(type: NetProtocol = net.type, timeout: Int = SERVER_TIMEOUT) 
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            ServerRunner(NetProtocol.TCP)
+            ServerRunner(NetProtocol.TCP, 0)
             Processor.waitForProcessorStop()
         }
     }

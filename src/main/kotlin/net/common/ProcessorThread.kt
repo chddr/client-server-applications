@@ -1,15 +1,26 @@
 package net.common
 
 import db.DaoProduct.*
-import db.entities.Group
-import db.entities.Product
-import net.common.Processor.db
+import net.common.ProcessorUtils.MessageGenerators.addProduct
+import net.common.ProcessorUtils.MessageGenerators.changeGroupName
+import net.common.ProcessorUtils.MessageGenerators.changeProductName
+import net.common.ProcessorUtils.MessageGenerators.decreaseProductCount
+import net.common.ProcessorUtils.MessageGenerators.getGroupName
+import net.common.ProcessorUtils.MessageGenerators.getProduct
+import net.common.ProcessorUtils.MessageGenerators.increaseProductCount
+import net.common.ProcessorUtils.MessageGenerators.setProductPrice
+import net.common.ProcessorUtils.Messages.byeMessage
+import net.common.ProcessorUtils.Messages.internalErrorMessage
+import net.common.ProcessorUtils.Messages.nameTakenMessage
+import net.common.ProcessorUtils.Messages.noSuchIdMessage
+import net.common.ProcessorUtils.Messages.notEnoughItemsMessage
+import net.common.ProcessorUtils.Messages.timeMessage
+import net.common.ProcessorUtils.Messages.wrongCommand
+import net.common.ProcessorUtils.Messages.wrongMsgFormatMessage
+import net.common.ProcessorUtils.Parser.ParseException
 import protocol.Message
 import protocol.Message.ClientCommands
 import protocol.Message.ClientCommands.*
-import protocol.Message.ServerCommands.*
-import protocol.Message.ServerCommands.BYE
-import java.time.LocalTime
 
 /**Server thread reference for sending responses and message*/
 class ProcessorThread(private val serverThread: ServerThread, private val message: Message) : Runnable {
@@ -34,148 +45,46 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         return if (message.cType in ClientCommands)
             try {
                 chooseResponse()
-            } catch (e: Exception) {
-                internalErrorMessage()
+            } catch (e: Throwable) {
+                catchException(e)
             }
         else wrongCommand()
     }
 
+    private fun catchException(e: Throwable): Message = when (e) {
+        is NoSuchProductIdException -> noSuchIdMessage()
+        is NotEnoughItemsException -> notEnoughItemsMessage()
+        is NoSuchGroupIdException -> noSuchIdMessage()
+        is NameTakenException -> nameTakenMessage()
+        is ParseException -> wrongMsgFormatMessage()
+        else -> internalErrorMessage()
+    }
+
     private fun chooseResponse(): Message {
         return when (ClientCommands[message.cType]) {
-            GET_PRODUCT -> getProduct(message)
-            ADD_GROUP -> internalErrorMessage() //TODO
-            ADD_PRODUCT -> addProduct(message)
-            INCREASE_PRODUCT_COUNT -> increaseProductCount(message)
-            DECREASE_PRODUCT_COUNT -> decreaseProductCount(message)
-            SET_PRODUCT_PRICE -> setProductPrice(message)
-            ClientCommands.BYE -> byeMessage()
-            GET_TIME -> timeMessage()
-            GET_GROUP_NAME -> getGroupName(message)
-            CHANGE_PRODUCT_NAME -> TODO()
-            CHANGE_GROUP_NAME -> TODO()
+            GET_PRODUCT ->
+                getProduct(message)
+            ADD_GROUP ->
+                internalErrorMessage() //TODO
+            ADD_PRODUCT ->
+                addProduct(message)
+            INCREASE_PRODUCT_COUNT ->
+                increaseProductCount(message)
+            DECREASE_PRODUCT_COUNT ->
+                decreaseProductCount(message)
+            SET_PRODUCT_PRICE ->
+                setProductPrice(message)
+            BYE ->
+                byeMessage()
+            GET_TIME ->
+                timeMessage()
+            GET_GROUP_NAME ->
+                getGroupName(message)
+            CHANGE_PRODUCT_NAME ->
+                changeProductName(message)
+            CHANGE_GROUP_NAME ->
+                changeGroupName(message)
         }
     }
-
-    private fun getGroupName(message: Message): Message {
-        return try {
-            val id = message.msg.toInt()
-            val group = db.getGroup(id)
-            groupMessage(group)
-        } catch (e: NumberFormatException) {
-            return wrongMsgFormatMessage()
-        } catch (e: NoSuchGroupIdException) {
-            return noSuchIdMessage()
-        }
-    }
-
-    private fun addProduct(message: Message): Message {
-        return try {
-            val prod = productFromString(message.msg)
-            val id = db.insertProduct(prod)
-            Message(ID, msg = "$id")
-        } catch (e: ParseException) {
-            wrongMsgFormatMessage()
-        } catch (e: NameTakenException) {
-            nameTakenMessage()
-        }
-    }
-
-
-    private fun setProductPrice(message: Message): Message {
-        return try {
-            val (id, price) = idAndFloat(message.msg)
-            db.setPrice(id, price)
-            Message(OK, msg = "OK")
-        } catch (e: ParseException) {
-            wrongMsgFormatMessage()
-        } catch (e: NoSuchProductIdException) {
-            noSuchIdMessage()
-        } catch (e: NotEnoughItemsException) {
-            notEnoughItemsMessage()
-        }
-
-    }
-
-    private fun decreaseProductCount(message: Message): Message {
-        return try {
-            val (id, decrement) = idAndInt(message.msg)
-            db.removeItems(id, decrement)
-            val product = db.getProduct(id)
-            productMessage(product)
-        } catch (e: ParseException) {
-            wrongMsgFormatMessage()
-        } catch (e: NoSuchProductIdException) {
-            noSuchIdMessage()
-        } catch (e: NotEnoughItemsException) {
-            notEnoughItemsMessage()
-        }
-    }
-
-    private fun increaseProductCount(message: Message): Message {
-        return try {
-            val (id, increment) = idAndInt(message.msg)
-            db.addItems(id, increment)
-            val product = db.getProduct(id)
-            productMessage(product)
-        } catch (e: ParseException) {
-            wrongMsgFormatMessage()
-        } catch (e: NoSuchProductIdException) {
-            noSuchIdMessage()
-        }
-    }
-
-    class ParseException(e: Throwable) : Exception(e)
-
-    private fun idAndInt(string: String): Pair<Int, Int> {
-        return try {
-            string.split(":").also {
-                assert(it.size != 2)
-            }.map(String::toInt).run { first() to last() }
-        } catch (e: Throwable) {
-            throw ParseException(e)
-        }
-    }
-
-    private fun idAndFloat(string: String): Pair<Int, Double> {
-        return try {
-            string.split(":").also {
-                assert(it.size != 2)
-            }.run { first().toInt() to last().toDouble() }
-        } catch (e: Throwable) {
-            throw ParseException(e)
-        }
-    }
-
-    private fun productFromString(string: String): Product {
-        return try {
-            string.split(":").also {
-                assert(it.size != 2)
-            }.run { Product(first(), last().toDouble()) }
-        } catch (e: Throwable) {
-            throw ParseException(e)
-        }
-    }
-
-    private fun getProduct(message: Message): Message {
-        val id = try {
-            message.msg.toInt()
-        } catch (e: NumberFormatException) {
-            return wrongMsgFormatMessage()
-        }
-        val product = db.getProduct(id)
-
-        return productMessage(product)
-    }
-
-    private fun timeMessage() = Message(SERVER_TIME, msg = "Time is: ${LocalTime.now()}")
-    private fun notEnoughItemsMessage() = Message(ERROR, msg = "Not enough items to remove")
-    private fun productMessage(product: Product) = Message(PRODUCT, msg = "$product")
-    private fun groupMessage(group: Group): Message = Message(GROUP, msg = "$group")
-    private fun internalErrorMessage() = Message(INTERNAL_ERROR, msg = "Report to the dev!")
-    private fun wrongMsgFormatMessage() = Message(ERROR, msg = "Wrong message format")
-    private fun noSuchIdMessage() = Message(NO_SUCH_PRODUCT, msg = "No such ID in table")
-    private fun wrongCommand() = Message(WRONG_COMMAND, msg = "")
-    private fun byeMessage() = Message(BYE, msg = "Bye!")
-    private fun nameTakenMessage() = Message(ERROR, msg = "Name is already taken")
 
 }
