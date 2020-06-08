@@ -1,6 +1,6 @@
 package net.common
 
-import db.DaoProduct
+import db.DaoProduct.*
 import db.entities.Group
 import db.entities.Product
 import net.common.Processor.db
@@ -20,10 +20,18 @@ import net.common.ProcessorUtils.MessageGenerators.setProductPrice
 import net.common.ProcessorUtils.Messages.byeMessage
 import net.common.ProcessorUtils.Messages.groupListMessage
 import net.common.ProcessorUtils.Messages.groupMessage
+import net.common.ProcessorUtils.Messages.internalException
+import net.common.ProcessorUtils.Messages.nameTakenException
+import net.common.ProcessorUtils.Messages.noSuchIdException
+import net.common.ProcessorUtils.Messages.nonEmptyProductException
+import net.common.ProcessorUtils.Messages.notEnoughItemsExceptions
 import net.common.ProcessorUtils.Messages.productListMessage
 import net.common.ProcessorUtils.Messages.productMessage
 import net.common.ProcessorUtils.Messages.successfulDeletionMessage
 import net.common.ProcessorUtils.Messages.timeMessage
+import net.common.ProcessorUtils.Messages.wrongCommandException
+import net.common.ProcessorUtils.Messages.wrongFormatException
+import net.common.ProcessorUtils.Messages.wrongNameFormatException
 import net.common.ProcessorUtils.Parser.id
 import net.common.ProcessorUtils.Parser.idAndDouble
 import net.common.ProcessorUtils.Parser.idAndInt
@@ -124,6 +132,7 @@ object ProcessorUtils {
             val list = db.getGroupList()
             return groupListMessage(list)
         }
+
         //TODO add criterions to group and product lists
         fun getProductList(message: Message): Message {
             val list = db.getProductList()
@@ -186,67 +195,62 @@ object ProcessorUtils {
 
     object Messages {
         fun timeMessage() = Message(SERVER_TIME, msg = "Time is: ${LocalTime.now()}")
-        fun notEnoughItemsMessage() = Message(NOT_ENOUGH_ITEMS_ERROR, msg = "Not enough items to remove")
         fun productMessage(product: Product) = Message(PRODUCT, msg = "$product")
         fun groupMessage(group: Group): Message = Message(GROUP, msg = "$group")
-        fun internalErrorMessage() = Message(INTERNAL_ERROR, msg = "Report to the dev!")
-        fun wrongMsgFormatMessage() = Message(WRONG_MESSAGE_FORMAT_ERROR, msg = "Wrong message format")
-        fun noSuchIdMessage() = Message(NO_SUCH_ID_ERROR, msg = "No such ID in table")
-        fun wrongCommand() = Message(WRONG_COMMAND, msg = "")
         fun byeMessage() = Message(SERVER_BYE, msg = "Bye!")
-        fun wrongNameFormatMessage() = Message(WRONG_NAME_ERROR, msg = "Name you entered is in wrong format")
-        fun nameTakenMessage() = Message(NAME_TAKEN_ERROR, msg = "Name is already taken")
         fun successfulDeletionMessage(id: Int) = Message(SUCCESSFUL_DELETION, msg = "Successfully deleted $id")
-        fun nonEmptyProductMessage() = Message(NON_EMPTY_PRODUCT_ERROR, msg = "Can't delete product where quantity != 0")
         fun groupListMessage(list: ArrayList<Group>) = Message(GROUP_LIST, msg = "$list")
         fun productListMessage(list: ArrayList<Product>) = Message(GROUP_LIST, msg = "$list")
+
+        fun wrongCommandException() = Message(WRONG_COMMAND_ERROR, msg = "")
+        fun internalException() = Message(INTERNAL_ERROR, msg = "Report to the dev!")
+        fun nonEmptyProductException() = Message(NON_EMPTY_PRODUCT_ERROR, msg = "Can't delete product where quantity != 0")
+        fun wrongNameFormatException() = Message(WRONG_NAME_ERROR, msg = "Name you entered is in wrong format")
+        fun nameTakenException() = Message(NAME_TAKEN_ERROR, msg = "Name is already taken")
+        fun notEnoughItemsExceptions() = Message(NOT_ENOUGH_ITEMS_ERROR, msg = "Not enough items to remove")
+        fun wrongFormatException() = Message(WRONG_MESSAGE_FORMAT_ERROR, msg = "Wrong message format")
+        fun noSuchIdException() = Message(NO_SUCH_ID_ERROR, msg = "No such ID in table")
+
+    }
+
+    fun processMessage(message: Message): Message {
+        return if (message.cType in Message.ClientCommands)
+            try {
+                chooseOption(message)
+            } catch (e: Throwable) {
+                catchException(e)
+            }
+        else wrongCommandException()
     }
 
 
-    fun catchException(e: Throwable): Message = when (e) {
-        is DaoProduct.NoSuchProductIdException -> Messages.noSuchIdMessage()
-        is DaoProduct.NotEnoughItemsException -> Messages.notEnoughItemsMessage()
-        is DaoProduct.NoSuchGroupIdException -> Messages.noSuchIdMessage()
-        is DaoProduct.NameTakenException -> Messages.nameTakenMessage()
-        is Parser.ParseException -> Messages.wrongMsgFormatMessage()
-        is DaoProduct.WrongNameFormatException -> Messages.wrongNameFormatMessage()
-        is IllegalArgumentException -> Messages.wrongMsgFormatMessage()
-        is DaoProduct.NonEmptyProductException -> Messages.nonEmptyProductMessage()
-        else -> Messages.internalErrorMessage()
+    private fun catchException(e: Throwable): Message = when (e) {
+        is NoSuchProductIdException, is NoSuchGroupIdException -> noSuchIdException()
+        is Parser.ParseException, is java.lang.IllegalArgumentException -> wrongFormatException()
+        is NotEnoughItemsException -> notEnoughItemsExceptions()
+        is NameTakenException -> nameTakenException()
+        is WrongNameFormatException -> wrongNameFormatException()
+        is NonEmptyProductException -> nonEmptyProductException()
+        else -> internalException()
     }
 
-    fun chooseResponse(message: Message): Message {
+    private fun chooseOption(message: Message): Message {
         return when (Message.ClientCommands[message.cType]) {
-            GET_PRODUCT ->
-                getProduct(message)
-            ADD_GROUP ->
-                addGroup(message)
-            ADD_PRODUCT ->
-                addProduct(message)
-            INCREASE_PRODUCT_COUNT ->
-                increaseProductCount(message)
-            DECREASE_PRODUCT_COUNT ->
-                decreaseProductCount(message)
-            SET_PRODUCT_PRICE ->
-                setProductPrice(message)
-            BYE ->
-                byeMessage()
-            GET_TIME ->
-                timeMessage()
-            GET_GROUP ->
-                getGroup(message)
-            CHANGE_PRODUCT_NAME ->
-                changeProductName(message)
-            CHANGE_GROUP_NAME ->
-                changeGroupName(message)
-            DELETE_PRODUCT ->
-                removeProduct(message)
-            DELETE_GROUP ->
-                removeGroup(message)
-            GET_PRODUCT_LIST ->
-                getProductList(message)
-            GET_GROUP_LIST ->
-                getGroupList(message)
+            GET_PRODUCT -> getProduct(message)
+            ADD_GROUP -> addGroup(message)
+            ADD_PRODUCT -> addProduct(message)
+            INCREASE_PRODUCT_COUNT -> increaseProductCount(message)
+            DECREASE_PRODUCT_COUNT -> decreaseProductCount(message)
+            SET_PRODUCT_PRICE -> setProductPrice(message)
+            BYE -> byeMessage()
+            GET_TIME -> timeMessage()
+            GET_GROUP -> getGroup(message)
+            CHANGE_PRODUCT_NAME -> changeProductName(message)
+            CHANGE_GROUP_NAME -> changeGroupName(message)
+            DELETE_PRODUCT -> removeProduct(message)
+            DELETE_GROUP -> removeGroup(message)
+            GET_PRODUCT_LIST -> getProductList(message)
+            GET_GROUP_LIST -> getGroupList(message)
         }
     }
 }
