@@ -402,7 +402,7 @@ internal class DaoProductTest {
         }
 
         assertThrows(java.lang.IllegalArgumentException::class.java) {
-            dao.addItems(dao.insertProduct(Product("yoooo yankee with no brim", 4.4)), -4)
+            dao.addItems(dao.insertProduct(Product("yo yankee with  brim", 4.4)), -4)
         }
 
         assertThrows(java.lang.IllegalArgumentException::class.java) {
@@ -422,7 +422,7 @@ internal class DaoProductTest {
         }
 
         assertThrows(DaoProduct.NotEnoughItemsException::class.java) {
-            dao.removeItems(dao.insertProduct(Product("yoooo brim with no yankee", 4.4)), 100009999)
+            dao.removeItems(dao.insertProduct(Product("yo brim with no yank", 4.4)), 100009999)
         }
 
         assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
