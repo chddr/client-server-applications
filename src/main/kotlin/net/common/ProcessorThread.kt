@@ -73,7 +73,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             Message(OK, msg = "OK")
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
-        } catch (e: NoSuchIdException) {
+        } catch (e: NoSuchProductIdException) {
             noSuchIdMessage()
         } catch (e: NotEnoughItemsException) {
             notEnoughItemsMessage()
@@ -89,7 +89,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             idAmountMessage(id, amount!!)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
-        } catch (e: NoSuchIdException) {
+        } catch (e: NoSuchProductIdException) {
             noSuchIdMessage()
         } catch (e: NotEnoughItemsException) {
             notEnoughItemsMessage()
@@ -104,7 +104,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             idAmountMessage(id, amount!!)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
-        } catch (e: NoSuchIdException) {
+        } catch (e: NoSuchProductIdException) {
             noSuchIdMessage()
         }
     }

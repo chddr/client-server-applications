@@ -9,8 +9,9 @@ import java.sql.ResultSet
 
 class DaoProduct(db: String) : Closeable {
 
-    open class DBException: Exception()
-    class NoSuchIdException : DBException()
+    open class DBException : Exception()
+    class NoSuchProductIdException : DBException()
+    class NoSuchGroupIdException : DBException()
     class NotEnoughItemsException : DBException()
     class NameTakenException : DBException()
 
@@ -53,6 +54,15 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
+    fun setToGroup(prodId: Int, groupId: Int) {
+        if (!groupExists(groupId)) throw NoSuchGroupIdException()
+        if (!productExists(prodId)) throw NoSuchProductIdException()
+
+        conn.createStatement().use {
+            it.execute("UPDATE products SET groupId = $groupId WHERE id = $prodId")
+        }
+    }
+
     fun getList(page: Int = 0, size: Int = 20, criterion: Criterion = Criterion()): ArrayList<Product> {
         if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
 
@@ -74,11 +84,17 @@ class DaoProduct(db: String) : Closeable {
         val conditions = listOfNotNull(
                 like(criterion.query),
                 inIds(criterion.ids),
-                range(criterion.lower, criterion.upper)
+                range(criterion.lower, criterion.upper),
+                group(criterion.groupId)
 
         ).ifEmpty { return "" }.joinToString(" AND ")
 
         return "WHERE $conditions"
+    }
+
+    private fun group(groupId: Int?, field: String = "groupId"): String? {
+        if (groupId == null) return null
+        return "$field = $groupId"
     }
 
     //TODO not sql-injection safe
@@ -123,7 +139,7 @@ class DaoProduct(db: String) : Closeable {
     }
 
     fun delete(id: Int) {
-        if (!productExists(id)) throw NoSuchIdException()
+        if (!productExists(id)) throw NoSuchProductIdException()
 
         conn.createStatement().use {
             it.execute("DELETE FROM products WHERE id = $id")
@@ -131,7 +147,7 @@ class DaoProduct(db: String) : Closeable {
     }
 
     fun delete(name: String) {
-        if (!productExists(name)) throw NoSuchIdException()
+        if (!productExists(name)) throw NoSuchProductIdException()
 
         conn.prepareStatement("DELETE FROM products WHERE name = ?").use {
             it.setString(1, name)
@@ -141,7 +157,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun setPrice(id: Int, newPrice: Double) {
         if (!newPrice.isFinite() || newPrice <= 0) throw IllegalArgumentException("Price is wrong")
-        if (!productExists(id)) throw NoSuchIdException()
+        if (!productExists(id)) throw NoSuchProductIdException()
 
         conn.prepareStatement("UPDATE products SET price =  ? WHERE id = ?").use {
             it.setDouble(1, newPrice)
@@ -153,7 +169,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun addItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
-        if (!productExists(id)) throw NoSuchIdException()
+        if (!productExists(id)) throw NoSuchProductIdException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity + $number WHERE id = $id ")
@@ -162,7 +178,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun addItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
-        if (!productExists(name)) throw NoSuchIdException()
+        if (!productExists(name)) throw NoSuchProductIdException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity + $number WHERE name = ?").use {
             it.setString(1, name)
@@ -172,7 +188,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun removeItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
-        if (!productExists(id)) throw NoSuchIdException()
+        if (!productExists(id)) throw NoSuchProductIdException()
         if (amount(id)!! < number) throw NotEnoughItemsException()
 
         conn.createStatement().use {
@@ -182,7 +198,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun removeItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
-        if (!productExists(name)) throw NoSuchIdException()
+        if (!productExists(name)) throw NoSuchProductIdException()
         if (amount(name)!! < number) throw NotEnoughItemsException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity - $number WHERE name = ? AND quantity >= $number").use {
@@ -269,13 +285,13 @@ class DaoProduct(db: String) : Closeable {
 
 fun main() {
     DaoProduct("file.db").use {
-        val rice = Product("rice", 13.0)
+//        val rice = Product("rice", 13.0)
+//
+//        println(it.insert(rice))
 
-        println(it.insert(rice))
-
-        assert(it.productExists("buckwheat"))
-        assert(!it.productExists("buckwheat1"))
-
+        it.setToGroup(1, 1)
+        it.setToGroup(2, 1)
+        it.setToGroup(3, 1)
 
         it.getList(0, 200).forEach { println(it) }
     }

@@ -19,4 +19,10 @@ data class Product(val name: String, val price: Double, val id: Int? = null, val
         result = 31 * result + price.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "Product(name='$name', price=$price, id=$id, number=$number, groupId=$groupId)"
+    }
+
+
 }

@@ -97,6 +97,19 @@ internal class DaoProductTest {
                 prodSlice.toTypedArray(),
                 dao.getList(criterion = criterion).toArray()
         )
+
+        val groupId = dao.addGroup("testGroup")
+
+        val prods = (1..10).map { "prod$it" }.map { Product(it, 0.00) }
+        //insert all products and add to group
+        prods.map { dao.insert(it) }.forEach{ dao.setToGroup(it, groupId)}
+
+        criterion = Criterion().groupId(groupId)
+
+        assertArrayEquals(
+                prods.toTypedArray(),
+                dao.getList(criterion = criterion).toArray()
+        )
     }
 
     @Test
@@ -113,18 +126,14 @@ internal class DaoProductTest {
 
         val retrievedList = dao.getList(criterion = criterion)
 
-        println(retrievedList)
 
         val filteredSamples = sampleProds.filter { it.price in lower..upper && query in it.name }
 
-        println(filteredSamples)
 
         assertArrayEquals(
                 retrievedList.toArray(),
                 filteredSamples.toTypedArray()
         )
-
-
     }
 
     @Test
@@ -181,11 +190,17 @@ internal class DaoProductTest {
         assertTrue(dao.groupExists("grains"))
 
         val name = "test"
-        dao.addGroup(name)
+        val groupId = dao.addGroup(name)
 
         assertTrue(dao.groupExists(name))
 
+        val prodId = dao.get("buckwheat")!!.id!!
 
+        dao.setToGroup(prodId, groupId)
+
+        val prod = dao.get(prodId)!!
+
+        assertTrue(prod.groupId == groupId)
 
 
     }
