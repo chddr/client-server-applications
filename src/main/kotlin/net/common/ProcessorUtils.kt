@@ -25,10 +25,12 @@ import net.common.ProcessorUtils.Messages.productMessage
 import net.common.ProcessorUtils.Messages.successfulDeletionMessage
 import net.common.ProcessorUtils.Messages.timeMessage
 import net.common.ProcessorUtils.Parser.id
-import net.common.ProcessorUtils.Parser.idAndDouble
-import net.common.ProcessorUtils.Parser.idAndInt
 import net.common.ProcessorUtils.Parser.idAndName
+import net.common.ProcessorUtils.Parser.idAndNumber
+import net.common.ProcessorUtils.Parser.idAndPrice
 import net.common.ProcessorUtils.Parser.product
+import org.json.JSONException
+import org.json.JSONObject
 import protocol.Message
 import protocol.Message.ClientCommands.*
 import protocol.Message.ServerCommands.*
@@ -61,21 +63,21 @@ object ProcessorUtils {
         }
 
         fun setProductPrice(message: Message): Message {
-            val (id, price) = message.msg.idAndDouble()
+            val (id, price) = message.msg.idAndPrice()
             db.setPrice(id, price)
             val product = db.getProduct(id)
             return productMessage(product)
         }
 
         fun decreaseProductCount(message: Message): Message {
-            val (id, decrement) = message.msg.idAndInt()
+            val (id, decrement) = message.msg.idAndNumber()
             db.removeItems(id, decrement)
             val product = db.getProduct(id)
             return productMessage(product)
         }
 
         fun increaseProductCount(message: Message): Message {
-            val (id, increment) = message.msg.idAndInt()
+            val (id, increment) = message.msg.idAndNumber()
             db.addItems(id, increment)
             val product = db.getProduct(id)
             return productMessage(product)
@@ -124,6 +126,7 @@ object ProcessorUtils {
             val list = db.getGroupList()
             return groupListMessage(list)
         }
+
         //TODO add criterions to group and product lists
         fun getProductList(message: Message): Message {
             val list = db.getProductList()
@@ -137,48 +140,48 @@ object ProcessorUtils {
 
         fun String.id(): Int {
             return try {
-                toInt()
-            } catch (e: Throwable) {
+                JSONObject(this).getInt("id")
+            } catch (e: JSONException) {
                 throw ParseException(e)
             }
         }
 
         fun String.idAndName(): Pair<Int, String> {
             return try {
-                split(":").map { it.trim() }.also {
-                    assert(it.size == 2)
-                }.run { first().toInt() to last() }
-            } catch (e: Throwable) {
+                JSONObject(this).run {
+                    getInt("id") to getString("name")
+                }
+            } catch (e: JSONException) {
                 throw ParseException(e)
             }
         }
 
-        fun String.idAndInt(): Pair<Int, Int> {
+        fun String.idAndNumber(): Pair<Int, Int> {
             return try {
-                split(":").map { it.trim() }.also {
-                    assert(it.size == 2)
-                }.map(String::toInt).run { first() to last() }
-            } catch (e: Throwable) {
+                JSONObject(this).run {
+                    getInt("id") to getInt("number")
+                }
+            } catch (e: JSONException) {
                 throw ParseException(e)
             }
         }
 
-        fun String.idAndDouble(): Pair<Int, Double> {
+        fun String.idAndPrice(): Pair<Int, Double> {
             return try {
-                split(":").map { it.trim() }.also {
-                    assert(it.size == 2)
-                }.run { first().toInt() to last().toDouble() }
-            } catch (e: Throwable) {
+                JSONObject(this).run {
+                    getInt("id") to getDouble("price")
+                }
+            } catch (e: JSONException) {
                 throw ParseException(e)
             }
         }
 
         fun String.product(): Product {
             return try {
-                split(":").map { it.trim() }.also {
-                    assert(it.size == 2)
-                }.run { Product(first(), last().toDouble()) }
-            } catch (e: Throwable) {
+                JSONObject(this).run {
+                    Product(getString("name"), getDouble("price"))
+                }
+            } catch (e: JSONException) {
                 throw ParseException(e)
             }
         }

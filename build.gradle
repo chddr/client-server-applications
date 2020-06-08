@@ -16,6 +16,7 @@ dependencies {
     implementation('commons-codec:commons-codec:1.14')
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation('org.xerial:sqlite-jdbc:3.8.9.1')
+    implementation("org.json:json:20200518")
 }
 
 test {
