@@ -8,6 +8,7 @@ import protocol.Message.ClientCommands
 import protocol.Message.ClientCommands.*
 import protocol.Message.ServerCommands.*
 import protocol.Message.ServerCommands.BYE
+import java.time.LocalTime
 
 /**Server thread reference for sending responses and message*/
 class ProcessorThread(private val serverThread: ServerThread, private val message: Message) : Runnable {
@@ -47,8 +48,10 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             DECREASE_PRODUCT_COUNT -> decreaseProductCount(message)
             SET_PRODUCT_PRICE -> setProductPrice(message)
             ClientCommands.BYE -> byeMessage()
+            GET_TIME -> timeMessage()
         }
     }
+
 
     private fun addProduct(message: Message): Message {
         return try {
@@ -152,6 +155,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             idAmountMessage(id, amount)
     }
 
+    private fun timeMessage() = Message(SERVER_TIME, msg = "Time is: ${LocalTime.now()}")
     private fun notEnoughItemsMessage() = Message(ERROR, msg = "Not enough items to remove")
     private fun idAmountMessage(id: Int, amount: Int) = Message(ID_PRODUCT_COUNT, msg = "$id:$amount")
     private fun internalErrorMessage() = Message(INTERNAL_ERROR, msg = "Report to the dev!")
