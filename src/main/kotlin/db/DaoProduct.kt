@@ -17,9 +17,8 @@ class DaoProduct(db: String) : Closeable {
 
     init {
         conn.createStatement().use {
-            it.execute(
-                    "CREATE TABLE IF NOT EXISTS 'products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE , 'price' REAL NOT NULL, 'quantity' INTEGER NOT NULL DEFAULT 0)"
-            )
+            it.execute("CREATE TABLE IF NOT EXISTS 'groups' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE)")
+            it.execute("CREATE TABLE IF NOT EXISTS 'products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE , 'price' REAL NOT NULL, 'quantity' INTEGER NOT NULL DEFAULT 0, 'groupId' INTEGER, FOREIGN KEY (groupId) REFERENCES groups(id))")
         }
     }
 
