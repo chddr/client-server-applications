@@ -7,7 +7,7 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
     enum class ClientCommands {
 
-        GET_PRODUCT, GET_TIME, GET_GROUP,// GET_PRODUCT_LIST, GET_GROUP_LIST,
+        GET_PRODUCT, GET_TIME, GET_GROUP, GET_PRODUCT_LIST, GET_GROUP_LIST,
         ADD_GROUP, ADD_PRODUCT,
         DELETE_PRODUCT, DELETE_GROUP,
         CHANGE_PRODUCT_NAME, CHANGE_GROUP_NAME, SET_PRODUCT_PRICE,
@@ -21,11 +21,11 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
     }
 
     enum class ServerCommands {
-        BYE, RESEND,
+        SERVER_BYE, RESEND,
         INTERNAL_ERROR, WRONG_COMMAND, NO_SUCH_ID_ERROR, NAME_TAKEN_ERROR, WRONG_MESSAGE_FORMAT_ERROR,
         NOT_ENOUGH_ITEMS_ERROR, WRONG_NAME_ERROR, NON_EMPTY_PRODUCT_ERROR,
-        GENERIC_ERROR,
         SUCCESSFUL_DELETION,
+        GROUP_LIST, PRODUCT_LIST,
         PRODUCT, SERVER_TIME, GROUP;
 
         companion object {
@@ -76,7 +76,7 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
 
     companion object {
-        private val MSG_MAX_SIZE = 256
+        private val MSG_MAX_SIZE = 1024 //TODO think about how to limit it so it will never overflow
         val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
     }
 

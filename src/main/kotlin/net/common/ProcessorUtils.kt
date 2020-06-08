@@ -1,17 +1,36 @@
 package net.common
 
+import db.DaoProduct
 import db.entities.Group
 import db.entities.Product
 import net.common.Processor.db
+import net.common.ProcessorUtils.MessageGenerators.addGroup
+import net.common.ProcessorUtils.MessageGenerators.addProduct
+import net.common.ProcessorUtils.MessageGenerators.changeGroupName
+import net.common.ProcessorUtils.MessageGenerators.changeProductName
+import net.common.ProcessorUtils.MessageGenerators.decreaseProductCount
+import net.common.ProcessorUtils.MessageGenerators.getGroup
+import net.common.ProcessorUtils.MessageGenerators.getGroupList
+import net.common.ProcessorUtils.MessageGenerators.getProduct
+import net.common.ProcessorUtils.MessageGenerators.getProductList
+import net.common.ProcessorUtils.MessageGenerators.increaseProductCount
+import net.common.ProcessorUtils.MessageGenerators.removeGroup
+import net.common.ProcessorUtils.MessageGenerators.removeProduct
+import net.common.ProcessorUtils.MessageGenerators.setProductPrice
+import net.common.ProcessorUtils.Messages.byeMessage
+import net.common.ProcessorUtils.Messages.groupListMessage
 import net.common.ProcessorUtils.Messages.groupMessage
+import net.common.ProcessorUtils.Messages.productListMessage
 import net.common.ProcessorUtils.Messages.productMessage
 import net.common.ProcessorUtils.Messages.successfulDeletionMessage
+import net.common.ProcessorUtils.Messages.timeMessage
 import net.common.ProcessorUtils.Parser.id
 import net.common.ProcessorUtils.Parser.idAndDouble
 import net.common.ProcessorUtils.Parser.idAndInt
 import net.common.ProcessorUtils.Parser.idAndName
 import net.common.ProcessorUtils.Parser.product
 import protocol.Message
+import protocol.Message.ClientCommands.*
 import protocol.Message.ServerCommands.*
 import java.time.LocalTime
 import java.util.concurrent.ExecutorService
@@ -101,6 +120,15 @@ object ProcessorUtils {
             return successfulDeletionMessage(id)
         }
 
+        fun getGroupList(message: Message): Message {
+            val list = db.getGroupList()
+            return groupListMessage(list)
+        }
+        //TODO add criterions to group and product lists
+        fun getProductList(message: Message): Message {
+            val list = db.getProductList()
+            return productListMessage(list)
+        }
 
     }
 
@@ -165,10 +193,60 @@ object ProcessorUtils {
         fun wrongMsgFormatMessage() = Message(WRONG_MESSAGE_FORMAT_ERROR, msg = "Wrong message format")
         fun noSuchIdMessage() = Message(NO_SUCH_ID_ERROR, msg = "No such ID in table")
         fun wrongCommand() = Message(WRONG_COMMAND, msg = "")
-        fun byeMessage() = Message(BYE, msg = "Bye!")
+        fun byeMessage() = Message(SERVER_BYE, msg = "Bye!")
         fun wrongNameFormatMessage() = Message(WRONG_NAME_ERROR, msg = "Name you entered is in wrong format")
         fun nameTakenMessage() = Message(NAME_TAKEN_ERROR, msg = "Name is already taken")
         fun successfulDeletionMessage(id: Int) = Message(SUCCESSFUL_DELETION, msg = "Successfully deleted $id")
         fun nonEmptyProductMessage() = Message(NON_EMPTY_PRODUCT_ERROR, msg = "Can't delete product where quantity != 0")
+        fun groupListMessage(list: ArrayList<Group>) = Message(GROUP_LIST, msg = "$list")
+        fun productListMessage(list: ArrayList<Product>) = Message(GROUP_LIST, msg = "$list")
+    }
+
+
+    fun catchException(e: Throwable): Message = when (e) {
+        is DaoProduct.NoSuchProductIdException -> Messages.noSuchIdMessage()
+        is DaoProduct.NotEnoughItemsException -> Messages.notEnoughItemsMessage()
+        is DaoProduct.NoSuchGroupIdException -> Messages.noSuchIdMessage()
+        is DaoProduct.NameTakenException -> Messages.nameTakenMessage()
+        is Parser.ParseException -> Messages.wrongMsgFormatMessage()
+        is DaoProduct.WrongNameFormatException -> Messages.wrongNameFormatMessage()
+        is IllegalArgumentException -> Messages.wrongMsgFormatMessage()
+        is DaoProduct.NonEmptyProductException -> Messages.nonEmptyProductMessage()
+        else -> Messages.internalErrorMessage()
+    }
+
+    fun chooseResponse(message: Message): Message {
+        return when (Message.ClientCommands[message.cType]) {
+            GET_PRODUCT ->
+                getProduct(message)
+            ADD_GROUP ->
+                addGroup(message)
+            ADD_PRODUCT ->
+                addProduct(message)
+            INCREASE_PRODUCT_COUNT ->
+                increaseProductCount(message)
+            DECREASE_PRODUCT_COUNT ->
+                decreaseProductCount(message)
+            SET_PRODUCT_PRICE ->
+                setProductPrice(message)
+            BYE ->
+                byeMessage()
+            GET_TIME ->
+                timeMessage()
+            GET_GROUP ->
+                getGroup(message)
+            CHANGE_PRODUCT_NAME ->
+                changeProductName(message)
+            CHANGE_GROUP_NAME ->
+                changeGroupName(message)
+            DELETE_PRODUCT ->
+                removeProduct(message)
+            DELETE_GROUP ->
+                removeGroup(message)
+            GET_PRODUCT_LIST ->
+                getProductList(message)
+            GET_GROUP_LIST ->
+                getGroupList(message)
+        }
     }
 }

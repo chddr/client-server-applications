@@ -1,31 +1,11 @@
 package net.common
 
-import db.DaoProduct.*
-import net.common.ProcessorUtils.MessageGenerators.addGroup
-import net.common.ProcessorUtils.MessageGenerators.addProduct
-import net.common.ProcessorUtils.MessageGenerators.changeGroupName
-import net.common.ProcessorUtils.MessageGenerators.changeProductName
-import net.common.ProcessorUtils.MessageGenerators.decreaseProductCount
-import net.common.ProcessorUtils.MessageGenerators.getGroup
-import net.common.ProcessorUtils.MessageGenerators.getProduct
-import net.common.ProcessorUtils.MessageGenerators.increaseProductCount
-import net.common.ProcessorUtils.MessageGenerators.removeGroup
-import net.common.ProcessorUtils.MessageGenerators.removeProduct
-import net.common.ProcessorUtils.MessageGenerators.setProductPrice
-import net.common.ProcessorUtils.Messages.byeMessage
-import net.common.ProcessorUtils.Messages.internalErrorMessage
-import net.common.ProcessorUtils.Messages.nameTakenMessage
-import net.common.ProcessorUtils.Messages.noSuchIdMessage
-import net.common.ProcessorUtils.Messages.nonEmptyProductMessage
-import net.common.ProcessorUtils.Messages.notEnoughItemsMessage
-import net.common.ProcessorUtils.Messages.timeMessage
 import net.common.ProcessorUtils.Messages.wrongCommand
-import net.common.ProcessorUtils.Messages.wrongMsgFormatMessage
-import net.common.ProcessorUtils.Messages.wrongNameFormatMessage
-import net.common.ProcessorUtils.Parser.ParseException
+import net.common.ProcessorUtils.catchException
+import net.common.ProcessorUtils.chooseResponse
 import protocol.Message
 import protocol.Message.ClientCommands
-import protocol.Message.ClientCommands.*
+import protocol.Message.ClientCommands.BYE
 
 /**Server thread reference for sending responses and message*/
 class ProcessorThread(private val serverThread: ServerThread, private val message: Message) : Runnable {
@@ -49,53 +29,11 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
     private fun process(): Message {
         return if (message.cType in ClientCommands)
             try {
-                chooseResponse()
+                chooseResponse(message)
             } catch (e: Throwable) {
                 catchException(e)
             }
         else wrongCommand()
     }
 
-    private fun catchException(e: Throwable): Message = when (e) {
-        is NoSuchProductIdException -> noSuchIdMessage()
-        is NotEnoughItemsException -> notEnoughItemsMessage()
-        is NoSuchGroupIdException -> noSuchIdMessage()
-        is NameTakenException -> nameTakenMessage()
-        is ParseException -> wrongMsgFormatMessage()
-        is WrongNameFormatException -> wrongNameFormatMessage()
-        is IllegalArgumentException -> wrongMsgFormatMessage()
-        is NonEmptyProductException -> nonEmptyProductMessage()
-        else -> internalErrorMessage()
-    }
-
-    private fun chooseResponse(): Message {
-        return when (ClientCommands[message.cType]) {
-            GET_PRODUCT ->
-                getProduct(message)
-            ADD_GROUP ->
-                addGroup(message)
-            ADD_PRODUCT ->
-                addProduct(message)
-            INCREASE_PRODUCT_COUNT ->
-                increaseProductCount(message)
-            DECREASE_PRODUCT_COUNT ->
-                decreaseProductCount(message)
-            SET_PRODUCT_PRICE ->
-                setProductPrice(message)
-            BYE ->
-                byeMessage()
-            GET_TIME ->
-                timeMessage()
-            GET_GROUP ->
-                getGroup(message)
-            CHANGE_PRODUCT_NAME ->
-                changeProductName(message)
-            CHANGE_GROUP_NAME ->
-                changeGroupName(message)
-            DELETE_PRODUCT ->
-                removeProduct(message)
-            DELETE_GROUP ->
-                removeGroup(message)
-        }
-    }
 }

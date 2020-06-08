@@ -31,7 +31,7 @@ abstract class ServerThread : Runnable, Closeable {
     abstract fun send(packet: Packet)
     override fun close() {
         send(Message(
-                Message.ServerCommands.BYE,
+                Message.ServerCommands.SERVER_BYE,
                 0,
                 "Connection timed out"
         ))
