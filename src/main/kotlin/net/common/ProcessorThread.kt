@@ -1,6 +1,6 @@
 package net.common
 
-import net.common.ProcessorUtils.processMessage
+import net.common.utils.ProcessorUtils.processMessage
 import protocol.Message
 import protocol.Message.ClientCommands.BYE
 

@@ -2,7 +2,7 @@ package net.common
 
 import db.DaoProduct
 import net.PROCESSOR_THREADS
-import net.common.ProcessorUtils.waitForStop
+import net.common.utils.ProcessorUtils.waitForStop
 import protocol.Message
 import java.util.concurrent.Executors
 

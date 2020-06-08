@@ -3,7 +3,7 @@ package net.common
 import net.NetProtocol
 import net.SERVER_THREADS
 import net.SERVER_TIMEOUT
-import net.common.ProcessorUtils.waitForStop
+import net.common.utils.ProcessorUtils.waitForStop
 import net.tcp.ServerTCP
 import net.udp.ServerUDP
 import java.io.BufferedReader
