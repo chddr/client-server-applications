@@ -1,12 +1,15 @@
 package db
 
+import db.DBUtils.checkName
+import db.DBUtils.extractGroup
+import db.DBUtils.extractProduct
+import db.DBUtils.generateWhereClause
 import db.entities.Criterion
 import db.entities.Group
 import db.entities.Product
 import java.io.Closeable
 import java.sql.Connection
 import java.sql.DriverManager
-import java.sql.ResultSet
 
 class DaoProduct(db: String) : Closeable {
 
@@ -82,7 +85,6 @@ class DaoProduct(db: String) : Closeable {
             val conditions = generateWhereClause(criterion)
             val query = "SELECT * FROM products $conditions LIMIT $size OFFSET ${page * size}"
 
-//            println(query)
             it.executeQuery(query).run {
                 ArrayList<Product>().also { prods ->
                     while (next())
@@ -105,41 +107,6 @@ class DaoProduct(db: String) : Closeable {
                 }
             }
         }
-    }
-
-    private fun generateWhereClause(criterion: Criterion): String {
-        val conditions = listOfNotNull(
-                like(criterion.query),
-                inIds(criterion.ids),
-                range(criterion.lower, criterion.upper),
-                group(criterion.groupId)
-
-        ).ifEmpty { return "" }.joinToString(" AND ")
-
-        return "WHERE $conditions"
-    }
-
-    private fun group(groupId: Int?, field: String = "groupId"): String? {
-        if (groupId == null) return null
-        return "$field = $groupId"
-    }
-
-    //TODO not sql-injection safe
-    private fun like(query: String?, field: String = "name"): String? {
-        if (query == null) return null
-        return "$field LIKE '%$query%'"
-    }
-
-    private fun inIds(ids: Set<Int>?, field: String = "id"): String? {
-        if (ids == null || ids.isEmpty()) return null
-        return "$field IN (${ids.joinToString()})"
-    }
-
-    private fun range(lower: Double?, upper: Double?, field: String = "price"): String? = when {
-        lower != null && upper != null -> "$field BETWEEN $lower AND $upper"
-        lower != null -> "$field >= $lower"
-        upper != null -> "$field <= $upper"
-        else -> null
     }
 
     fun getProduct(id: Int): Product {
@@ -330,19 +297,6 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    private fun ResultSet.extractProduct(): Product {
-
-        val groupId: Int? = getInt("groupId").takeIf { it != 0 }
-        return Product(getString("name"), getDouble("price"), getInt("id"), getInt("quantity"), groupId)
-    }
-
-    private fun ResultSet.extractGroup() = Group(getInt("id"), getString("name"))
-
-    private fun checkName(name: String): Boolean {
-        return name.matches(Regex("[\\w -]{3,20}")) && !name.startsWith(" ") && !name.endsWith(" ")
-    }
-
-
     internal fun deleteAll() {
         conn.createStatement().use {
             it.execute("DELETE FROM products")
@@ -364,7 +318,7 @@ class DaoProduct(db: String) : Closeable {
 //        it.setToGroup(2, 1)
 //        it.setToGroup(3, 1)
 
-                it.getProductList(0, 200).forEach { println(it) }
+                it.getProductList(0, 200).forEach { product -> println(product) }
             }
         }
     }
