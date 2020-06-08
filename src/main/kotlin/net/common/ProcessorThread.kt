@@ -86,7 +86,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             val (id, decrement) = idAndInt(message.msg)
             db.removeItems(id, decrement)
             val amount = db.productAmount(id)
-            idAmountMessage(id, amount!!)
+            idAmountMessage(id, amount)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
         } catch (e: NoSuchProductIdException) {
@@ -101,7 +101,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
             val (id, increment) = idAndInt(message.msg)
             db.addItems(id, increment)
             val amount = db.productAmount(id)
-            idAmountMessage(id, amount!!)
+            idAmountMessage(id, amount)
         } catch (e: ParseException) {
             wrongMsgFormatMessage()
         } catch (e: NoSuchProductIdException) {
@@ -149,10 +149,7 @@ class ProcessorThread(private val serverThread: ServerThread, private val messag
         }
         val amount = db.productAmount(id)
 
-        return if (amount == null)
-            noSuchIdMessage()
-        else
-            idAmountMessage(id, amount)
+        return idAmountMessage(id, amount)
     }
 
     private fun timeMessage() = Message(SERVER_TIME, msg = "Time is: ${LocalTime.now()}")

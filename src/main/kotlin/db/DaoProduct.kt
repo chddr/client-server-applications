@@ -138,26 +138,26 @@ class DaoProduct(db: String) : Closeable {
         else -> null
     }
 
-    fun getProduct(id: Int): Product? {
+    fun getProduct(id: Int): Product {
+        if (!productExists(id)) throw NoSuchProductIdException()
+
         return conn.createStatement().use {
             val res = it.executeQuery("SELECT * FROM products WHERE id = $id")
 
-            when {
-                res.next() -> res.extractProduct()
-                else -> null
-            }
+            res.next()
+            res.extractProduct()
         }
     }
 
-    fun getProduct(name: String): Product? {
+    fun getProduct(name: String): Product {
+        if (!productExists(name)) throw NoSuchProductIdException()
+
         return conn.prepareStatement("SELECT * FROM products WHERE name = ?").use {
             it.setString(1, name)
             val res = it.executeQuery()
 
-            when {
-                res.next() -> res.extractProduct()
-                else -> null
-            }
+            res.next()
+            res.extractProduct()
         }
     }
 
@@ -175,6 +175,38 @@ class DaoProduct(db: String) : Closeable {
         conn.prepareStatement("DELETE FROM products WHERE name = ?").use {
             it.setString(1, name)
             it.execute()
+        }
+    }
+
+    fun changeProductName(id: Int, name: String) {
+        if (productExists(name)) throw NameTakenException()
+        if (!productExists(id)) throw NoSuchProductIdException()
+
+        conn.prepareStatement("UPDATE products SET name = ? WHERE id = $id").use {
+            it.setString(1, name)
+
+            it.executeUpdate()
+        }
+    }
+
+    fun getGroupName(id: Int): String {
+        if (!groupExists(id)) throw NoSuchGroupIdException()
+
+        return conn.createStatement().use {
+            val res = it.executeQuery("SELECT * FROM groups WHERE id = $id")
+            res.next()
+            res.getString("name")
+        }
+    }
+
+    fun changeGroupName(id: Int, name: String) {
+        if (groupExists(name)) throw NameTakenException()
+        if (!groupExists(id)) throw NoSuchGroupIdException()
+
+        conn.prepareStatement("UPDATE groups SET name = ? WHERE id = $id").use {
+            it.setString(1, name)
+
+            it.executeUpdate()
         }
     }
 
@@ -212,7 +244,7 @@ class DaoProduct(db: String) : Closeable {
     fun removeItems(id: Int, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(id)) throw NoSuchProductIdException()
-        if (productAmount(id)!! < number) throw NotEnoughItemsException()
+        if (productAmount(id) < number) throw NotEnoughItemsException()
 
         conn.createStatement().use {
             it.execute("UPDATE products SET quantity = quantity - $number WHERE id = $id AND quantity >= $number")
@@ -222,7 +254,7 @@ class DaoProduct(db: String) : Closeable {
     fun removeItems(name: String, number: Int) {
         if (number <= 0) throw IllegalArgumentException("Must be positive")
         if (!productExists(name)) throw NoSuchProductIdException()
-        if (productAmount(name)!! < number) throw NotEnoughItemsException()
+        if (productAmount(name) < number) throw NotEnoughItemsException()
 
         conn.prepareStatement("UPDATE products SET quantity = quantity - $number WHERE name = ? AND quantity >= $number").use {
             it.setString(1, name)
@@ -230,25 +262,27 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun productAmount(id: Int): Int? {
+    fun productAmount(id: Int): Int {
+        if (!productExists(id)) throw NoSuchProductIdException()
+
         return conn.createStatement().use {
             it.executeQuery("SELECT quantity FROM products WHERE id = $id").run {
-                when {
-                    next() -> getInt("quantity")
-                    else -> null
-                }
+                next()
+                getInt("quantity")
             }
+
         }
     }
 
-    fun productAmount(name: String): Int? {
+    fun productAmount(name: String): Int {
+        if (!productExists(name)) throw NoSuchProductIdException()
+
         return conn.prepareStatement("SELECT quantity FROM products WHERE name = ?").use {
             it.setString(1, name)
             it.executeQuery().run {
-                when {
-                    next() -> getInt("quantity")
-                    else -> null
-                }
+                next()
+                getInt("quantity")
+
             }
         }
     }
