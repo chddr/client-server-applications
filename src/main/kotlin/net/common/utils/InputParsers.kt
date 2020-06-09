@@ -7,6 +7,14 @@ import org.json.JSONObject
 object InputParsers {
     class ParseException(e: Throwable) : Exception(e)
 
+    fun String.name() : String {
+        return try {
+            JSONObject(this).getString("name")
+        } catch (e: JSONException) {
+            throw ParseException(e)
+        }
+    }
+
     fun String.id(): Int {
         return try {
             JSONObject(this).getInt("id")

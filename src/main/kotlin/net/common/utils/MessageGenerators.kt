@@ -5,12 +5,14 @@ import net.common.utils.InputParsers.id
 import net.common.utils.InputParsers.idAndName
 import net.common.utils.InputParsers.idAndNumber
 import net.common.utils.InputParsers.idAndPrice
+import net.common.utils.InputParsers.name
 import net.common.utils.InputParsers.product
+import net.common.utils.Messages.deletedGroupMessage
+import net.common.utils.Messages.deletedProductMessage
 import net.common.utils.Messages.groupListMessage
 import net.common.utils.Messages.groupMessage
 import net.common.utils.Messages.productListMessage
 import net.common.utils.Messages.productMessage
-import net.common.utils.Messages.successfulDeletionMessage
 import protocol.Message
 
 object MessageGenerators {
@@ -69,7 +71,7 @@ object MessageGenerators {
     }
 
     fun addGroup(message: Message): Message {
-        val name = message.msg
+        val name = message.msg.name()
         val id = Processor.db.addGroup(name)
         val group = Processor.db.getGroup(id)
         return groupMessage(group)
@@ -78,13 +80,13 @@ object MessageGenerators {
     fun removeGroup(message: Message): Message {
         val id = message.msg.id()
         Processor.db.deleteGroup(id)
-        return successfulDeletionMessage(id)
+        return deletedGroupMessage(id)
     }
 
     fun removeProduct(message: Message): Message {
         val id = message.msg.id()
         Processor.db.deleteProduct(id)
-        return successfulDeletionMessage(id)
+        return deletedProductMessage(id)
     }
 
     fun getGroupList(message: Message): Message {
