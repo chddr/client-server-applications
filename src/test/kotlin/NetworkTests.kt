@@ -1,9 +1,8 @@
 
 import net.NetProtocol
-import net.impl.Processor
-import net.impl.ServerRunner
-import net.impl.tcp.ClientTCP
-import net.impl.udp.ClientUDP
+import net.common.ServerRunner
+import net.tcp.ClientTCP
+import net.udp.ClientUDP
 import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 
@@ -13,11 +12,10 @@ class NetworkTests {
     fun manyTCPConnections() {
 
         val t = thread(start = true) {
-            ServerRunner(NetProtocol.TCP)
-            Processor.waitForProcessorStop()
+            ServerRunner(NetProtocol.TCP, 1000)
         }
 
-        repeat(10) {
+        repeat(100) {
             thread {
                 ClientTCP(0)//should be successful if no exceptions are thrown
             }
@@ -31,11 +29,10 @@ class NetworkTests {
     fun manyUDPConnections() {
 
         val t = thread(start = true) {
-            ServerRunner(NetProtocol.UDP)
-            Processor.waitForProcessorStop()
+            ServerRunner(NetProtocol.UDP, 1000)
         }
 
-        repeat(10) {
+        repeat(100) {
             thread {
                 ClientUDP(0)//should be successful if no exceptions are thrown
             }

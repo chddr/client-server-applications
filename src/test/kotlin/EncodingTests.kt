@@ -1,9 +1,9 @@
 
-import net.protocol.BadDataException
-import net.protocol.EncryptorDecryptor
-import net.protocol.Message
-import net.protocol.Message.ClientCommandTypes.ADD_PRODUCT_TO_GROUP
-import net.protocol.Packet
+import protocol.BadDataException
+import protocol.EncryptorDecryptor
+import protocol.Message
+import protocol.Message.ClientCommands.ADD_PRODUCT
+import protocol.Packet
 import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -67,7 +67,7 @@ class EncodingTests {
                 2,
                 4,
                 Message(
-                        ADD_PRODUCT_TO_GROUP.ordinal,
+                        ADD_PRODUCT.ordinal,
                         0,
                         "Hello world!"
                 )
