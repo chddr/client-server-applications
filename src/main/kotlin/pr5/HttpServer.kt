@@ -13,12 +13,9 @@ import pr5.handlers.ProductIdHandler
 import java.io.IOException
 import java.net.InetSocketAddress
 
-class HttpServer(port: Int) {
+class HttpServer(port: Int, dbName: String = "file.db") {
 
     companion object {
-        val OBJECT_MAPPER = jacksonObjectMapper()
-        val daoUser = DaoUser("file.db")
-        val daoProduct = DaoProduct("file.db")
 
         @JvmStatic
         fun main(args: Array<String>) {
@@ -26,14 +23,18 @@ class HttpServer(port: Int) {
         }
     }
 
+    val objectMapper = jacksonObjectMapper()
+    val userDB = DaoUser(dbName)
+    val productDB = DaoProduct(dbName)
+
     private val server = HttpServer.create(InetSocketAddress(port), 0)
 
     /** Context handler with associated roots*/
     @Language("RegExp")
     private val contextHandlers = listOf(
-            ProductIdHandler("^/api/product/(\\d+)$"),
-            ProductHandler("^/api/product$"),
-            LoginHandler("^/login$")
+            ProductIdHandler("^/api/product/(\\d+)$", this),
+            ProductHandler("^/api/product$", this),
+            LoginHandler("^/login$", this)
     )
 
 

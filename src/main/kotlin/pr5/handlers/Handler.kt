@@ -5,42 +5,23 @@ import com.sun.net.httpserver.HttpHandler
 import pr5.HttpServer
 
 
-abstract class Handler(pattern: String) : HttpHandler {
+abstract class Handler(pattern: String, private val httpServer: HttpServer) : HttpHandler {
 
     private val urlPattern: Regex = Regex(pattern)
 
-    //companion object {
-    //    val swaps = listOf("/" to "\\/",
-    //            "{product_id}" to "(\\d+)")}
-    //init {
-    //    var pattern = pattern
-    //    for ((from, to) in swaps)
-    //        pattern.replace(from, to)
-    //    pattern = "^$pattern$"
-    //    urlPattern = Pattern.compile(pattern);
-    //}
-
-//    private fun parameters(uri: String): List<String> {
-//        val matcher = urlPattern.matcher(uri)
-//
-//        val list = arrayListOf<String>()
-//        for (i in 0 until matcher.groupCount()) {
-//            list.add(matcher.group(i))
-//        }
-//
-//        return list
-//    }
+    protected fun userDB() = httpServer.userDB
+    protected fun productDB() = httpServer.productDB
+    protected fun objectMapper() = httpServer.objectMapper
 
     fun matches(uri: String) = urlPattern.matches(uri)
 
-//    fun HttpExchange.getParameter(n: Int): String = parameters(requestURI.toString())[n]
 
     fun HttpExchange.writeResponse(code: Int, response: Any?) {
         responseHeaders
                 .add("Content-Type", "application/json")
 
         if (response != null) {
-            val bytes = HttpServer.OBJECT_MAPPER.writeValueAsBytes(response)
+            val bytes = objectMapper().writeValueAsBytes(response)
             sendResponseHeaders(code, bytes.size.toLong())
             responseBody.write(bytes)
         } else

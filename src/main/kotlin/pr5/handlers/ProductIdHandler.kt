@@ -2,12 +2,12 @@ package pr5.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import db.exceptions.NoSuchProductIdException
-import pr5.HttpServer.Companion.daoProduct
+import pr5.HttpServer
 import pr5.responses.ErrorResponse
 import java.net.URI
 
 
-class ProductIdHandler(urlPattern: String) : Handler(urlPattern) {
+class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
 
     override fun handle(exchange: HttpExchange) {
         try {
@@ -45,7 +45,7 @@ class ProductIdHandler(urlPattern: String) : Handler(urlPattern) {
 
     private fun handleDELETE(exchange: HttpExchange, prodId: Int) {
         try {
-            daoProduct.deleteProduct(prodId)
+            productDB().deleteProduct(prodId)
             exchange.writeResponse(204, null)
         } catch (e: NoSuchProductIdException) {
             exchange.writeResponse(404, ErrorResponse("No such product"))
@@ -55,7 +55,7 @@ class ProductIdHandler(urlPattern: String) : Handler(urlPattern) {
 
     private fun handleGET(exchange: HttpExchange, productId: Int) {
         try {
-            val product = daoProduct.getProduct(productId)
+            val product = productDB().getProduct(productId)
             exchange.writeResponse(200, product)
         } catch (e: NoSuchProductIdException) {
             exchange.writeResponse(404, ErrorResponse("No such product"))

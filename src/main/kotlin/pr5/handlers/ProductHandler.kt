@@ -7,11 +7,10 @@ import db.entities.Product
 import db.entities.query_types.Id
 import db.entities.query_types.ProductChange
 import db.exceptions.*
-import pr5.HttpServer.Companion.OBJECT_MAPPER
-import pr5.HttpServer.Companion.daoProduct
+import pr5.HttpServer
 import pr5.responses.ErrorResponse
 
-class ProductHandler(urlPattern: String) : Handler(urlPattern) {
+class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
 
     override fun handle(exchange: HttpExchange) {
         try {
@@ -34,8 +33,8 @@ class ProductHandler(urlPattern: String) : Handler(urlPattern) {
 
     private fun handlePUT(exchange: HttpExchange) {
         try {
-            val product = OBJECT_MAPPER.readValue<Product>(exchange.requestBody)
-            val id = daoProduct.insertProduct(product)
+            val product = objectMapper().readValue<Product>(exchange.requestBody)
+            val id = productDB().insertProduct(product)
             exchange.writeResponse(201, Id(id))
         } catch (e: DBException) {
             when (e) {
@@ -51,8 +50,8 @@ class ProductHandler(urlPattern: String) : Handler(urlPattern) {
 
     private fun handlePOST(exchange: HttpExchange) {// number below is ignored because it shouldn't be "set" - there should
         try {                                       // be separate methods responsible for addition/removal of certain amount
-            val (id, name, price, _, groupId) = OBJECT_MAPPER.readValue<ProductChange>(exchange.requestBody)
-            daoProduct.updateProduct(id, name, price, groupId)
+            val (id, name, price, _, groupId) = objectMapper().readValue<ProductChange>(exchange.requestBody)
+            productDB().updateProduct(id, name, price, groupId)
 
             exchange.writeResponse(204, null)
         } catch (e: DBException) {
