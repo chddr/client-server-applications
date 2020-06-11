@@ -1,9 +1,8 @@
 package net.common.utils
 
 import db.entities.Group
-import db.entities.Group.Companion.toJsonString
 import db.entities.Product
-import db.entities.Product.Companion.toJsonString
+import net.common.Processor.OBJECT_MAPPER
 import protocol.Message
 import protocol.Message.ServerCommands.*
 import java.time.LocalTime
@@ -16,8 +15,8 @@ object Messages {
     fun byeMessage() = Message(SERVER_BYE, msg = "Bye!")
     fun deletedProductMessage(id: Int) = Message(DELETED_PRODUCT, msg = "{id:$id}")
     fun deletedGroupMessage(id: Int) = Message(DELETED_GROUP, msg = "{id:$id}")
-    fun groupListMessage(list: ArrayList<Group>) = Message(GROUP_LIST, msg = list.toJsonString())
-    fun productListMessage(list: ArrayList<Product>) = Message(PRODUCT_LIST, msg = list.toJsonString())
+    fun groupListMessage(list: ArrayList<Group>) = Message(GROUP_LIST, msg = OBJECT_MAPPER.writeValueAsString(list))
+    fun productListMessage(list: ArrayList<Product>) = Message(PRODUCT_LIST, msg = OBJECT_MAPPER.writeValueAsString(list))
 
     fun wrongCommandException() = Message(WRONG_COMMAND_ERROR, msg = "")
     fun internalException() = Message(INTERNAL_ERROR, msg = "Report to the dev!")
