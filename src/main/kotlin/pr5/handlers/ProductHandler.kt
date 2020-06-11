@@ -37,11 +37,7 @@ class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPa
             val id = productDB().insertProduct(product)
             exchange.writeResponse(201, Id(id))
         } catch (e: DBException) {
-            when (e) {
-                is WrongPriceException -> exchange.writeResponse(409, ErrorResponse("Wrong price"))
-                is WrongNameFormatException -> exchange.writeResponse(409, ErrorResponse("Wrong name"))
-                is NameTakenException -> exchange.writeResponse(409, ErrorResponse("Such name is already used"))
-            }
+            matchDbException(e, exchange)
         } catch (e: JsonProcessingException) {
             exchange.writeResponse(400, ErrorResponse("JSON couldn't be parsed"))
         }
@@ -55,15 +51,19 @@ class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPa
 
             exchange.writeResponse(204, null)
         } catch (e: DBException) {
-            when (e) {
-                is NoSuchProductIdException -> exchange.writeResponse(404, ErrorResponse("No such product ID"))
-                is NoSuchGroupIdException -> exchange.writeResponse(404, ErrorResponse("No such group ID"))
-                is WrongPriceException -> exchange.writeResponse(409, ErrorResponse("Wrong price"))
-                is WrongNameFormatException -> exchange.writeResponse(409, ErrorResponse("Wrong name"))
-                is NameTakenException -> exchange.writeResponse(409, ErrorResponse("Such name is already used"))
-            }
+            matchDbException(e, exchange)
         } catch (e: JsonProcessingException) {
             exchange.writeResponse(400, ErrorResponse("JSON couldn't be parsed"))
+        }
+    }
+
+    private fun matchDbException(exception: DBException, exchange: HttpExchange) {
+        when (exception) {
+            is NoSuchProductIdException -> exchange.writeResponse(404, ErrorResponse("No such product ID"))
+            is NoSuchGroupIdException -> exchange.writeResponse(404, ErrorResponse("No such group ID"))
+            is WrongPriceException -> exchange.writeResponse(409, ErrorResponse("Wrong price"))
+            is WrongNameFormatException -> exchange.writeResponse(409, ErrorResponse("Wrong name"))
+            is NameTakenException -> exchange.writeResponse(409, ErrorResponse("Such name is already used"))
         }
     }
 

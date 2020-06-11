@@ -32,10 +32,10 @@ class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPatt
                 val loginResponse = LoginResponse(JwtService.generateToken(user), user.login, user.role)
                 exchange.writeResponse(200, loginResponse)
             } else {
-                exchange.writeResponse(401, ErrorResponse("invalid password"))
+                exchange.writeResponse(401, ErrorResponse("Invalid password"))
             }
         } else {
-            exchange.writeResponse(401, ErrorResponse("unknown user"))
+            exchange.writeResponse(401, ErrorResponse("Invalid user"))
         }
 
 

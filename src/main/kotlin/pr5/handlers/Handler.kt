@@ -16,7 +16,7 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer) : Ht
 
     fun matches(uri: String) = urlPattern.matches(uri)
 
-    fun HttpExchange.wrongMethod(method: String) = writeResponse(405, ErrorResponse("$method not allowed"))
+    fun HttpExchange.wrongMethod(method: String) = writeResponse(405, ErrorResponse("$method method not allowed"))
 
     fun HttpExchange.writeResponse(code: Int, response: Any?) {
         responseHeaders
