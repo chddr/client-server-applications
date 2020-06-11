@@ -35,7 +35,10 @@ abstract class Handler(pattern: String) : HttpHandler {
 
 //    fun HttpExchange.getParameter(n: Int): String = parameters(requestURI.toString())[n]
 
-    fun HttpExchange.writeResponse(code: Int, response: Any) {
+    fun HttpExchange.writeResponse(code: Int, response: Any?) {
+        responseHeaders
+                .add("Content-Type", "application/json")
+
         val bytes = HttpServer.OBJECT_MAPPER.writeValueAsBytes(response)
         sendResponseHeaders(code, bytes.size.toLong())
         responseBody.write(bytes)

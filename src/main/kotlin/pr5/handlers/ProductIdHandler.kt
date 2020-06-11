@@ -2,38 +2,63 @@ package pr5.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import db.exceptions.NoSuchProductIdException
-import pr5.HttpServer
+import pr5.HttpServer.Companion.daoProduct
 import pr5.responses.ErrorResponse
+import java.net.URI
 
 
 class ProductIdHandler(urlPattern: String) : Handler(urlPattern) {
 
     override fun handle(exchange: HttpExchange) {
         try {
-            exchange.responseHeaders
-                    .add("Content-Type", "application/json")
-
+            //checking user privilege
             if (exchange.principal.realm != "admin") {
                 exchange.writeResponse(403, ErrorResponse("No permission"))
                 return
             }
+            val prodId = prodIdFromURI(exchange.requestURI)
 
-            val productId = try {
-                exchange.requestURI.toString().split("/").last().toInt()
-            } catch (e: NoSuchProductIdException) {
+            if (prodId==null) {
                 exchange.writeResponse(400, ErrorResponse("Id too long"))
                 return
             }
 
-            try {
-                val product = HttpServer.daoProduct.getProduct(productId)
-                exchange.writeResponse(200, product)
-            } catch (e: NoSuchProductIdException) {
-                exchange.writeResponse(404, ErrorResponse("No such product"))
+            when (exchange.requestMethod) {
+                "GET" -> handleGET(exchange, prodId)
+                "DELETE" -> handleDELETE(exchange, prodId)
+                else -> exchange.writeResponse(405, ErrorResponse("Only GET and DELETE are allowed"))
             }
+
         } catch (e: Exception) {
             e.printStackTrace()
             exchange.writeResponse(500, ErrorResponse("Internal error"))
+        }
+    }
+
+    private fun prodIdFromURI(URI: URI): Int? {
+        return try {
+            URI.toString().split("/").last().toInt()
+        } catch (e: NoSuchProductIdException) {
+            null
+        }
+    }
+
+    private fun handleDELETE(exchange: HttpExchange, prodId: Int) {
+        try {
+            daoProduct.deleteProduct(prodId)
+            exchange.writeResponse(204, null)
+        } catch (e: NoSuchProductIdException) {
+            exchange.writeResponse(404, ErrorResponse("No such product"))
+        }
+    }
+
+
+    private fun handleGET(exchange: HttpExchange, productId: Int) {
+        try {
+            val product = daoProduct.getProduct(productId)
+            exchange.writeResponse(200, product)
+        } catch (e: NoSuchProductIdException) {
+            exchange.writeResponse(404, ErrorResponse("No such product"))
         }
     }
 }

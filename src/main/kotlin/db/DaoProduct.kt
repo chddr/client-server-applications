@@ -128,7 +128,7 @@ class DaoProduct(db: String) : Closeable {
 
     fun deleteProduct(id: Int) {
         if (!productExists(id)) throw NoSuchProductIdException()
-        if (productAmount(id) != 0) throw NonEmptyProductException()
+//        if (productAmount(id) != 0) throw NonEmptyProductException() temporarily removed not to over complicate life fomymiself
 
         conn.createStatement().use {
             it.execute("DELETE FROM products WHERE id = $id")
