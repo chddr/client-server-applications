@@ -19,10 +19,10 @@ class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPa
                 return
             }
 
-            when (exchange.requestMethod) {
+            when (val method = exchange.requestMethod) {
                 "PUT" -> handlePUT(exchange)
                 "POST" -> handlePOST(exchange)
-                else -> exchange.writeResponse(405, ErrorResponse("Only PUT and POST are allowed"))
+                else -> exchange.writeResponse(405, ErrorResponse("$method not allowed (only PUT and POST)"))
             }
 
         } catch (e: Exception) {

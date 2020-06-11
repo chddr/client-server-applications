@@ -10,16 +10,17 @@ import pr5.authentication.MyAuthenticator
 import pr5.handlers.LoginHandler
 import pr5.handlers.ProductHandler
 import pr5.handlers.ProductIdHandler
+import java.io.Closeable
 import java.io.IOException
 import java.net.InetSocketAddress
 
-class HttpServer(port: Int, dbName: String = "file.db") {
+class HttpServer(port: Int = 8080, dbName: String = "file.db"): Closeable {
 
     companion object {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            HttpServer(8080)
+            HttpServer()
         }
     }
 
@@ -65,6 +66,6 @@ class HttpServer(port: Int, dbName: String = "file.db") {
 
     }
 
-    fun stop() = server.stop(1)
+    override fun close() = server.stop(0)
 
 }
