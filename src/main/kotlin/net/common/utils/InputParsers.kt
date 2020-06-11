@@ -1,64 +1,58 @@
 package net.common.utils
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import db.entities.Product
-import org.json.JSONException
-import org.json.JSONObject
+import net.common.Processor.OBJECT_MAPPER
+import net.common.utils.query_types.*
 
 object InputParsers {
     class ParseException(e: Throwable) : Exception(e)
 
-    fun String.name() : String {
+    fun String.name(): String {
         return try {
-            JSONObject(this).getString("name")
-        } catch (e: JSONException) {
+            OBJECT_MAPPER.readValue<Name>(this).name
+        } catch (e: Exception) {
             throw ParseException(e)
         }
     }
 
     fun String.id(): Int {
         return try {
-            JSONObject(this).getInt("id")
-        } catch (e: JSONException) {
+            OBJECT_MAPPER.readValue<Id>(this).id
+        } catch (e: Exception) {
             throw ParseException(e)
         }
     }
 
-    fun String.idAndName(): Pair<Int, String> {
+    fun String.idAndName(): IdAndName {
         return try {
-            JSONObject(this).run {
-                getInt("id") to getString("name")
-            }
-        } catch (e: JSONException) {
+            OBJECT_MAPPER.readValue(this)
+        } catch (e: Exception) {
             throw ParseException(e)
         }
     }
 
-    fun String.idAndNumber(): Pair<Int, Int> {
+    fun String.idAndNumber():IdAndNumber {
         return try {
-            JSONObject(this).run {
-                getInt("id") to getInt("number")
-            }
-        } catch (e: JSONException) {
+            OBJECT_MAPPER.readValue(this)
+        } catch (e: Exception) {
             throw ParseException(e)
         }
     }
 
-    fun String.idAndPrice(): Pair<Int, Double> {
+    fun String.idAndPrice(): IdAndPrice {
         return try {
-            JSONObject(this).run {
-                getInt("id") to getDouble("price")
-            }
-        } catch (e: JSONException) {
+            OBJECT_MAPPER.readValue(this)
+        } catch (e: Exception) {
             throw ParseException(e)
         }
     }
 
     fun String.product(): Product {
         return try {
-            JSONObject(this).run {
-                Product(getString("name"), getDouble("price"))
-            }
-        } catch (e: JSONException) {
+            OBJECT_MAPPER.readValue(this)
+        } catch (e: Exception) {            e.printStackTrace()
+
             throw ParseException(e)
         }
     }
