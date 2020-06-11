@@ -15,6 +15,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     //test implementation
     testImplementation "org.junit.jupiter:junit-jupiter:5.6.2"
+    testImplementation 'io.rest-assured:rest-assured:4.3.0'
     //hex-decoding utility
     implementation "commons-codec:commons-codec:1.14"
     //sqlite jdbc

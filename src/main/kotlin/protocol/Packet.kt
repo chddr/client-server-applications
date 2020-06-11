@@ -28,9 +28,9 @@ class Packet(val clientID: Byte, val msgID: Long, val msg: Message) {
             Message: $msg""".trimIndent()
 
     companion object {
-        val WITHOUT_MESSAGE_LEN: Int = 22
-        val BEFORE_LEN: Int = 10
-        val MAX_SIZE: Int = Message.MAX_SIZE + 1 + 1 + 8 + 4 + 2 + 2
+        const val WITHOUT_MESSAGE_LEN: Int = 22
+        const val BEFORE_LEN: Int = 10
+        const val MAX_SIZE: Int = Message.MAX_SIZE + 1 + 1 + 8 + 4 + 2 + 2
 
         fun fromBytes(array: ByteArray) = EncryptorDecryptor.decrypt(array)
     }

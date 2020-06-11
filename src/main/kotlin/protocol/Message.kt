@@ -76,8 +76,8 @@ class Message(val cType: Int, val userID: Int = 0, val msg: String) {
 
 
     companion object {
-        private val MSG_MAX_SIZE = 1024 //TODO think about how to limit it so it will never overflow
-        val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
+        private const val MSG_MAX_SIZE = 1024 //TODO think about how to limit it so it will never overflow
+        const val MAX_SIZE: Int = 8 + MSG_MAX_SIZE
     }
 
 }

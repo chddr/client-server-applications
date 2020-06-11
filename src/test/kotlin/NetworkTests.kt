@@ -15,7 +15,7 @@ class NetworkTests {
             ServerRunner(NetProtocol.TCP, 1000)
         }
 
-        repeat(100) {
+        repeat(10) {
             thread {
                 ClientTCP(0)//should be successful if no exceptions are thrown
             }
@@ -32,7 +32,7 @@ class NetworkTests {
             ServerRunner(NetProtocol.UDP, 1000)
         }
 
-        repeat(100) {
+        repeat(10) {
             thread {
                 ClientUDP(0)//should be successful if no exceptions are thrown
             }

@@ -5,7 +5,7 @@ class ProcessingTests {
 
     @Test
     fun testTest() {
-        Assertions.assertTrue(1==1);
+        Assertions.assertTrue(1==1)
     }
 
 

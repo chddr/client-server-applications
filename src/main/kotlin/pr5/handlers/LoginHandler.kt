@@ -21,17 +21,17 @@ class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPatt
 
             val user = userDB().getUser(userCreds.login)
 
-            exchange.responseHeaders.add("Content-Type", "application/json");
+            exchange.responseHeaders.add("Content-Type", "application/json")
 
             if (user != null) {
                 if (user.password == md5Hex(userCreds.password)) {
-                    val loginResponse = LoginResponse(JwtService.generateToken(user), user.login, user.role);
-                    exchange.writeResponse(200, loginResponse);
+                    val loginResponse = LoginResponse(JwtService.generateToken(user), user.login, user.role)
+                    exchange.writeResponse(200, loginResponse)
                 } else {
-                    exchange.writeResponse(401, ErrorResponse("invalid password"));
+                    exchange.writeResponse(401, ErrorResponse("invalid password"))
                 }
             } else {
-                exchange.writeResponse(401, ErrorResponse("unknown user"));
+                exchange.writeResponse(401, ErrorResponse("unknown user"))
             }
 
         }

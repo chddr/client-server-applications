@@ -2,10 +2,7 @@
 import db.DaoProduct
 import db.entities.Criterion
 import db.entities.Product
-import db.exceptions.NameTakenException
-import db.exceptions.NoSuchGroupIdException
-import db.exceptions.NoSuchProductIdException
-import db.exceptions.NotEnoughItemsException
+import db.exceptions.*
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -105,7 +102,7 @@ internal class DaoProductTest {
 
         val groupId = dao.addGroup("testGroup")
 
-        val prods = (1..10).map { "prod$it" }.map { Product(it, 0.00) }
+        val prods = (1..10).map { "prod$it" }.map { Product(it, 0.01) }
         //insert all products and add to group
         prods.map { dao.insertProduct(it) }.forEach { dao.setToGroup(it, groupId) }
 
@@ -175,9 +172,9 @@ internal class DaoProductTest {
     }
 
     @Test
-    internal fun delete() {
+    internal fun deleteProduct() {
         val name = "sandwich"
-        val product = Product(name, 0.0)
+        val product = Product(name, 0.1)
         val id = dao.insertProduct(product)
 
         assertTrue(
@@ -289,7 +286,7 @@ internal class DaoProductTest {
 
         dao.setPrice(retrieved.id!!, newPrice)
 
-        assertThrows(java.lang.IllegalArgumentException::class.java)
+        assertThrows(WrongPriceException::class.java)
         { dao.setPrice(retrieved.id!!, -0.412) }
 
         retrieved = dao.getProduct(name)
@@ -333,7 +330,7 @@ internal class DaoProductTest {
     fun isTaken() {
         val name = "testname"
 
-        dao.insertProduct(Product(name, 0.0))
+        dao.insertProduct(Product(name, 0.1))
         assertTrue(
                 dao.productExists(name)
         )

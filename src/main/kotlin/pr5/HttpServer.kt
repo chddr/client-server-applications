@@ -40,7 +40,7 @@ class HttpServer(port: Int, dbName: String = "file.db") {
 
     init {
         val context = server.createContext("/", mainContext())
-        context.authenticator = MyAuthenticator()
+        context.authenticator = MyAuthenticator(this)
 
         server.start()
     }
