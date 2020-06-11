@@ -1,6 +1,6 @@
 package net.common.utils
 
-import db.DaoProduct.*
+import db.exceptions.*
 import net.common.utils.InputParsers.ParseException
 import net.common.utils.MessageGenerators.addGroup
 import net.common.utils.MessageGenerators.addProduct

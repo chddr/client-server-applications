@@ -7,19 +7,12 @@ import db.DBUtils.generateWhereClause
 import db.entities.Criterion
 import db.entities.Group
 import db.entities.Product
+import db.exceptions.*
 import java.io.Closeable
 import java.sql.Connection
 import java.sql.DriverManager
 
 class DaoProduct(db: String) : Closeable {
-    //TODO move exceptions to separate pacakge
-    open class DBException : Exception()
-    class NoSuchProductIdException : DBException()
-    class NoSuchGroupIdException : DBException()
-    class NotEnoughItemsException : DBException()
-    class NameTakenException : DBException()
-    class WrongNameFormatException : DBException()
-    class NonEmptyProductException : DBException()
 
     private val conn: Connection = DriverManager.getConnection("jdbc:sqlite:$db")
 

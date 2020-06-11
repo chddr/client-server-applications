@@ -1,6 +1,11 @@
+
 import db.DaoProduct
 import db.entities.Criterion
 import db.entities.Product
+import db.exceptions.NameTakenException
+import db.exceptions.NoSuchGroupIdException
+import db.exceptions.NoSuchProductIdException
+import db.exceptions.NotEnoughItemsException
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -123,7 +128,7 @@ internal class DaoProductTest {
 
         assertTrue(!dao.groupExists(groupId))
 
-        assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
+        assertThrows(NoSuchGroupIdException::class.java) {
             dao.deleteGroup(groupId)
         }
     }
@@ -185,7 +190,7 @@ internal class DaoProductTest {
                 dao.productExists(name)
         )
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java)
+        assertThrows(NoSuchProductIdException::class.java)
         { dao.getProduct(id) }
 
         dao.getProductList().forEach {
@@ -249,7 +254,7 @@ internal class DaoProductTest {
         val product = Product(name, price)
 
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.getProduct(name)
         }
 
@@ -260,10 +265,10 @@ internal class DaoProductTest {
 
         dao.deleteProduct(id)
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.getProduct(name)
         }
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.getProduct(id)
         }
 
@@ -349,19 +354,19 @@ internal class DaoProductTest {
 
     @Test
     fun exceptionTesting() {
-        assertThrows(DaoProduct.NameTakenException::class.java) {
+        assertThrows(NameTakenException::class.java) {
             dao.insertProduct(Product("buckwheat", 0.4))
         }
 
-        assertThrows(DaoProduct.NameTakenException::class.java) {
+        assertThrows(NameTakenException::class.java) {
             dao.addGroup("grains")
         }
 
-        assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
+        assertThrows(NoSuchGroupIdException::class.java) {
             dao.deleteGroup(1048120213)
         }
 
-        assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
+        assertThrows(NoSuchGroupIdException::class.java) {
             dao.setToGroup(1048120213, 3412414)
         }
 
@@ -381,23 +386,23 @@ internal class DaoProductTest {
             dao.getProductList(1, 0)
         }
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.changeProductName(1048120213, "totally new free name")
         }
 
-        assertThrows(DaoProduct.NameTakenException::class.java) {
+        assertThrows(NameTakenException::class.java) {
             dao.changeProductName(dao.insertProduct(Product("another unique name", 4124.4)), "buckwheat")
         }
 
-        assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
+        assertThrows(NoSuchGroupIdException::class.java) {
             dao.getGroup(165215)
         }
 
-        assertThrows(DaoProduct.NoSuchGroupIdException::class.java) {
+        assertThrows(NoSuchGroupIdException::class.java) {
             dao.changeGroupName(165215412, "testsing")
         }
 
-        assertThrows(DaoProduct.NameTakenException::class.java) {
+        assertThrows(NameTakenException::class.java) {
             dao.changeGroupName(dao.addGroup("new  naem t"), "grains")
         }
 
@@ -409,7 +414,7 @@ internal class DaoProductTest {
             dao.addItems("buckwheat", -4)
         }
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.addItems("buckwheeeeeeeeeeeeeeat", 10)
         }
 
@@ -417,19 +422,19 @@ internal class DaoProductTest {
             dao.removeItems("buckwheat", -4)
         }
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.removeItems("buckwheeeeeeeeeeeeeeat", 10)
         }
 
-        assertThrows(DaoProduct.NotEnoughItemsException::class.java) {
+        assertThrows(NotEnoughItemsException::class.java) {
             dao.removeItems(dao.insertProduct(Product("yo brim with no yank", 4.4)), 100009999)
         }
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.productAmount("091549012840912840912")
         }
 
-        assertThrows(DaoProduct.NoSuchProductIdException::class.java) {
+        assertThrows(NoSuchProductIdException::class.java) {
             dao.productAmount(204910249)
         }
 

@@ -1,7 +1,7 @@
 package pr5.handlers
 
 import com.sun.net.httpserver.HttpExchange
-import db.DaoProduct.NoSuchProductIdException
+import db.exceptions.NoSuchProductIdException
 import pr5.HttpServer
 import pr5.responses.ErrorResponse
 
