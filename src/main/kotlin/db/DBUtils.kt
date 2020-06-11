@@ -3,6 +3,7 @@ package db
 import db.entities.Criterion
 import db.entities.Group
 import db.entities.Product
+import db.entities.User
 import java.sql.ResultSet
 
 object DBUtils {
@@ -13,6 +14,15 @@ object DBUtils {
     }
 
     fun ResultSet.extractGroup() = Group(getInt("id"), getString("name"))
+
+    fun ResultSet.extractUser(): User {
+        return User(
+                id = getInt("id"),
+                login = getString("login"),
+                password = getString("password"),
+                role = getString("role")
+        )
+    }
 
     fun checkName(name: String): Boolean {
         return name.matches(Regex("[\\w -]{3,20}")) && !name.startsWith(" ") && !name.endsWith(" ")

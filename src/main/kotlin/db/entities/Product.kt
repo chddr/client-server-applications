@@ -39,5 +39,5 @@ data class Product(val name: String, val price: Double, val id: Int? = null, val
         fun Collection<Product>.toJsonString(): String = JSONArray().apply {
             for (product in this@toJsonString) put(product.toJson())
         }.toString(2)
-    }
+    }//todo convert to jackson
 }

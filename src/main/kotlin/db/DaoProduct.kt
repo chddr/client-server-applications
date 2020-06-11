@@ -12,7 +12,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 
 class DaoProduct(db: String) : Closeable {
-
+    //TODO move exceptions to separate pacakge
     open class DBException : Exception()
     class NoSuchProductIdException : DBException()
     class NoSuchGroupIdException : DBException()
