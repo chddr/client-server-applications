@@ -38,7 +38,7 @@ class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(url
     private fun prodIdFromURI(URI: URI): Int? {
         return try {
             URI.toString().split("/").last().toInt()
-        } catch (e: NoSuchProductIdException) {
+        } catch (e: Exception) {
             null
         }
     }
