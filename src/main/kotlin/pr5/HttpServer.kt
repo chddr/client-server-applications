@@ -8,6 +8,7 @@ import db.DaoUser
 import org.intellij.lang.annotations.Language
 import pr5.authentication.MyAuthenticator
 import pr5.handlers.LoginHandler
+import pr5.handlers.ProductHandler
 import pr5.handlers.ProductIdHandler
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -18,6 +19,11 @@ class HttpServer(port: Int) {
         val OBJECT_MAPPER = jacksonObjectMapper()
         val daoUser = DaoUser("file.db")
         val daoProduct = DaoProduct("file.db")
+
+        @JvmStatic
+        fun main(args: Array<String>) {
+            HttpServer(8080)
+        }
     }
 
     private val server = HttpServer.create(InetSocketAddress(port), 0)
@@ -26,7 +32,7 @@ class HttpServer(port: Int) {
     @Language("RegExp")
     private val contextHandlers = listOf(
             ProductIdHandler("^/api/product/(\\d+)$"),
-//            ProductHandler("^/api/product/available$"),
+            ProductHandler("^/api/product$"),
             LoginHandler("^/login$")
     )
 
@@ -58,10 +64,6 @@ class HttpServer(port: Int) {
 
     }
 
-    public fun stop() = server.stop(1)
+    fun stop() = server.stop(1)
 
-}
-
-fun main() {
-    HttpServer(8080)
 }

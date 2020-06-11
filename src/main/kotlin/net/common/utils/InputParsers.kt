@@ -3,7 +3,7 @@ package net.common.utils
 import com.fasterxml.jackson.module.kotlin.readValue
 import db.entities.Product
 import net.common.Processor.OBJECT_MAPPER
-import net.common.utils.query_types.*
+import db.entities.query_types.*
 
 object InputParsers {
     class ParseException(e: Throwable) : Exception(e)

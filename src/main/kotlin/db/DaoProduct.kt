@@ -27,6 +27,7 @@ class DaoProduct(db: String) : Closeable {
      * Inserts a product and returns it's id in the table if everything went ok, otherwise null
      */
     fun insertProduct(product: Product): Int {
+        if (!product.price.isFinite() || product.price <= 0) throw WrongPriceException()
         if (productExists(product.name)) throw NameTakenException()
         if (!checkName(product.name)) throw WrongNameFormatException()
 
@@ -179,7 +180,7 @@ class DaoProduct(db: String) : Closeable {
     }
 
     fun setPrice(id: Int, newPrice: Double) {
-        if (!newPrice.isFinite() || newPrice <= 0) throw IllegalArgumentException("Price is wrong")
+        if (!newPrice.isFinite() || newPrice <= 0) throw WrongPriceException()
         if (!productExists(id)) throw NoSuchProductIdException()
 
         conn.prepareStatement("UPDATE products SET price =  ? WHERE id = ?").use {
