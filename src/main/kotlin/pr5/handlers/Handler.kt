@@ -39,9 +39,12 @@ abstract class Handler(pattern: String) : HttpHandler {
         responseHeaders
                 .add("Content-Type", "application/json")
 
-        val bytes = HttpServer.OBJECT_MAPPER.writeValueAsBytes(response)
-        sendResponseHeaders(code, bytes.size.toLong())
-        responseBody.write(bytes)
+        if (response != null) {
+            val bytes = HttpServer.OBJECT_MAPPER.writeValueAsBytes(response)
+            sendResponseHeaders(code, bytes.size.toLong())
+            responseBody.write(bytes)
+        } else
+            sendResponseHeaders(code, 0)
         responseBody.close()
     }
 }

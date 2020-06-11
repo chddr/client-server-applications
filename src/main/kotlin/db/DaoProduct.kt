@@ -256,6 +256,25 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
+    fun updateProduct(id: Int, name: String?, price: Double?, groupId: Int?) {
+        if (!productExists(id)) throw NoSuchProductIdException()
+        if (name != null) {
+            if (productExists(name)) throw NameTakenException()
+            if (!checkName(name)) throw WrongNameFormatException()
+        }
+        if (price != null) {
+            if (!price.isFinite() || price <= 0) throw WrongPriceException()
+        }
+        if (groupId != null) {
+            if (!groupExists(groupId)) throw NoSuchGroupIdException()
+        }
+
+        if (name != null) changeProductName(id, name)
+        if (price != null) setPrice(id, price)
+        if (groupId != null) setToGroup(id, groupId)
+
+    }
+
     internal fun productExists(name: String): Boolean {
         return conn.prepareStatement("select count(*) as product_quantity from products where name = ?").use {
             it.setString(1, name)
@@ -301,6 +320,12 @@ class DaoProduct(db: String) : Closeable {
     }
 
     override fun close() = conn.close()
+
+
+    fun commit() = conn.commit()
+    fun setAutoCommit(b: Boolean) {
+        conn.autoCommit = b
+    }
 
     companion object {
         @JvmStatic
