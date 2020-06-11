@@ -22,7 +22,6 @@ object JwtService {
                 .setSigningKey(SECRET_KEY)
                 .build()
                 .parseClaimsJws(jwt)
-                .getBody()
-                .getSubject()
+                .body.subject
     }
 }

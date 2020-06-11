@@ -20,7 +20,9 @@ dependencies {
     //sqlite jdbc
     implementation "org.xerial:sqlite-jdbc:3.8.9.1"
     implementation "org.json:json:20200518"//TODO replace with jackson
+
     implementation "com.fasterxml.jackson.core:jackson-databind:2.10.0"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.11.+"
 
     //JJWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.1'

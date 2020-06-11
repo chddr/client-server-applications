@@ -1,7 +1,7 @@
 package pr5.responses
 
 data class LoginResponse(
-        private val token: String,
-        private val login: String,
-        private val role: String?
+        val token: String,
+        val login: String,
+        val role: String?
 )

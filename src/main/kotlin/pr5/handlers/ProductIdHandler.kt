@@ -19,7 +19,7 @@ class ProductIdHandler(urlPattern: String) : Handler(urlPattern) {
             }
 
             val productId = try {
-                exchange.getParameter(0).toInt()
+                exchange.requestURI.toString().split("/").last().toInt()
             } catch (e: NoSuchProductIdException) {
                 exchange.writeResponse(400, ErrorResponse("Id too long"))
                 return
@@ -32,6 +32,7 @@ class ProductIdHandler(urlPattern: String) : Handler(urlPattern) {
                 exchange.writeResponse(404, ErrorResponse("No such product"))
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             exchange.writeResponse(500, ErrorResponse("Internal error"))
         }
     }
