@@ -12,7 +12,7 @@ class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPatt
 
     override fun handle(exchange: HttpExchange) {
         if (exchange.requestMethod != "GET") {
-            exchange.writeResponse(405, ErrorResponse("${exchange.requestMethod} not allowed (only GET)"))
+            exchange.wrongMethod(exchange.requestMethod)
             return
         }
 

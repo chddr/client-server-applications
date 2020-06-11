@@ -22,7 +22,7 @@ class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPa
             when (val method = exchange.requestMethod) {
                 "PUT" -> handlePUT(exchange)
                 "POST" -> handlePOST(exchange)
-                else -> exchange.writeResponse(405, ErrorResponse("$method not allowed (only PUT and POST)"))
+                else -> exchange.wrongMethod(method)
             }
 
         } catch (e: Exception) {

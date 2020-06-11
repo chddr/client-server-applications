@@ -26,7 +26,7 @@ class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(url
             when (val method = exchange.requestMethod) {
                 "GET" -> handleGET(exchange, prodId)
                 "DELETE" -> handleDELETE(exchange, prodId)
-                else -> exchange.writeResponse(405, ErrorResponse("$method not allowed (only GET and DELETE)"))
+                else -> exchange.wrongMethod(method)
             }
 
         } catch (e: Exception) {

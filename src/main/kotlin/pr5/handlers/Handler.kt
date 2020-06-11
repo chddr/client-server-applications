@@ -3,6 +3,7 @@ package pr5.handlers
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import pr5.HttpServer
+import pr5.responses.ErrorResponse
 
 
 abstract class Handler(pattern: String, private val httpServer: HttpServer) : HttpHandler {
@@ -15,6 +16,7 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer) : Ht
 
     fun matches(uri: String) = urlPattern.matches(uri)
 
+    fun HttpExchange.wrongMethod(method: String) = writeResponse(405, ErrorResponse("$method not allowed"))
 
     fun HttpExchange.writeResponse(code: Int, response: Any?) {
         responseHeaders

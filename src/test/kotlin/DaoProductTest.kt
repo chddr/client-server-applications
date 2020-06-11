@@ -1,4 +1,3 @@
-
 import db.DaoProduct
 import db.entities.Criterion
 import db.entities.Product
@@ -10,28 +9,31 @@ import org.junit.jupiter.api.Test
 
 internal class DaoProductTest {
 
-    private val sampleProds = arrayListOf(
-            Product("wheat", 4.0),
-            Product("banana", 3.0),
-            Product("kale", 5.0),
-            Product("buckwheat", 1.9),
-            Product("rice", 7.4),
-            Product("cabbage", 1.5),
-            Product("tofu", 9.9),
-            Product("quinoa", 0.5),
-            Product("yeast", 6.0)
-    )
+    companion object {
 
-    private val sampleGroups = arrayListOf(
-            "grains",
-            "legumes",
-            "fruits",
-            "vegetables"
-    )
+        private val sampleProds = arrayListOf(
+                Product("wheat", 4.0),
+                Product("banana", 3.0),
+                Product("kale", 5.0),
+                Product("buckwheat", 1.9),
+                Product("rice", 7.4),
+                Product("cabbage", 1.5),
+                Product("tofu", 9.9),
+                Product("quinoa", 0.5),
+                Product("yeast", 6.0)
+        )
 
-    private fun DaoProduct.populate() {
-        sampleProds.forEach { insertProduct(it) }
-        sampleGroups.forEach { addGroup(it) }
+        private val sampleGroups = arrayListOf(
+                "grains",
+                "legumes",
+                "fruits",
+                "vegetables"
+        )
+
+        fun DaoProduct.populate() {
+            sampleProds.forEach { insertProduct(it) }
+            sampleGroups.forEach { addGroup(it) }
+        }
     }
 
     private val dao = DaoProduct("file.db:memory")
