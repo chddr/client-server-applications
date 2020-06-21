@@ -166,6 +166,20 @@ internal class DaoProductTest {
     }
 
     @Test
+    fun groupListFilter() {
+        val query = "e"
+
+
+        val groups = dao.getGroupList(query = query)
+
+        assertArrayEquals(
+                sampleGroups.filter { it.contains(query) }.toTypedArray(),
+                groups.map { it.name }.toTypedArray()
+        )
+
+    }
+
+    @Test
     fun getListWithMultipleCriterions() {
 
         val lower = 2.5
