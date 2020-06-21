@@ -60,6 +60,7 @@ class DaoProduct(db: String) : Closeable {
         if (!groupExists(id)) throw NoSuchGroupIdException()
 
         conn.createStatement().use {
+            it.execute("DELETE FROM products WHERE groupId = $id")
             it.execute("DELETE FROM groups WHERE id = $id")
         }
     }
