@@ -1,7 +1,7 @@
 package http.handlers
 
 import com.sun.net.httpserver.HttpExchange
-import db.exceptions.NoSuchProductIdException
+import db.exceptions.DBException
 import http.HttpServer
 import http.responses.ErrorResponse
 import java.net.URI
@@ -18,7 +18,7 @@ class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(url
             }
             val prodId = prodIdFromURI(exchange.requestURI)
 
-            if (prodId==null) {
+            if (prodId == null) {
                 exchange.writeResponse(400, ErrorResponse("Id too long"))
                 return
             }
@@ -29,6 +29,8 @@ class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(url
                 else -> exchange.wrongMethod(method)
             }
 
+        } catch (e: DBException) {
+            exchange.matchDbException(e)
         } catch (e: Exception) {
             e.printStackTrace()
             exchange.writeResponse(500, ErrorResponse("Internal error"))
@@ -44,21 +46,13 @@ class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(url
     }
 
     private fun handleDELETE(exchange: HttpExchange, prodId: Int) {
-        try {
-            productDB().deleteProduct(prodId)
-            exchange.writeResponse(204, null)
-        } catch (e: NoSuchProductIdException) {
-            exchange.writeResponse(404, ErrorResponse("No such product"))
-        }
+        productDB().deleteProduct(prodId)
+        exchange.writeResponse(204, null)
     }
 
 
     private fun handleGET(exchange: HttpExchange, productId: Int) {
-        try {
-            val product = productDB().getProduct(productId)
-            exchange.writeResponse(200, product)
-        } catch (e: NoSuchProductIdException) {
-            exchange.writeResponse(404, ErrorResponse("No such product"))
-        }
+        val product = productDB().getProduct(productId)
+        exchange.writeResponse(200, product)
     }
 }
