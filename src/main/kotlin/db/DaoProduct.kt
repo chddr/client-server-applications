@@ -240,7 +240,6 @@ class DaoProduct(db: String) : Closeable {
                 next()
                 getInt("quantity")
             }
-
         }
     }
 
@@ -253,6 +252,15 @@ class DaoProduct(db: String) : Closeable {
                 next()
                 getInt("quantity")
 
+            }
+        }
+    }
+
+    fun totalSum(): Double {
+        return conn.createStatement().use {
+            it.executeQuery("SELECT SUM(price * quantity) as total from products").run {
+                next()
+                getDouble("total")
             }
         }
     }

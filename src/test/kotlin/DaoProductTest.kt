@@ -117,6 +117,22 @@ internal class DaoProductTest {
     }
 
     @Test
+    fun totalSumTest() {
+        val amounts = sampleProds
+                .map { (Math.random() * 10).toInt() + 1 }
+
+        val checkSum = (sampleProds zip amounts).map { (prod, amount) -> prod.price * amount }.sum()
+
+        amounts
+                .forEachIndexed { index, amount -> dao.addItems(dao.getProduct(sampleProds[index].name).id!!, amount) }
+
+
+        val sum = dao.totalSum()
+
+        assertEquals(checkSum, sum)
+    }
+
+    @Test
     fun groupExistence() {
         val name = "test"
         val groupId = dao.addGroup(name)
