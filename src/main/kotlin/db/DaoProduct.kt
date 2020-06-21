@@ -74,11 +74,11 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun getProductList(page: Int = 0, size: Int = 20, criterion: Criterion = Criterion()): ArrayList<Product> {
+    fun getProductList(page: Int = 0, size: Int = 20, criterion: Criterion? = null): ArrayList<Product> {
         if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
 
         return conn.createStatement().use {
-            val conditions = generateWhereClause(criterion)
+            val conditions = criterion?.let { it1 -> generateWhereClause(it1) } ?: ""
             val query = "SELECT * FROM products $conditions LIMIT $size OFFSET ${page * size}"
 
             it.executeQuery(query).run {

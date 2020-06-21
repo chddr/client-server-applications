@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.sun.net.httpserver.HttpExchange
 import db.entities.Product
 import db.entities.query_types.Id
+import db.entities.query_types.PagesAndCriterion
 import db.entities.query_types.ProductChange
 import db.exceptions.*
 import http.HttpServer
@@ -22,12 +23,27 @@ class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPa
             when (val method = exchange.requestMethod) {
                 "PUT" -> handlePUT(exchange)
                 "POST" -> handlePOST(exchange)
+                "GET" -> handleGET(exchange)
                 else -> exchange.wrongMethod(method)
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
             exchange.writeResponse(500, ErrorResponse("Internal error"))
+        }
+    }
+
+    private fun handleGET(exchange: HttpExchange) {
+        try {
+//            val query = objectMapper().readTree(exchange.requestBody)
+            val (page, size, criterion) = objectMapper().readValue<PagesAndCriterion>(exchange.requestBody)
+            val products = productDB().getProductList(page, size, criterion)
+
+            exchange.writeResponse(200, products)
+        } catch (e: DBException) {
+            matchDbException(e, exchange)
+        } catch (e: JsonProcessingException) {
+            exchange.writeResponse(400, ErrorResponse("JSON couldn't be parsed"))
         }
     }
 
