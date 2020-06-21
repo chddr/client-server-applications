@@ -2,19 +2,15 @@ package http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import db.entities.UserCredentials
-import org.apache.commons.codec.digest.DigestUtils.md5Hex
 import http.HttpServer
 import http.authentication.JwtService
 import http.responses.ErrorResponse
 import http.responses.LoginResponse
+import org.apache.commons.codec.digest.DigestUtils.md5Hex
 
-class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
+class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer, privilegeRequired = false) {
 
-    override fun handle(exchange: HttpExchange) {
-        if (exchange.requestMethod != "GET") {
-            exchange.wrongMethod(exchange.requestMethod)
-            return
-        }
+    override fun handleGET(exchange: HttpExchange) {
 
         val userCreds = try {
             objectMapper().readValue(exchange.requestBody, UserCredentials::class.java)
