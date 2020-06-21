@@ -265,6 +265,15 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
+    fun totalSumByGroup(id: Int): Double {
+        return conn.createStatement().use {
+            it.executeQuery("SELECT SUM(price * quantity) as total from products where groupId = $id").run {
+                next()
+                getDouble("total")
+            }
+        }
+    }
+
     fun updateProduct(id: Int, name: String?, price: Double?, groupId: Int?) {
         if (!productExists(id)) throw NoSuchProductIdException()
         if (name != null) {
