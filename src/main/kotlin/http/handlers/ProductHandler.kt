@@ -7,7 +7,7 @@ import db.entities.Product
 import db.entities.query_types.Id
 import db.entities.query_types.PagesAndCriterion
 import db.entities.query_types.ProductChange
-import db.exceptions.*
+import db.exceptions.DBException
 import http.HttpServer
 import http.responses.ErrorResponse
 
@@ -27,6 +27,10 @@ class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPa
                 else -> exchange.wrongMethod(method)
             }
 
+        } catch (e: DBException) {
+            exchange.matchDbException(e)
+        } catch (e: JsonProcessingException) {
+            exchange.writeResponse(400, ErrorResponse("JSON couldn't be parsed"))
         } catch (e: Exception) {
             e.printStackTrace()
             exchange.writeResponse(500, ErrorResponse("Internal error"))
@@ -34,54 +38,26 @@ class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPa
     }
 
     private fun handleGET(exchange: HttpExchange) {
-        try {
-//            val query = objectMapper().readTree(exchange.requestBody)
-            val (page, size, criterion) = objectMapper().readValue<PagesAndCriterion>(exchange.requestBody)
-            val products = productDB().getProductList(page, size, criterion)
+        val (page, size, criterion) = objectMapper().readValue<PagesAndCriterion>(exchange.requestBody)
+        val products = productDB().getProductList(page, size, criterion)
 
-            exchange.writeResponse(200, products)
-        } catch (e: DBException) {
-            matchDbException(e, exchange)
-        } catch (e: JsonProcessingException) {
-            exchange.writeResponse(400, ErrorResponse("JSON couldn't be parsed"))
-        }
+        exchange.writeResponse(200, products)
+
     }
 
     private fun handlePUT(exchange: HttpExchange) {
-        try {
-            val product = objectMapper().readValue<Product>(exchange.requestBody)
-            val id = productDB().insertProduct(product)
-            exchange.writeResponse(201, Id(id))
-        } catch (e: DBException) {
-            matchDbException(e, exchange)
-        } catch (e: JsonProcessingException) {
-            exchange.writeResponse(400, ErrorResponse("JSON couldn't be parsed"))
-        }
-
+        val product = objectMapper().readValue<Product>(exchange.requestBody)
+        val id = productDB().insertProduct(product)
+        exchange.writeResponse(201, Id(id))
     }
 
-    private fun handlePOST(exchange: HttpExchange) {// number below is ignored because it shouldn't be "set" - there should
-        try {                                       // be separate methods responsible for addition/removal of certain amount
-            val (id, name, price, _, groupId) = objectMapper().readValue<ProductChange>(exchange.requestBody)
-            productDB().updateProduct(id, name, price, groupId)
+    // number below is ignored because it shouldn't be "set" - there should
+    // be separate methods responsible for addition/removal of certain amount
+    private fun handlePOST(exchange: HttpExchange) {
+        val (id, name, price, _, groupId) = objectMapper().readValue<ProductChange>(exchange.requestBody)
+        productDB().updateProduct(id, name, price, groupId)
 
-            exchange.writeResponse(204, null)
-        } catch (e: DBException) {
-            matchDbException(e, exchange)
-        } catch (e: JsonProcessingException) {
-            exchange.writeResponse(400, ErrorResponse("JSON couldn't be parsed"))
-        }
+        exchange.writeResponse(204, null)
     }
-
-    private fun matchDbException(exception: DBException, exchange: HttpExchange) {
-        when (exception) {
-            is NoSuchProductIdException -> exchange.writeResponse(404, ErrorResponse("No such product ID"))
-            is NoSuchGroupIdException -> exchange.writeResponse(404, ErrorResponse("No such group ID"))
-            is WrongPriceException -> exchange.writeResponse(409, ErrorResponse("Wrong price"))
-            is WrongNameFormatException -> exchange.writeResponse(409, ErrorResponse("Wrong name"))
-            is NameTakenException -> exchange.writeResponse(409, ErrorResponse("Such name is already used"))
-        }
-    }
-
 
 }
