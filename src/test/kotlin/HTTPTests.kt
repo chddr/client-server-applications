@@ -10,8 +10,8 @@ import io.restassured.RestAssured.given
 import org.apache.commons.codec.digest.DigestUtils
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.*
-import pr5.HttpServer
-import pr5.responses.LoginResponse
+import http.HttpServer
+import http.responses.LoginResponse
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HTTPTests {

@@ -1,9 +1,9 @@
-package pr5.handlers
+package http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
-import pr5.HttpServer
-import pr5.responses.ErrorResponse
+import http.HttpServer
+import http.responses.ErrorResponse
 
 
 abstract class Handler(pattern: String, private val httpServer: HttpServer) : HttpHandler {

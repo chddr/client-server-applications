@@ -1,12 +1,12 @@
-package pr5.handlers
+package http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import db.entities.UserCredentials
 import org.apache.commons.codec.digest.DigestUtils.md5Hex
-import pr5.HttpServer
-import pr5.authentication.JwtService
-import pr5.responses.ErrorResponse
-import pr5.responses.LoginResponse
+import http.HttpServer
+import http.authentication.JwtService
+import http.responses.ErrorResponse
+import http.responses.LoginResponse
 
 class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
 

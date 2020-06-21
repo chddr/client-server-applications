@@ -1,9 +1,9 @@
-package pr5.handlers
+package http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import db.exceptions.NoSuchProductIdException
-import pr5.HttpServer
-import pr5.responses.ErrorResponse
+import http.HttpServer
+import http.responses.ErrorResponse
 import java.net.URI
 
 

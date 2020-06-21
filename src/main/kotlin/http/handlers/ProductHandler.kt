@@ -1,4 +1,4 @@
-package pr5.handlers
+package http.handlers
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -7,8 +7,8 @@ import db.entities.Product
 import db.entities.query_types.Id
 import db.entities.query_types.ProductChange
 import db.exceptions.*
-import pr5.HttpServer
-import pr5.responses.ErrorResponse
+import http.HttpServer
+import http.responses.ErrorResponse
 
 class ProductHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
 

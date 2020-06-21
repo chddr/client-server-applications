@@ -1,4 +1,4 @@
-package pr5.authentication
+package http.authentication
 
 import db.entities.User
 import io.jsonwebtoken.Jwts

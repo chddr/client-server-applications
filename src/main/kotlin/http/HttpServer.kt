@@ -1,4 +1,4 @@
-package pr5
+package http
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.sun.net.httpserver.HttpExchange
@@ -6,10 +6,10 @@ import com.sun.net.httpserver.HttpServer
 import db.DaoProduct
 import db.DaoUser
 import org.intellij.lang.annotations.Language
-import pr5.authentication.MyAuthenticator
-import pr5.handlers.LoginHandler
-import pr5.handlers.ProductHandler
-import pr5.handlers.ProductIdHandler
+import http.authentication.MyAuthenticator
+import http.handlers.LoginHandler
+import http.handlers.ProductHandler
+import http.handlers.ProductIdHandler
 import java.io.Closeable
 import java.io.IOException
 import java.net.InetSocketAddress
