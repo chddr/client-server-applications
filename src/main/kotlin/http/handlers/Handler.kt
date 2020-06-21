@@ -19,7 +19,6 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
 
     fun matches(uri: String) = urlPattern.matches(uri)
 
-
     fun HttpExchange.writeResponse(code: Int, response: Any?) {
         responseHeaders
                 .add("Content-Type", "application/json")
@@ -86,7 +85,4 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
             throw WrongIdException()
         }
     }
-
-    class WrongIdException : Exception()
-
 }
