@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler
 import db.exceptions.*
 import http.HttpServer
 import http.responses.ErrorResponse
+import java.net.URI
 
 
 abstract class Handler(pattern: String, private val httpServer: HttpServer) : HttpHandler {
@@ -39,6 +40,15 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer) : Ht
             is WrongPriceException -> writeResponse(409, ErrorResponse("Wrong price"))
             is WrongNameFormatException -> writeResponse(409, ErrorResponse("Wrong name"))
             is NameTakenException -> writeResponse(409, ErrorResponse("Such name is already used"))
+        }
+    }
+
+
+    protected fun idFromUri(URI: URI): Int? {
+        return try {
+            URI.toString().split("/").last().toInt()
+        } catch (e: Exception) {
+            null
         }
     }
 

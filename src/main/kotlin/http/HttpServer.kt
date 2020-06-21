@@ -6,10 +6,7 @@ import com.sun.net.httpserver.HttpServer
 import db.DaoProduct
 import db.DaoUser
 import http.authentication.MyAuthenticator
-import http.handlers.GroupHandler
-import http.handlers.LoginHandler
-import http.handlers.ProductHandler
-import http.handlers.ProductIdHandler
+import http.handlers.*
 import org.intellij.lang.annotations.Language
 import java.io.Closeable
 import java.io.IOException
@@ -37,6 +34,7 @@ class HttpServer(port: Int = 8080, dbName: String = "file.db") : Closeable {
             ProductIdHandler("^/api/product/(\\d+)$", this),
             ProductHandler("^/api/product$", this),
             LoginHandler("^/login$", this),
+            GroupIdHandler("^/api/group/(\\d+)$", this),
             GroupHandler("^/api/group$", this)
     )
 

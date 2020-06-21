@@ -6,25 +6,24 @@ import http.HttpServer
 import http.responses.ErrorResponse
 
 
-class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
+class GroupIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
 
     override fun handle(exchange: HttpExchange) {
         try {
-            //checking user privilege
             if (exchange.principal.realm != "admin") {
                 exchange.writeResponse(403, ErrorResponse("No permission"))
                 return
             }
-            val prodId = idFromUri(exchange.requestURI)
 
-            if (prodId == null) {
+            val groupId = idFromUri(exchange.requestURI)
+
+            if (groupId == null) {
                 exchange.writeResponse(400, ErrorResponse("Id too long"))
                 return
             }
-
             when (val method = exchange.requestMethod) {
-                "GET" -> handleGET(exchange, prodId)
-                "DELETE" -> handleDELETE(exchange, prodId)
+                "GET" -> handleGET(exchange, groupId)
+                "DELETE" -> handleDELETE(exchange, groupId)
                 else -> exchange.wrongMethod(method)
             }
 
@@ -36,15 +35,15 @@ class ProductIdHandler(urlPattern: String, httpServer: HttpServer) : Handler(url
         }
     }
 
-
-    private fun handleDELETE(exchange: HttpExchange, prodId: Int) {
-        productDB().deleteProduct(prodId)
+    private fun handleDELETE(exchange: HttpExchange, groupId: Int) {
+        productDB().deleteGroup(groupId)
         exchange.writeResponse(204, null)
     }
 
-
-    private fun handleGET(exchange: HttpExchange, productId: Int) {
-        val product = productDB().getProduct(productId)
-        exchange.writeResponse(200, product)
+    private fun handleGET(exchange: HttpExchange, groupId: Int) {
+        val group = productDB().getGroup(groupId)
+        exchange.writeResponse(200, group)
     }
+
 }
+
