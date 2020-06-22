@@ -73,6 +73,10 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
+    fun loadProduct(id: Int): Product {
+        return Product("testnema", 4.4, 1, 43, 4)
+    }
+
 
     private val client = HttpClients.createDefault()
     private var loginResponse: LoginResponse? = null

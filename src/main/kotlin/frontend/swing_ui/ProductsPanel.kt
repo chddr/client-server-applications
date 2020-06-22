@@ -7,44 +7,31 @@ import frontend.swing_ui.ProductsPanel.UpDown.Down
 import frontend.swing_ui.ProductsPanel.UpDown.Up
 import java.awt.BorderLayout
 import java.awt.FlowLayout
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
 import javax.swing.*
 import javax.swing.table.AbstractTableModel
 
 
-class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
-
-    private val queryInput = JTextField(10)
-    private val lowerBound = JTextField(10)
-    private val upperBound = JTextField(10)
-
-    var pageNum: JLabel = JLabel()
-
+class ProductsPanel(private val client: HttpClientLogic, private val parent: JFrame) : JPanel() {
     companion object {
         private const val SIZE: Int = 10
         private val colNames = arrayOf("Id", "Price", "Name", "Number", "Group")
     }
 
+    enum class UpDown { Up, Down }
+
+    /*Swing elements*/
+    private val queryInput = JTextField(10)
+    private val lowerBound = JTextField(10)
+    private val upperBound = JTextField(10)
+    private var pageNum: JLabel = JLabel()
+    private var table = createTable()
+
+    /*Info*/
     private var prods = ArrayList<Product>(25)
     private val criterion = Criterion()
     private var page = 0
-
-
-    private var table = JTable(object : AbstractTableModel() {
-        override fun getRowCount() = prods.size
-        override fun getColumnCount() = 5
-        override fun getColumnName(i: Int) = colNames[i]
-
-        override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
-            return when (columnIndex) {
-                0 -> prods[rowIndex].id
-                1 -> prods[rowIndex].price
-                2 -> prods[rowIndex].name
-                3 -> prods[rowIndex].number
-                4 -> prods[rowIndex].groupId
-                else -> null
-            }
-        }
-    })
 
     init {
         layout = BorderLayout(5, 5)
@@ -52,25 +39,6 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
         add(createPagePanel(), BorderLayout.SOUTH)
         add(JScrollPane(table), BorderLayout.CENTER)
     }
-
-    private fun createPagePanel(): JPanel {
-        return JPanel().apply {
-            layout = FlowLayout(FlowLayout.CENTER)
-
-            add(JButton("<").apply {
-                addActionListener { updatePageCount(Down) }
-            })
-            pageNum = JLabel(page.toString()).apply {
-                font = font.deriveFont(18f)
-            }
-            add(pageNum)
-            add(JButton(">").apply {
-                addActionListener { updatePageCount(Up) }
-            })
-        }
-    }
-
-    enum class UpDown { Up, Down }
 
     private fun updatePageCount(upDown: UpDown) {
         when (upDown) {
@@ -87,6 +55,33 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
             table.updateUI()
         } catch (e: Exception) {
             JOptionPane.showMessageDialog(this, e.message, "Error", JOptionPane.ERROR_MESSAGE)
+        }
+    }
+
+    /*
+     * Bulky,
+     * Ugly,
+     * and Massive create methods.
+     * Extracting them to a separate classes would be overkill
+     * So I decided to keep'em here where I can reach
+     * for all the interconnected variables more easily
+     */
+
+    private fun createPagePanel(): JPanel {
+        return JPanel().apply {
+            layout = FlowLayout(FlowLayout.CENTER)
+
+            add(JButton("<").apply {
+                addActionListener { updatePageCount(Down) }
+            })
+
+            add(JLabel(page.toString()).apply {
+                font = font.deriveFont(18f)
+            })
+
+            add(JButton(">").apply {
+                addActionListener { updatePageCount(Up) }
+            })
         }
     }
 
@@ -121,6 +116,36 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
                             .lower(lower)
                             .upper(upper)
                     refreshTable()
+                }
+            })
+        }
+    }
+
+    private fun createTable(): JTable {
+        return JTable(object : AbstractTableModel() {
+            override fun getRowCount() = prods.size
+            override fun getColumnCount() = 5
+            override fun getColumnName(i: Int) = colNames[i]
+
+            override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
+                return when (columnIndex) {
+                    0 -> prods[rowIndex].id
+                    1 -> prods[rowIndex].price
+                    2 -> prods[rowIndex].name
+                    3 -> prods[rowIndex].number
+                    4 -> prods[rowIndex].groupId
+                    else -> null
+                }
+            }
+        }).apply {
+            addMouseListener(object : MouseAdapter() {
+                override fun mousePressed(mouseEvent: MouseEvent) {
+                    val table = mouseEvent.source as JTable
+                    if (table.selectedRow != -1) {
+                        val row = table.selectedRow
+                        val id = table.getValueAt(row, 0) as Int
+                        ProductDialog(this@ProductsPanel.parent, client, id)
+                    }
                 }
             })
         }

@@ -12,7 +12,7 @@ class ClientApp(url: String) : JFrame("Client App") {
     private val client = HttpClientLogic(url)
 
     private val loginPanel = LoginPanel(client)
-    private val productsPanel = ProductsPanel(client)
+    private val productsPanel = ProductsPanel(client, this)
     private val groupTable = JPanel()
 
     private val mainPanel = JTabbedPane().apply {
