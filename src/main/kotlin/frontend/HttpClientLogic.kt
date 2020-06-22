@@ -14,6 +14,7 @@ import frontend.http.UnauthorizedException
 import http.responses.ErrorResponse
 import http.responses.LoginResponse
 import org.apache.http.HttpResponse
+import org.apache.http.client.methods.HttpDelete
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.impl.client.HttpClients
@@ -65,7 +66,6 @@ class HttpClientLogic(private val url: String) {
 
     fun loadProduct(id: Int): Product {
         val request = HttpGet("$url/api/product/$id").apply {
-            setHeader("Content-Type", "application/json")
             setHeader("Authorization", loginResponse?.token)
         }
 
@@ -111,6 +111,20 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
+    fun deleteProduct(id: Int) {
+        val request = HttpDelete("$url/api/product/$id").apply {
+            setHeader("Authorization", loginResponse?.token)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                204 -> Unit
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+
 
 
     private fun handleException(response: HttpResponse): Throwable {
@@ -131,6 +145,5 @@ class HttpClientLogic(private val url: String) {
     private var loginResponse: LoginResponse? = null
 
     fun isLoggedIn() = loginResponse != null
-
 
 }

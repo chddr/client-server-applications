@@ -5,6 +5,7 @@ import db.entities.query_types.ProductChange
 import frontend.HttpClientLogic
 import frontend.swing_ui.SimpleDocumentListener.Companion.addChangeListener
 import frontend.swing_ui.UiUtils.showError
+import java.awt.Color
 import java.awt.Dimension
 import java.awt.Frame
 import java.awt.GridLayout
@@ -20,6 +21,7 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
     private val priceInput = createPriceInput()
     private val groupsInput = createGroupInput()
     private val submitButton = createSubmitButton()
+    private val deleteButton = createDeleteButton()
 
 
     private val labels = listOf("Id:", "Name:", "Number:", "Price:", "Group:").map { JLabel(it) }
@@ -54,6 +56,7 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
             add(labels[4])
             add(groupsInput)
             add(submitButton)
+            add(deleteButton)
         }
     }
 
@@ -117,6 +120,22 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
                 addActionListener {
                     try {
                         client.modifyProduct(generateProductChange())
+                        dispose()
+                    } catch (e: Exception) {
+                        this@ProductDialog.showError(e)
+                    }
+
+                }
+            }
+
+    private fun createDeleteButton() = JButton("Delete product")
+            .apply {
+                background = Color.RED
+                addActionListener {
+                    val response = JOptionPane.showConfirmDialog(this@ProductDialog, "Do you really want to delete the product?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)
+                    if (response == JOptionPane.NO_OPTION) return@addActionListener
+                    try {
+                        client.deleteProduct(product.id!!)
                         dispose()
                     } catch (e: Exception) {
                         this@ProductDialog.showError(e)
