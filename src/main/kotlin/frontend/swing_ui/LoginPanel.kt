@@ -1,6 +1,7 @@
 package frontend.swing_ui
 
 import frontend.HttpClientLogic
+import frontend.swing_ui.UiUtils.showError
 import javax.swing.*
 
 class LoginPanel(private val client: HttpClientLogic) : JPanel() {
@@ -27,7 +28,7 @@ class LoginPanel(private val client: HttpClientLogic) : JPanel() {
                         )
                         JOptionPane.showMessageDialog(this, "Successfully logged in:\nYour role: ${loginResponse.role}", "Success", JOptionPane.INFORMATION_MESSAGE)
                     } catch (e: Exception) {
-                        JOptionPane.showMessageDialog(this, e, "Error", JOptionPane.ERROR_MESSAGE)
+                        this@LoginPanel.showError(e)
                     }
                 }
             })

@@ -94,8 +94,21 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
-    fun modifyProduct(generateProductChange: ProductChange) {
+    fun modifyProduct(prodChange: ProductChange) {
+        val json = mapper.writeValueAsBytes(prodChange)
 
+        val request = HttpPost("$url/api/product").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                204 -> Unit
+                else -> throw handleException(response)
+            }
+        }
     }
 
 

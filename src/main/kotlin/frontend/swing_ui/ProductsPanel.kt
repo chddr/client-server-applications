@@ -6,6 +6,7 @@ import db.entities.Product
 import frontend.HttpClientLogic
 import frontend.swing_ui.ProductsPanel.UpDown.Down
 import frontend.swing_ui.ProductsPanel.UpDown.Up
+import frontend.swing_ui.UiUtils.showError
 import java.awt.BorderLayout
 import java.awt.FlowLayout
 import java.awt.event.MouseAdapter
@@ -49,6 +50,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             Up -> page++
             Down -> page = (--page).coerceAtLeast(0)
         }
+        pageNum.text = page.toString()
         refreshTable()
     }
 
@@ -58,7 +60,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             prods = client.loadProducts(page, SIZE, criterion)
             table.updateUI()
         } catch (e: Exception) {
-            JOptionPane.showMessageDialog(this, e.message, "Error", JOptionPane.ERROR_MESSAGE)
+            showError(e)
         }
     }
 
@@ -71,7 +73,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                 groupsInput.addItem(group)
             }
         } catch (e: Exception) {
-            JOptionPane.showMessageDialog(this, e.message, "Error", JOptionPane.ERROR_MESSAGE)
+            showError(e)
         }
 
     }
@@ -137,7 +139,6 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                             .lower(lower)
                             .upper(upper)
                             .groupId((groupsInput.selectedItem as Group?)?.id)
-                    println(criterion)
                     refreshTable()
                     loadGroups()
                 }

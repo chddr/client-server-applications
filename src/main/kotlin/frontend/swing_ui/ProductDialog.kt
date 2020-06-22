@@ -4,6 +4,7 @@ import db.entities.Group
 import db.entities.query_types.ProductChange
 import frontend.HttpClientLogic
 import frontend.swing_ui.SimpleDocumentListener.Companion.addChangeListener
+import frontend.swing_ui.UiUtils.showError
 import java.awt.Dimension
 import java.awt.Frame
 import java.awt.GridLayout
@@ -58,7 +59,6 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
 
     private fun changeRegistered() {
         submitButton.isEnabled = changed()
-        println(submitButton.isEnabled)
     }
 
 
@@ -102,36 +102,55 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
             .apply {
                 addItem(null)
                 for ((_, group) in groups) addItem(group)
+
+                val groupId = product.groupId ?: return@apply
+                selectedItem = groups[groupId]
+
                 addActionListener {
                     changeRegistered()
                 }
-//                selectedItem = groups[product.groupId] //TODO something cheesy here
             }
 
     private fun createSubmitButton() = JButton("Submit change")
             .apply {
                 isEnabled = false
                 addActionListener {
-                    client.modifyProduct(generateProductChange())
+                    try {
+                        client.modifyProduct(generateProductChange())
+                        dispose()
+                    } catch (e: Exception) {
+                        this@ProductDialog.showError(e)
+                    }
+
                 }
             }
 
     private fun generateProductChange(): ProductChange {
-        val selectedItem = groupsInput.selectedItem
+        var name: String? = nameInput.text.trim()
+        name = if (product.name == name) null else name
+
+        var price = priceInput.value as Double?
+        price = if (product.price == price) null else price
+
+        var number = numberInput.text.toIntOrNull()
+        number = if (product.number == number) null else number
+
+        var groupId = (groupsInput.selectedItem as Group?)?.id
+        groupId = if (product.groupId == groupId) null else groupId
+
         return ProductChange(product.id!!,
-                nameInput.text.trim(),
-                priceInput.value as Double?,
-                numberInput.text.toIntOrNull(),
-                (selectedItem as Group?)?.id
+                name,
+                price,
+                number,
+                groupId
         )
     }
 
-    private fun productChangeFromProduct(): ProductChange {
-        val (name, price, id, number, groupId) = product
-        return ProductChange(id!!, name, price, number, groupId)
+    private fun changed(): Boolean {
+        generateProductChange().run {
+            return !(name == null && price == null && number == null && groupId == null)
+        }
     }
-
-    private fun changed() = productChangeFromProduct() != generateProductChange()
 
 
 }
