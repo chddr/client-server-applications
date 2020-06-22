@@ -141,7 +141,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             addMouseListener(object : MouseAdapter() {
                 override fun mousePressed(mouseEvent: MouseEvent) {
                     val table = mouseEvent.source as JTable
-                    if (table.selectedRow != -1) {
+                    if (mouseEvent.clickCount == 2 && table.selectedRow != -1) {
                         val row = table.selectedRow
                         val id = table.getValueAt(row, 0) as Int
                         ProductDialog(this@ProductsPanel.parent, client, id)
