@@ -26,13 +26,14 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     private val queryInput = JTextField(10)
     private val lowerBound = JTextField(10)
     private val upperBound = JTextField(10)
-    private val groups = JComboBox<Group>().apply { addItem(null) }
+    private val groupsInput = JComboBox<Group>().apply { addItem(null) }
 
     private var pageNum: JLabel = JLabel()
     private var table = createTable()
 
     /*Info*/
     private var prods = ArrayList<Product>(25)
+    private var groups: Map<Int, Group> = HashMap<Int, Group>()
     private val criterion = Criterion()
     private var page = 0
 
@@ -63,11 +64,11 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
 
     private fun loadGroups() {
         try {
-            val retrievedGroups = client.loadGroups()
-            groups.removeAllItems()
-            groups.addItem(null)
-            for (group in retrievedGroups) {
-                groups.addItem(group)
+            groups = client.loadGroups().associateBy(Group::id)
+            groupsInput.removeAllItems()
+            groupsInput.addItem(null)
+            for ((_, group) in groups) {
+                groupsInput.addItem(group)
             }
         } catch (e: Exception) {
             JOptionPane.showMessageDialog(this, e.message, "Error", JOptionPane.ERROR_MESSAGE)
@@ -114,7 +115,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             add(JLabel("Upper bound:"))
             add(upperBound)
             add(JLabel("Group:"))
-            add(groups)
+            add(groupsInput)
             add(Box.createVerticalStrut(5))
 
             add(JButton("Load products and groups").apply {
@@ -135,7 +136,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                     criterion.query(queryInput.text)
                             .lower(lower)
                             .upper(upper)
-                            .groupId((groups.selectedItem as Group?)?.id)
+                            .groupId((groupsInput.selectedItem as Group?)?.id)
                     println(criterion)
                     refreshTable()
                     loadGroups()
@@ -156,7 +157,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                     1 -> prods[rowIndex].price
                     2 -> prods[rowIndex].name
                     3 -> prods[rowIndex].number
-                    4 -> prods[rowIndex].groupId
+                    4 -> groups[prods[rowIndex].groupId]
                     else -> null
                 }
             }
