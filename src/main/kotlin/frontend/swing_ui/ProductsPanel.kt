@@ -1,6 +1,7 @@
 package frontend.swing_ui
 
 import db.entities.Criterion
+import db.entities.Group
 import db.entities.Product
 import frontend.HttpClientLogic
 import frontend.swing_ui.ProductsPanel.UpDown.Down
@@ -25,6 +26,8 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     private val queryInput = JTextField(10)
     private val lowerBound = JTextField(10)
     private val upperBound = JTextField(10)
+    private val groups = JComboBox<Group>().apply { addItem(null) }
+
     private var pageNum: JLabel = JLabel()
     private var table = createTable()
 
@@ -57,6 +60,21 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             JOptionPane.showMessageDialog(this, e.message, "Error", JOptionPane.ERROR_MESSAGE)
         }
     }
+
+    private fun loadGroups() {
+        try {
+            val retrievedGroups = client.loadGroups()
+            groups.removeAllItems()
+            groups.addItem(null)
+            for (group in retrievedGroups) {
+                groups.addItem(group)
+            }
+        } catch (e: Exception) {
+            JOptionPane.showMessageDialog(this, e.message, "Error", JOptionPane.ERROR_MESSAGE)
+        }
+
+    }
+
 
     /*
      * Bulky,
@@ -95,9 +113,11 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             add(lowerBound)
             add(JLabel("Upper bound:"))
             add(upperBound)
+            add(JLabel("Group:"))
+            add(groups)
             add(Box.createVerticalStrut(5))
 
-            add(JButton("Load products").apply {
+            add(JButton("Load products and groups").apply {
                 addActionListener {
                     val (lower, upper) = try {
                         val lower = if (lowerBound.text.isBlank()) {
@@ -115,7 +135,10 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                     criterion.query(queryInput.text)
                             .lower(lower)
                             .upper(upper)
+                            .groupId((groups.selectedItem as Group?)?.id)
+                    println(criterion)
                     refreshTable()
+                    loadGroups()
                 }
             })
         }

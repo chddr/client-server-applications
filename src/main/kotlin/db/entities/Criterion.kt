@@ -1,6 +1,6 @@
 package db.entities
 
-class Criterion(var query: String? = null, var ids: Set<Int>? = null, var lower: Double? = null, var upper: Double? = null, var groupId: Int? = null) {
+data class Criterion(var query: String? = null, var ids: Set<Int>? = null, var lower: Double? = null, var upper: Double? = null, var groupId: Int? = null) {
 
     fun query(query: String?): Criterion {
         this.query = query

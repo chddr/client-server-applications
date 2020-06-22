@@ -4,8 +4,10 @@ import HttpGet
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import db.entities.Criterion
+import db.entities.Group
 import db.entities.Product
 import db.entities.UserCredentials
+import db.entities.query_types.GroupQuery
 import db.entities.query_types.PagesAndCriterion
 import frontend.http.UnauthorizedException
 import http.responses.ErrorResponse
@@ -69,6 +71,23 @@ class HttpClientLogic(private val url: String) {
         return client.execute(request) { response ->
             when (response.statusLine.statusCode) {
                 200 -> return@execute mapper.readValue<Product>(response.entity.content)
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+    fun loadGroups(query: String? = null): ArrayList<Group> {
+        val json = mapper.writeValueAsBytes(GroupQuery(query))
+
+        val request = HttpGet("$url/api/group").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<ArrayList<Group>>(response.entity.content)
                 else -> throw handleException(response)
             }
         }

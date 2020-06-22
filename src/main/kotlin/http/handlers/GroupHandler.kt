@@ -10,8 +10,8 @@ import http.HttpServer
 class GroupHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer) {
 
     override fun handleGET(exchange: HttpExchange) {
-        val (page, size, query) = objectMapper().readValue<GroupQuery>(exchange.requestBody)
-        val groups = productDB().getGroupList(page, size, query)
+        val (query) = objectMapper().readValue<GroupQuery>(exchange.requestBody)
+        val groups = productDB().getGroupList(query)
         exchange.writeResponse(200, groups)
     }
 

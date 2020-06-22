@@ -90,12 +90,11 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun getGroupList(page: Int = 0, size: Int = 20, query: String? = null): ArrayList<Group> {
-        if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
+    fun getGroupList(query: String? = null): ArrayList<Group> {
 
         return conn.createStatement().use {
             val condition = if (query != null) "WHERE name LIKE '%$query%'" else ""
-            val createdQuery = "SELECT * FROM groups $condition LIMIT $size OFFSET ${page * size}"
+            val createdQuery = "SELECT * FROM groups $condition"
 
 
             it.executeQuery(createdQuery).run {
