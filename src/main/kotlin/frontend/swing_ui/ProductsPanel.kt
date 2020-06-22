@@ -33,7 +33,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
 
     /*Info*/
     private var prods = ArrayList<Product>(25)
-    private var groups: Map<Int, Group> = HashMap<Int, Group>()
+    private var groups: Map<Int, Group> = HashMap()
     private val criterion = Criterion()
     private var page = 0
 

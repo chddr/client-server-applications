@@ -9,6 +9,7 @@ import db.entities.Product
 import db.entities.UserCredentials
 import db.entities.query_types.GroupQuery
 import db.entities.query_types.PagesAndCriterion
+import db.entities.query_types.ProductChange
 import frontend.http.UnauthorizedException
 import http.responses.ErrorResponse
 import http.responses.LoginResponse
@@ -92,6 +93,12 @@ class HttpClientLogic(private val url: String) {
             }
         }
     }
+
+    fun modifyProduct(generateProductChange: ProductChange) {
+
+    }
+
+
 
     private fun handleException(response: HttpResponse): Throwable {
         if (response.statusLine.statusCode == 403)
