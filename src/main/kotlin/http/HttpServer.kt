@@ -1,20 +1,18 @@
-package pr5
+package http
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import db.DaoProduct
 import db.DaoUser
+import http.authentication.MyAuthenticator
+import http.handlers.*
 import org.intellij.lang.annotations.Language
-import pr5.authentication.MyAuthenticator
-import pr5.handlers.LoginHandler
-import pr5.handlers.ProductHandler
-import pr5.handlers.ProductIdHandler
 import java.io.Closeable
 import java.io.IOException
 import java.net.InetSocketAddress
 
-class HttpServer(port: Int = 8080, dbName: String = "file.db"): Closeable {
+class HttpServer(port: Int = 8080, dbName: String = "file.db") : Closeable {
 
     companion object {
 
@@ -35,7 +33,9 @@ class HttpServer(port: Int = 8080, dbName: String = "file.db"): Closeable {
     private val contextHandlers = listOf(
             ProductIdHandler("^/api/product/(\\d+)$", this),
             ProductHandler("^/api/product$", this),
-            LoginHandler("^/login$", this)
+            LoginHandler("^/login$", this),
+            GroupIdHandler("^/api/group/(\\d+)$", this),
+            GroupHandler("^/api/group$", this)
     )
 
 

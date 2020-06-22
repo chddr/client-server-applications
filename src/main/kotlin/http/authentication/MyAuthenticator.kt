@@ -1,12 +1,12 @@
-package pr5.authentication
+package http.authentication
 
 import com.sun.net.httpserver.Authenticator
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpPrincipal
-import pr5.HttpServer
-import pr5.Utils.AUTHENTICATION_HEADER
-import pr5.Utils.anonymousPrincipal
-import pr5.authentication.JwtService.getUsernameFromToken
+import http.HttpServer
+import http.Utils.AUTHENTICATION_HEADER
+import http.Utils.anonymousPrincipal
+import http.authentication.JwtService.getUsernameFromToken
 
 
 class MyAuthenticator(private val httpServer: HttpServer) : Authenticator() {

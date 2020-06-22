@@ -1,4 +1,4 @@
-package pr5.responses
+package http.responses
 
 data class ErrorResponse(
         val message: String

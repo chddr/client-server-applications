@@ -60,6 +60,7 @@ class DaoProduct(db: String) : Closeable {
         if (!groupExists(id)) throw NoSuchGroupIdException()
 
         conn.createStatement().use {
+            it.execute("DELETE FROM products WHERE groupId = $id")
             it.execute("DELETE FROM groups WHERE id = $id")
         }
     }
@@ -73,11 +74,11 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun getProductList(page: Int = 0, size: Int = 20, criterion: Criterion = Criterion()): ArrayList<Product> {
+    fun getProductList(page: Int = 0, size: Int = 20, criterion: Criterion? = null): ArrayList<Product> {
         if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
 
         return conn.createStatement().use {
-            val conditions = generateWhereClause(criterion)
+            val conditions = criterion?.let { it1 -> generateWhereClause(it1) } ?: ""
             val query = "SELECT * FROM products $conditions LIMIT $size OFFSET ${page * size}"
 
             it.executeQuery(query).run {
@@ -89,13 +90,15 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun getGroupList(page: Int = 0, size: Int = 20): ArrayList<Group> {
+    fun getGroupList(page: Int = 0, size: Int = 20, query: String? = null): ArrayList<Group> {
         if (page < 0 || size <= 0) throw IllegalArgumentException("wrong parameters")
 
         return conn.createStatement().use {
-            val query = "SELECT * FROM groups LIMIT $size OFFSET ${page * size}"
+            val condition = if (query != null) "WHERE name LIKE '%$query%'" else ""
+            val createdQuery = "SELECT * FROM groups $condition LIMIT $size OFFSET ${page * size}"
 
-            it.executeQuery(query).run {
+
+            it.executeQuery(createdQuery).run {
                 ArrayList<Group>().also { prods ->
                     while (next())
                         prods.add(extractGroup())
@@ -239,7 +242,6 @@ class DaoProduct(db: String) : Closeable {
                 next()
                 getInt("quantity")
             }
-
         }
     }
 
@@ -252,6 +254,24 @@ class DaoProduct(db: String) : Closeable {
                 next()
                 getInt("quantity")
 
+            }
+        }
+    }
+
+    fun totalSum(): Double {
+        return conn.createStatement().use {
+            it.executeQuery("SELECT SUM(price * quantity) as total from products").run {
+                next()
+                getDouble("total")
+            }
+        }
+    }
+
+    fun totalSumByGroup(id: Int): Double {
+        return conn.createStatement().use {
+            it.executeQuery("SELECT SUM(price * quantity) as total from products where groupId = $id").run {
+                next()
+                getDouble("total")
             }
         }
     }
