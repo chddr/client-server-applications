@@ -10,6 +10,7 @@ import db.entities.query_types.PagesAndCriterion
 import frontend.http.UnauthorizedException
 import http.responses.ErrorResponse
 import http.responses.LoginResponse
+import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.impl.client.HttpClients
@@ -30,19 +31,14 @@ class HttpClientLogic(private val url: String) {
             setHeader("Content-Type", "application/json")
         }
 
-        return client.execute(request) { response ->
+        loginResponse = client.execute(request) { response ->
             when (response.statusLine.statusCode) {
-                200 -> {
-                    loginResponse = mapper.readValue<LoginResponse>(response.entity.content)
-                    return@execute loginResponse!!
-                }
-                else -> {
-                    val errMsg = mapper.readValue<ErrorResponse>(response.entity.content).message
-                    val code = response.statusLine.statusCode
-                    throw Exception("$code: $errMsg")
-                }
+                200 -> return@execute mapper.readValue<LoginResponse>(response.entity.content)
+                else -> throw handleException(response)
+
             }
         }
+        return loginResponse!!
     }
 
     fun loadProducts(page: Int, size: Int, criterion: Criterion): ArrayList<Product> {
@@ -59,22 +55,36 @@ class HttpClientLogic(private val url: String) {
         return client.execute(request) { response ->
             when (response.statusLine.statusCode) {
                 200 -> return@execute mapper.readValue<ArrayList<Product>>(response.entity.content)
-                403 -> throw UnauthorizedException("Please log in first.")
-                else -> {
-                    val errMsg = try {
-                        mapper.readValue<ErrorResponse>(response.entity.content).message
-                    } catch (e: java.lang.Exception) {
-                        "Server-side or Client-side error. Please contact the dev."
-                    }
-                    val code = response.statusLine.statusCode
-                    throw Exception("$code: $errMsg")
-                }
+                else -> throw handleException(response)
             }
         }
     }
 
     fun loadProduct(id: Int): Product {
-        return Product("testnema", 4.4, 1, 43, 4)
+        val request = HttpGet("$url/api/product/$id").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<Product>(response.entity.content)
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+    private fun handleException(response: HttpResponse): Throwable {
+        if (response.statusLine.statusCode == 403)
+            return UnauthorizedException("Please log in first.")
+
+        val errMsg = try {
+            mapper.readValue<ErrorResponse>(response.entity.content).message
+        } catch (e: java.lang.Exception) {
+            "Server-side or Client-side error. Please contact the dev."
+        }
+        val code = response.statusLine.statusCode
+        return Exception("$code: $errMsg")
     }
 
 
