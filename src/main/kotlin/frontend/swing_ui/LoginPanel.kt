@@ -10,12 +10,13 @@ class LoginPanel(private val client: HttpClientLogic) : JPanel() {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
 
             add(JLabel("Login"))
-            val login = JTextField(20)
+            val login = JTextField("login", 20)
             add(login)
 
             add(JLabel("Password"))
-            val password = JPasswordField(20)
+            val password = JPasswordField("password", 20)
             add(password)
+            add(Box.createVerticalStrut(5))
 
             add(JButton("Log in!").apply {
                 addActionListener {

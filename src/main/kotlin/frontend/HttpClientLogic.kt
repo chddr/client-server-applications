@@ -1,18 +1,20 @@
 package frontend
 
+import HttpGet
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import db.entities.Criterion
 import db.entities.Product
 import db.entities.UserCredentials
+import db.entities.query_types.PagesAndCriterion
+import frontend.http.UnauthorizedException
 import http.responses.ErrorResponse
 import http.responses.LoginResponse
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.impl.client.HttpClients
-import java.util.*
 
-class HttpClientLogic(val uri: String) {
+class HttpClientLogic(private val url: String) {
 
     companion object {
         private val mapper = jacksonObjectMapper()
@@ -23,9 +25,11 @@ class HttpClientLogic(val uri: String) {
                 UserCredentials(login, password)
         )
 
-        val request = HttpPost("http://localhost:8080/login")
-        request.entity = ByteArrayEntity(json)
-        request.setHeader("Content-Type", "application/json")
+        val request = HttpPost("$url/login").apply {
+            entity = ByteArrayEntity(json)
+            setHeader("Content-Type", "application/json")
+        }
+
         return client.execute(request) { response ->
             when (response.statusLine.statusCode) {
                 200 -> {
@@ -42,22 +46,38 @@ class HttpClientLogic(val uri: String) {
     }
 
     fun loadProducts(page: Int, size: Int, criterion: Criterion): ArrayList<Product> {
-        return arrayListOf(
-                Product("wheat", 4.0),
-                Product("banana", 3.0),
-                Product("kale", 5.0),
-                Product("buckwheat", 1.9),
-                Product("rice", 7.4),
-                Product("cabbage", 1.5),
-                Product("tofu", 9.9),
-                Product("quinoa", 0.5),
-                Product("yeast", 6.0)
+        val json = mapper.writeValueAsBytes(
+                PagesAndCriterion(page, size, criterion)
         )
+
+        val request = HttpGet("$url/api/product").apply {
+            entity = ByteArrayEntity(json)
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<ArrayList<Product>>(response.entity.content)
+                403 -> throw UnauthorizedException("Please log in first.")
+                else -> {
+                    val errMsg = try {
+                        mapper.readValue<ErrorResponse>(response.entity.content).message
+                    } catch (e: java.lang.Exception) {
+                        "Server-side or Client-side error. Please contact the dev."
+                    }
+                    val code = response.statusLine.statusCode
+                    throw Exception("$code: $errMsg")
+                }
+            }
+        }
     }
 
-    private val client = HttpClients.createDefault()
 
+    private val client = HttpClients.createDefault()
     private var loginResponse: LoginResponse? = null
+
+    fun isLoggedIn() = loginResponse != null
 
 
 }

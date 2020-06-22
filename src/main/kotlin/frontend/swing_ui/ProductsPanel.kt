@@ -21,7 +21,7 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
 
     companion object {
         private const val SIZE: Int = 10
-        private val colNames = arrayOf("Name", "Price", "Id", "Number", "Group")
+        private val colNames = arrayOf("Id", "Price", "Name", "Number", "Group")
     }
 
     private var prods = ArrayList<Product>(25)
@@ -36,9 +36,9 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
 
         override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
             return when (columnIndex) {
-                0 -> prods[rowIndex].name
+                0 -> prods[rowIndex].id
                 1 -> prods[rowIndex].price
-                2 -> prods[rowIndex].id
+                2 -> prods[rowIndex].name
                 3 -> prods[rowIndex].number
                 4 -> prods[rowIndex].groupId
                 else -> null
@@ -47,10 +47,10 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
     })
 
     init {
-        layout = BorderLayout()
+        layout = BorderLayout(5, 5)
         add(createQueryPanel(), BorderLayout.WEST)
         add(createPagePanel(), BorderLayout.SOUTH)
-        add(table, BorderLayout.CENTER)
+        add(JScrollPane(table), BorderLayout.CENTER)
     }
 
     private fun createPagePanel(): JPanel {
@@ -58,50 +58,60 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
             layout = FlowLayout(FlowLayout.CENTER)
 
             add(JButton("<").apply {
-                addActionListener { updatePage(Down) }
+                addActionListener { updatePageCount(Down) }
             })
             pageNum = JLabel(page.toString()).apply {
                 font = font.deriveFont(18f)
             }
             add(pageNum)
             add(JButton(">").apply {
-                addActionListener { updatePage(Up) }
+                addActionListener { updatePageCount(Up) }
             })
         }
     }
 
     enum class UpDown { Up, Down }
 
-    private fun updatePage(upDown: UpDown) {
+    private fun updatePageCount(upDown: UpDown) {
         when (upDown) {
             Up -> page++
             Down -> page = (--page).coerceAtLeast(0)
         }
-        updatePage()
+        refreshTable()
     }
 
-    private fun updatePage() {
-        prods = client.loadProducts(page, SIZE, criterion)
+    private fun refreshTable() {
         pageNum.text = page.toString()
-        table.updateUI()
+        try {
+            prods = client.loadProducts(page, SIZE, criterion)
+            table.updateUI()
+        } catch (e: Exception) {
+            JOptionPane.showMessageDialog(this, e.message, "Error", JOptionPane.ERROR_MESSAGE)
+        }
     }
 
     private fun createQueryPanel(): JPanel {
         return JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
+
             add(JLabel("Query:"))
             add(queryInput)
-
             add(JLabel("Lower bound:"))
             add(lowerBound)
             add(JLabel("Upper bound:"))
             add(upperBound)
-
+            add(Box.createVerticalStrut(5))
 
             add(JButton("Load products").apply {
                 addActionListener {
                     val (lower, upper) = try {
-                        lowerBound.text.toDouble() to upperBound.text.toDouble()
+                        val lower = if (lowerBound.text.isBlank()) {
+                            null
+                        } else lowerBound.text.toDouble()
+                        val upper = if (upperBound.text.isBlank()) {
+                            null
+                        } else upperBound.text.toDouble()
+                        lower to upper
                     } catch (e: Exception) {
                         JOptionPane.showMessageDialog(this, "Please input correct numeric bounds", "Error", JOptionPane.ERROR_MESSAGE)
                         return@addActionListener
@@ -110,7 +120,7 @@ class ProductsPanel(private val client: HttpClientLogic) : JPanel() {
                     criterion.query(queryInput.text)
                             .lower(lower)
                             .upper(upper)
-                    updatePage()
+                    refreshTable()
                 }
             })
         }
