@@ -131,7 +131,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                         } else upperBound.text.toDouble()
                         lower to upper
                     } catch (e: Exception) {
-                        JOptionPane.showMessageDialog(this, "Please input correct numeric bounds", "Error", JOptionPane.ERROR_MESSAGE)
+                        this@ProductsPanel.showError(java.lang.Exception("Please input correct numeric bounds"))
                         return@addActionListener
                     }
 
@@ -169,7 +169,11 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                     if (mouseEvent.clickCount == 2 && table.selectedRow != -1) {
                         val row = table.selectedRow
                         val id = table.getValueAt(row, 0) as Int
-                        ProductDialog(this@ProductsPanel.parent, client, id)
+                        try {
+                            ProductDialog(this@ProductsPanel.parent, client, id)
+                        } catch (e: Exception) {
+                            this@ProductsPanel.showError(java.lang.Exception("No such product. Try to refresh the list."))
+                        }
                     }
                 }
             })

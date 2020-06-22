@@ -31,6 +31,7 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
         add(createPanel())
 
         minimumSize = Dimension(200, 200)
+        isResizable = false
         setLocationRelativeTo(null)
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
 
@@ -130,7 +131,8 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
 
     private fun createDeleteButton() = JButton("Delete product")
             .apply {
-                background = Color.RED
+                background = Color.RED.darker()
+                foreground = Color.BLACK.brighter()
                 addActionListener {
                     val response = JOptionPane.showConfirmDialog(this@ProductDialog, "Do you really want to delete the product?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)
                     if (response == JOptionPane.NO_OPTION) return@addActionListener
