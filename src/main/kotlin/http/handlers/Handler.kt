@@ -43,7 +43,7 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
                 "PUT" -> handlePUT(exchange)
                 "POST" -> handlePOST(exchange)
                 "DELETE" -> handleDELETE(exchange)
-                else -> exchange.wrongMethod()
+                else -> defaultHandle(exchange)
             }
 
         } catch (e: DBException) {
@@ -58,10 +58,11 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
         }
     }
 
-    protected open fun handleDELETE(exchange: HttpExchange) = exchange.wrongMethod()
-    protected open fun handlePOST(exchange: HttpExchange) = exchange.wrongMethod()
-    protected open fun handlePUT(exchange: HttpExchange) = exchange.wrongMethod()
-    protected open fun handleGET(exchange: HttpExchange) = exchange.wrongMethod()
+    protected open fun defaultHandle(exchange: HttpExchange) = exchange.wrongMethod()
+    protected open fun handleDELETE(exchange: HttpExchange) = defaultHandle(exchange)
+    protected open fun handlePOST(exchange: HttpExchange) = defaultHandle(exchange)
+    protected open fun handlePUT(exchange: HttpExchange) = defaultHandle(exchange)
+    protected open fun handleGET(exchange: HttpExchange) = defaultHandle(exchange)
 
     private fun HttpExchange.wrongMethod() {
         writeResponse(405, ErrorResponse("$requestMethod method not allowed"))
