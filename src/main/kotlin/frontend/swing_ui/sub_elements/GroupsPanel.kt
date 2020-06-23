@@ -3,10 +3,10 @@ package frontend.swing_ui.sub_elements
 import db.entities.Group
 import frontend.HttpClientLogic
 import frontend.swing_ui.ClientApp
+import frontend.swing_ui.utils.UiUtils.al
 import frontend.swing_ui.utils.UiUtils.showError
 import java.awt.BorderLayout
 import java.awt.Color
-import java.awt.Component
 import java.awt.Dimension
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -53,10 +53,6 @@ class GroupsPanel(private val client: HttpClientLogic, private val parent: Clien
         * So I decided to keep'em here where I can reach
         * for all the interconnected variables more easily
         */
-    private fun JComponent.al(): JComponent {
-        alignmentX = Component.LEFT_ALIGNMENT
-        return this
-    }
 
     private fun createQueryPanel(): JPanel {
         return JPanel().apply {

@@ -9,7 +9,7 @@ import http.responses.ErrorResponse
 import java.net.URI
 
 
-abstract class Handler(pattern: String, private val httpServer: HttpServer, private val privilegeRequired: Boolean = true) : HttpHandler {
+abstract class Handler(pattern: String, private val httpServer: HttpServer, private val privilegeRequired: Collection<String> = listOf("admin", "user")) : HttpHandler {
 
     private val urlPattern: Regex = Regex(pattern)
 
@@ -34,7 +34,7 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
 
     final override fun handle(exchange: HttpExchange) {
         try {
-            if (privilegeRequired && exchange.principal.realm != "admin") {
+            if (exchange.principal.realm !in privilegeRequired) {
                 exchange.writeResponse(403, ErrorResponse("No permission"))
                 return
             }

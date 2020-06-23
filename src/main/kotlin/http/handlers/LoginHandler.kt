@@ -8,7 +8,7 @@ import http.responses.ErrorResponse
 import http.responses.LoginResponse
 import org.apache.commons.codec.digest.DigestUtils.md5Hex
 
-class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer, privilegeRequired = false) {
+class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer, privilegeRequired = listOf("user", "admin", "anonymous")) {
 
     override fun handleGET(exchange: HttpExchange) {
 

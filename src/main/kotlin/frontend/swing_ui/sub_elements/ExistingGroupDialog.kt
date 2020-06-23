@@ -15,6 +15,7 @@ class ExistingGroupDialog(parent: ClientApp, private val client: HttpClientLogic
 
     private val idInput = createIdInput()
     private val nameInput = createNameInput()
+    private val descInput = createDescInput()
 
     private val submitButton = createSubmitButton()
     private val deleteButton = createDeleteButton()
@@ -33,7 +34,7 @@ class ExistingGroupDialog(parent: ClientApp, private val client: HttpClientLogic
     }
 
     private fun changeRegistered() {
-        submitButton.isEnabled = (group.name != nameInput.text.trim())
+        submitButton.isEnabled = (group.name != name() || group.description != desc())
     }
 
     private fun createPanel(): JPanel {
@@ -42,10 +43,12 @@ class ExistingGroupDialog(parent: ClientApp, private val client: HttpClientLogic
             border = BorderFactory.createEmptyBorder(bord, bord, bord, bord)
             layout = GridLayout(3, 2, bord, bord)
 
-            add(JLabel("Id"))
+            add(JLabel("Id:"))
             add(idInput)
-            add(JLabel("Name"))
+            add(JLabel("Name:"))
             add(nameInput)
+            add(JLabel("Description:"))
+            add(descInput)
             add(submitButton)
             add(deleteButton)
         }
@@ -73,12 +76,19 @@ methods
                 }
             }
 
+    private fun createDescInput() = JTextField(group.description)
+            .apply {
+                addChangeListener {
+                    changeRegistered()
+                }
+            }
+
     private fun createSubmitButton() = JButton("Submit change")
             .apply {
                 isEnabled = false
                 addActionListener {
                     try {
-                        client.modifyGroup(Group(group.id, nameInput.text.trim()))
+                        client.modifyGroup(Group(group.id, name(), desc()))
                         dispose()
                     } catch (e: Exception) {
                         this@ExistingGroupDialog.showError(e)
@@ -86,6 +96,9 @@ methods
 
                 }
             }
+
+    private fun name() = nameInput.text.trim()
+    private fun desc() = descInput.text.trim()
 
     private fun createDeleteButton() = JButton("Delete product")
             .apply {

@@ -219,5 +219,8 @@ class HttpClientLogic(private val url: String) {
     private var loginResponse: LoginResponse? = null
 
     fun isLoggedIn() = loginResponse != null
+    fun logout() {
+        loginResponse = null
+    }
 
 }
