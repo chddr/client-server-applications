@@ -7,10 +7,7 @@ import db.entities.Criterion
 import db.entities.Group
 import db.entities.Product
 import db.entities.UserCredentials
-import db.entities.query_types.GroupQuery
-import db.entities.query_types.Id
-import db.entities.query_types.PagesAndCriterion
-import db.entities.query_types.ProductChange
+import db.entities.query_types.*
 import frontend.http.UnauthorizedException
 import http.responses.ErrorResponse
 import http.responses.LoginResponse
@@ -32,7 +29,7 @@ class HttpClientLogic(private val url: String) {
                 UserCredentials(login, password)
         )
 
-        val request = HttpPost("$url/login").apply {
+        val request = HttpGet("$url/login").apply {
             entity = ByteArrayEntity(json)
             setHeader("Content-Type", "application/json")
         }
@@ -143,8 +140,8 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
-    fun createGroup(name: String): Int {
-        val json = mapper.writeValueAsBytes(mapOf("name" to name))
+    fun createGroup(name: String, description: String? = null): Int {
+        val json = mapper.writeValueAsBytes(CreateGroup(name, description))
 
         val request = HttpPut("$url/api/group").apply {
             setHeader("Content-Type", "application/json")

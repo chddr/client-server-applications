@@ -10,6 +10,7 @@ import javax.swing.*
 class NewGroupDialog(parent: JFrame, private val client: HttpClientLogic) : JDialog(parent, "Create a new group", true) {
 
     private val nameInput = JTextField()
+    private val descInput = JTextField()
     private val createButton = createCreateButton()
 
     init {
@@ -29,10 +30,12 @@ class NewGroupDialog(parent: JFrame, private val client: HttpClientLogic) : JDia
         val bord = 5 // border size
         return JPanel().apply {
             border = BorderFactory.createEmptyBorder(bord, bord, bord, bord)
-            layout = GridLayout(4, 1, bord, bord)
+            layout = GridLayout(3   , 1, bord, bord)
 
             add(JLabel("Name:"))
             add(nameInput)
+            add(JLabel("Description:"))
+            add(descInput)
             add(createButton)
 
         }
@@ -42,7 +45,11 @@ class NewGroupDialog(parent: JFrame, private val client: HttpClientLogic) : JDia
             .apply {
                 addActionListener {
                     try {
-                        client.createGroup(nameInput.text.trim())
+                        val desc = descInput.text.trim()
+                        client.createGroup(
+                                nameInput.text.trim(),
+                                if (!desc.isBlank()) desc else null
+                        )
                         dispose()
                     } catch (e: Exception) {
                         this@NewGroupDialog.showError(e)

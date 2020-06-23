@@ -17,7 +17,7 @@ import javax.swing.table.AbstractTableModel
 class GroupsPanel(private val client: HttpClientLogic, private val parent: ClientApp) : JPanel() {
 
     companion object {
-        private val colNames = arrayOf("Id", "Name")
+        private val colNames = arrayOf("Id", "Name", "Description")
     }
 
     private val addGroup = createAddGroupButton()
@@ -97,13 +97,14 @@ class GroupsPanel(private val client: HttpClientLogic, private val parent: Clien
     private fun createTable(): JTable {
         return JTable(object : AbstractTableModel() {
             override fun getRowCount() = groups.size
-            override fun getColumnCount() = 2
+            override fun getColumnCount() = 3
             override fun getColumnName(i: Int) = colNames[i]
 
             override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
                 return when (columnIndex) {
                     0 -> groups[rowIndex].id
                     1 -> groups[rowIndex].name
+                    2 -> groups[rowIndex].description
                     else -> null
                 }
             }
