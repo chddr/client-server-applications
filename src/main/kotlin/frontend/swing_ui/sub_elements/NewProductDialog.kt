@@ -59,7 +59,7 @@ class NewProductDialog(parent: JFrame, private val client: HttpClientLogic) : JD
                 for ((_, group) in groups) addItem(group)
             }
 
-    private fun createCreateButton() = JButton("Submit change")
+    private fun createCreateButton() = JButton("Create")
             .apply {
                 addActionListener {
                     try {

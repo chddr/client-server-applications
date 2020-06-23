@@ -85,7 +85,7 @@ class GroupsPanel(private val client: HttpClientLogic, private val parent: Clien
             foreground = Color.WHITE
             addActionListener {
                 try {
-//                    NewGroupDialog(this@GroupsPanel.parent, client) //TODO
+                    NewGroupDialog(this@GroupsPanel.parent, client)
                     refreshTable()
                 } catch (e: Exception) {
                     this@GroupsPanel.showError(e)
@@ -115,7 +115,7 @@ class GroupsPanel(private val client: HttpClientLogic, private val parent: Clien
                         val row = table.selectedRow
                         val id = table.getValueAt(row, 0) as Int
                         try {
-//                            ExistingGroupDialog(this@GroupsPanel.parent, client, id) //TODO
+                            ExistingGroupDialog(this@GroupsPanel.parent, client, id)
                         } catch (e: Exception) {
                             this@GroupsPanel.showError(java.lang.Exception("No such product. List seems to be outdated."))
                         }

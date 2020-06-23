@@ -23,6 +23,12 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
         private val colNames = arrayOf("Id", "Price", "Name", "Number", "Group")
     }
 
+    /*Info*/
+    private var prods = ArrayList<Product>(25)
+    private var groups: Map<Int, Group> = HashMap()
+    private val criterion = Criterion()
+    private var page = 0
+
     enum class UpDown { Up, Down }
 
     /*Swing elements*/
@@ -32,14 +38,10 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     private val upperBound = JTextField(10)
     private val groupsInput = JComboBox<Group>().apply { addItem(null) }
 
-    private var pageNum: JLabel = JLabel()
+    private var pageNum: JLabel = JLabel(page.toString()).apply {
+        font = font.deriveFont(18f)
+    }
     private var table = createTable()
-
-    /*Info*/
-    private var prods = ArrayList<Product>(25)
-    private var groups: Map<Int, Group> = HashMap()
-    private val criterion = Criterion()
-    private var page = 0
 
     init {
         layout = BorderLayout(5, 5)
@@ -99,9 +101,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                 addActionListener { updatePageCount(Down) }
             })
 
-            add(JLabel(page.toString()).apply {
-                font = font.deriveFont(18f)
-            })
+            add(pageNum)
 
             add(JButton(">").apply {
                 addActionListener { updatePageCount(Up) }

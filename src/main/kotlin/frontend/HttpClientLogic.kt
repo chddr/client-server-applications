@@ -143,6 +143,67 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
+    fun createGroup(name: String): Int {
+        val json = mapper.writeValueAsBytes(mapOf("name" to name))
+
+        val request = HttpPut("$url/api/group").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                201 -> return@execute mapper.readValue<Id>(response.entity.content).id
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+
+    fun loadGroup(id: Int): Group {
+        val request = HttpGet("$url/api/group/$id").apply {
+            setHeader("Authorization", loginResponse?.token)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<Group>(response.entity.content)
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+    fun modifyGroup(group: Group) {
+        val json = mapper.writeValueAsBytes(group)
+
+        val request = HttpPost("$url/api/group").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                204 -> Unit
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+    fun deleteGroup(id: Int) {
+        val request = HttpDelete("$url/api/group/$id").apply {
+            setHeader("Authorization", loginResponse?.token)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                204 -> Unit
+                else -> throw handleException(response)
+            }
+        }
+    }
+
     private fun handleException(response: HttpResponse): Throwable {
         if (response.statusLine.statusCode == 403)
             return UnauthorizedException("Please log in first.")

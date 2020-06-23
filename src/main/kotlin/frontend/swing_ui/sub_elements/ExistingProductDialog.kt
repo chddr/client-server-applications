@@ -11,6 +11,7 @@ import java.awt.Frame
 import java.awt.GridLayout
 import javax.swing.*
 
+@Suppress("DuplicatedCode")
 class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) : JDialog(owner, "Product", true) {
     private val product = client.loadProduct(id)
     private var groups: Map<Int, Group> = client.loadGroups().associateBy(Group::id)
@@ -44,7 +45,7 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
         val bord = 5 // border size
         return JPanel().apply {
             border = BorderFactory.createEmptyBorder(bord, bord, bord, bord)
-            layout = GridLayout(6, 1, bord, bord)
+            layout = GridLayout(6, 2, bord, bord)
 
             add(labels[0])
             add(idInput)
