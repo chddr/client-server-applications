@@ -1,6 +1,6 @@
 package frontend.swing_ui.sub_elements.groups
 
-import frontend.HttpClientLogic
+import frontend.http.HttpClientLogic
 import frontend.swing_ui.utils.UiUtils.showError
 import java.awt.Dimension
 import java.awt.GridLayout

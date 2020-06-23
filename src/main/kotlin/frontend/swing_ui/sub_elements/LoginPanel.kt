@@ -1,6 +1,6 @@
 package frontend.swing_ui.sub_elements
 
-import frontend.HttpClientLogic
+import frontend.http.HttpClientLogic
 import frontend.swing_ui.ClientApp
 import frontend.swing_ui.utils.UiUtils.al
 import frontend.swing_ui.utils.UiUtils.showError
@@ -9,8 +9,8 @@ import javax.swing.*
 
 class LoginPanel(private val client: HttpClientLogic, private val parent: ClientApp) : JPanel() {
 
-    private val login = JTextField("login", 20)
-    private val password = JPasswordField("password", 20)
+    private val login = JTextField("admin", 20)
+    private val password = JPasswordField("admin", 20)
 
     private val loginButton = createLoginButton(login, password)
     private val logoutButton = createLogoutButton()

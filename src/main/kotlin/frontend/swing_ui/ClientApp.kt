@@ -1,8 +1,8 @@
 package frontend.swing_ui
 
-import frontend.HttpClientLogic
-import frontend.swing_ui.sub_elements.groups.GroupsPanel
+import frontend.http.HttpClientLogic
 import frontend.swing_ui.sub_elements.LoginPanel
+import frontend.swing_ui.sub_elements.groups.GroupsPanel
 import frontend.swing_ui.sub_elements.products.ProductsPanel
 import frontend.swing_ui.sub_elements.users.UserPanel
 import java.awt.Dimension

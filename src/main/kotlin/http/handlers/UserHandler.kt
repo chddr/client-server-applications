@@ -20,5 +20,11 @@ class UserHandler(match: String, httpServer: HttpServer) : Handler(match, httpSe
         exchange.writeResponse(201, Id(id))
     }
 
+    override fun handleDELETE(exchange: HttpExchange) {
+        val id = objectMapper().readValue<Id>(exchange.requestBody).id
+        userDB().delete(id)
+
+        exchange.writeResponse(204, null)
+    }
 
 }

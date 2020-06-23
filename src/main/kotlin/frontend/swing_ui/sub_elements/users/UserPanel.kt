@@ -1,9 +1,8 @@
 package frontend.swing_ui.sub_elements.users
 
 import db.entities.User
-import frontend.HttpClientLogic
+import frontend.http.HttpClientLogic
 import frontend.swing_ui.ClientApp
-import frontend.swing_ui.sub_elements.groups.NewGroupDialog
 import frontend.swing_ui.utils.UiUtils.al
 import frontend.swing_ui.utils.UiUtils.showError
 import java.awt.BorderLayout
@@ -35,7 +34,7 @@ class UserPanel(private val client: HttpClientLogic, private val parent: ClientA
 
     private fun refreshTable() {
         try {
-//            users = client.loadUsers()
+            users = client.loadUsers()
             table.updateUI()
         } catch (e: Exception) {
             showError(e)
@@ -60,7 +59,7 @@ class UserPanel(private val client: HttpClientLogic, private val parent: ClientA
             foreground = Color.WHITE
             addActionListener {
                 try {
-                    NewGroupDialog(this@UserPanel.parent, client)
+//                    NewGroupDialog(this@UserPanel.parent, client) TODO
                     refreshTable()
                 } catch (e: Exception) {
                     this@UserPanel.showError(e)
@@ -95,10 +94,11 @@ class UserPanel(private val client: HttpClientLogic, private val parent: ClientA
                                 "Are you sure you want to delete this user?",
                                 "Confirm", YES_NO_OPTION, WARNING_MESSAGE)
                         if (option == YES_OPTION) {
-//                                client.deleteUser(t.getValueAt(row, 0) as Int) TODO
+                            client.deleteUser(t.getValueAt(row, 0) as Int)
                         }
                     } catch (e: Exception) {
-                        this@UserPanel.showError(java.lang.Exception("No such product. List seems to be outdated."))
+                        e.printStackTrace()
+                        this@UserPanel.showError(java.lang.Exception("No such user. List seems to be outdated."))
                     }
                     refreshTable()
                 }

@@ -40,6 +40,12 @@ class DaoUser(db: String) {
         }
     }
 
+    fun delete(id: Int) {
+        connection.createStatement().use { statement ->
+            statement.execute("delete from users where id = $id")
+        }
+    }
+
     fun getUsers(): ArrayList<User> {
         return connection.createStatement().use {
             it.executeQuery("select * from 'users'").run {

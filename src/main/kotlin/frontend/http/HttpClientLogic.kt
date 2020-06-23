@@ -1,14 +1,10 @@
-package frontend
+package frontend.http
 
 import HttpGet
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import db.entities.Criterion
-import db.entities.Group
-import db.entities.Product
-import db.entities.UserCredentials
+import db.entities.*
 import db.entities.query_types.*
-import frontend.http.UnauthorizedException
 import http.responses.ErrorResponse
 import http.responses.LoginResponse
 import org.apache.http.HttpResponse
@@ -88,6 +84,36 @@ class HttpClientLogic(private val url: String) {
         return client.execute(request) { response ->
             when (response.statusLine.statusCode) {
                 200 -> return@execute mapper.readValue<ArrayList<Group>>(response.entity.content)
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+    fun deleteUser(id: Int): Any {
+        val json = mapper.writeValueAsBytes(Id(id))
+
+        val request = frontend.http.HttpDelete("$url/api/user").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                204 -> Unit
+                else -> throw handleException(response)
+            }
+        }
+    }
+
+    fun loadUsers(): ArrayList<User> {
+        val request = HttpGet("$url/api/user").apply {
+            setHeader("Authorization", loginResponse?.token)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<ArrayList<User>>(response.entity.content)
                 else -> throw handleException(response)
             }
         }
@@ -222,5 +248,6 @@ class HttpClientLogic(private val url: String) {
     fun logout() {
         loginResponse = null
     }
+
 
 }

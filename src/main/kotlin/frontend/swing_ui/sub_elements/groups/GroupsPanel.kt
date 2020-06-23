@@ -1,7 +1,7 @@
 package frontend.swing_ui.sub_elements.groups
 
 import db.entities.Group
-import frontend.HttpClientLogic
+import frontend.http.HttpClientLogic
 import frontend.swing_ui.ClientApp
 import frontend.swing_ui.utils.UiUtils.al
 import frontend.swing_ui.utils.UiUtils.showError
