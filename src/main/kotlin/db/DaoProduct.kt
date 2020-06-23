@@ -31,14 +31,12 @@ class DaoProduct(db: String) : Closeable {
         if (productExists(product.name)) throw NameTakenException()
         if (!checkName(product.name)) throw WrongNameFormatException()
         if (product.groupId != null && !groupExists(product.groupId)) throw NoSuchGroupIdException()
-        if (product.number != null && product.number <0) throw IllegalArgumentException("Wrong number of products")
 
-        return conn.prepareStatement("INSERT INTO products('name', 'price', 'quantity', 'groupId') VALUES (?,?,?,?)").use {
+        return conn.prepareStatement("INSERT INTO products('name', 'price', 'groupId') VALUES (?,?,?)").use {
             it.run {
                 setString(1, product.name)
                 setDouble(2, product.price)
-                product.number?.let { it -> setInt(3, it) }
-                product.groupId?.let { it -> setInt(4, it) }
+                product.groupId?.let { it -> setInt(3, it) }
 
                 executeUpdate()
                 generatedKeys
@@ -279,7 +277,7 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun updateProduct(id: Int, name: String?, price: Double?, groupId: Int?) {
+    fun updateProduct(id: Int, name: String? = null, price: Double? = null, groupId: Int? = null) {
         if (!productExists(id)) throw NoSuchProductIdException()
         if (name != null) {
             if (productExists(name)) throw NameTakenException()
