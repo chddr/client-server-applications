@@ -246,7 +246,16 @@ class HttpClientLogic(private val url: String) {
     }
 
     fun totalWorth(): Double {
-        return Math.random() * 10000
+        val request = HttpGet("$url/api/stats").apply {
+            setHeader("Authorization", loginResponse?.token)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<Price>(response.entity.content).price
+                else -> throw handleException(response)
+            }
+        }
     }
 
     private fun handleException(response: HttpResponse): Throwable {
