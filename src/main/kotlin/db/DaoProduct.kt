@@ -31,10 +31,12 @@ class DaoProduct(db: String) : Closeable {
         if (productExists(product.name)) throw NameTakenException()
         if (!checkName(product.name)) throw WrongNameFormatException()
 
-        return conn.prepareStatement("INSERT INTO products('name', 'price') VALUES (?,?)").use {
+        return conn.prepareStatement("INSERT INTO products('name', 'price', 'quantity', 'groupId') VALUES (?,?,?,?)").use {
             it.run {
                 setString(1, product.name)
                 setDouble(2, product.price)
+                product.number?.let { it -> setInt(3, it) }
+                product.groupId?.let { it -> setInt(4, it) }
 
                 executeUpdate()
                 generatedKeys

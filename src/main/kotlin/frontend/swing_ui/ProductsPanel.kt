@@ -8,6 +8,7 @@ import frontend.swing_ui.ProductsPanel.UpDown.Down
 import frontend.swing_ui.ProductsPanel.UpDown.Up
 import frontend.swing_ui.UiUtils.showError
 import java.awt.BorderLayout
+import java.awt.Color
 import java.awt.FlowLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -24,6 +25,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     enum class UpDown { Up, Down }
 
     /*Swing elements*/
+    private val addProduct = createAddProductButton()
     private val queryInput = JTextField(10)
     private val lowerBound = JTextField(10)
     private val upperBound = JTextField(10)
@@ -110,6 +112,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
         return JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
 
+            add(addProduct)
             add(JLabel("Query:"))
             add(queryInput)
             add(JLabel("Lower bound:"))
@@ -143,6 +146,16 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                     loadGroups()
                 }
             })
+        }
+    }
+
+    private fun createAddProductButton(): JButton {
+        return JButton("Create and add new product").apply {
+            background = Color.GREEN.darker()
+            foreground = Color.WHITE
+            addActionListener {
+                NewProductDialog(this@ProductsPanel.parent, client)
+            }
         }
     }
 

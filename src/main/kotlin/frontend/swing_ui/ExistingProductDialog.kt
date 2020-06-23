@@ -24,7 +24,7 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
     private val deleteButton = createDeleteButton()
 
 
-    private val labels = listOf("Id:", "Name:", "Number:", "Price:", "Group:").map { JLabel(it) }
+    private val labels = listOf("Id:", "Name:", "Price:", "Number:", "Group:").map { JLabel(it) }
 
     init {
 
@@ -51,9 +51,9 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
             add(labels[1])
             add(nameInput)
             add(labels[2])
-            add(numberInput)
-            add(labels[3])
             add(priceInput)
+            add(labels[3])
+            add(numberInput)
             add(labels[4])
             add(groupsInput)
             add(submitButton)

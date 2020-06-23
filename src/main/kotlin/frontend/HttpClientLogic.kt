@@ -8,6 +8,7 @@ import db.entities.Group
 import db.entities.Product
 import db.entities.UserCredentials
 import db.entities.query_types.GroupQuery
+import db.entities.query_types.Id
 import db.entities.query_types.PagesAndCriterion
 import db.entities.query_types.ProductChange
 import frontend.http.UnauthorizedException
@@ -16,6 +17,7 @@ import http.responses.LoginResponse
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpDelete
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.methods.HttpPut
 import org.apache.http.entity.ByteArrayEntity
 import org.apache.http.impl.client.HttpClients
 
@@ -124,8 +126,22 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
+    fun createProduct(product: Product): Int {
+        val json = mapper.writeValueAsBytes(product)
 
+        val request = HttpPut("$url/api/product").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
 
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                201 -> return@execute mapper.readValue<Id>(response.entity.content).id
+                else -> throw handleException(response)
+            }
+        }
+    }
 
     private fun handleException(response: HttpResponse): Throwable {
         if (response.statusLine.statusCode == 403)
