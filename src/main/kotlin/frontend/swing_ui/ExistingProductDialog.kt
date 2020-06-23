@@ -11,7 +11,7 @@ import java.awt.Frame
 import java.awt.GridLayout
 import javax.swing.*
 
-class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) : JDialog(owner, "Product", true) {
+class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) : JDialog(owner, "Product", true) {
     private val product = client.loadProduct(id)
     private var groups: Map<Int, Group> = client.loadGroups().associateBy(Group::id)
 
@@ -123,7 +123,7 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
                         client.modifyProduct(generateProductChange())
                         dispose()
                     } catch (e: Exception) {
-                        this@ProductDialog.showError(e)
+                        this@ExistingProductDialog.showError(e)
                     }
 
                 }
@@ -134,13 +134,13 @@ class ProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) 
                 background = Color.RED.darker()
                 foreground = Color.BLACK.brighter()
                 addActionListener {
-                    val response = JOptionPane.showConfirmDialog(this@ProductDialog, "Do you really want to delete the product?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)
+                    val response = JOptionPane.showConfirmDialog(this@ExistingProductDialog, "Do you really want to delete the product?", "Confirm", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)
                     if (response == JOptionPane.NO_OPTION) return@addActionListener
                     try {
                         client.deleteProduct(product.id!!)
                         dispose()
                     } catch (e: Exception) {
-                        this@ProductDialog.showError(e)
+                        this@ExistingProductDialog.showError(e)
                     }
 
                 }

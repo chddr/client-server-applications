@@ -170,7 +170,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                         val row = table.selectedRow
                         val id = table.getValueAt(row, 0) as Int
                         try {
-                            ProductDialog(this@ProductsPanel.parent, client, id)
+                            ExistingProductDialog(this@ProductsPanel.parent, client, id)
                         } catch (e: Exception) {
                             this@ProductsPanel.showError(java.lang.Exception("No such product. Try to refresh the list."))
                         }
