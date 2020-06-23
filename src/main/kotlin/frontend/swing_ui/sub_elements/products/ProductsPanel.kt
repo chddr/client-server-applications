@@ -73,11 +73,13 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     private fun loadGroups() {
         try {
             groups = client.loadGroups().associateBy(Group::id)
+            val prev = groupsInput.selectedItem as Group?
             groupsInput.removeAllItems()
             groupsInput.addItem(null)
             for ((_, group) in groups) {
                 groupsInput.addItem(group)
             }
+            groupsInput.selectedItem = prev
         } catch (e: Exception) {
             showError(e)
         }
@@ -129,8 +131,9 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             add(JLabel("Group:").al())
             add(groupsInput.al())
             add(Box.createVerticalStrut(5))
+            add(Box.createVerticalGlue())
 
-            add(JButton("Load products and groups").apply {
+            add(JButton("Refresh").apply {
                 al()
                 addActionListener {
                     loadProductsAndGroups()
@@ -180,7 +183,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     }
 
     private fun createTable(): JTable {
-        return JTable(object : AbstractTableModel() {
+        val table = JTable(object : AbstractTableModel() {
             override fun getRowCount() = prods.size
             override fun getColumnCount() = 5
             override fun getColumnName(i: Int) = colNames[i]
@@ -195,23 +198,23 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                     else -> null
                 }
             }
-        }).apply {
-            addMouseListener(object : MouseAdapter() {
-                override fun mousePressed(mouseEvent: MouseEvent) {
-                    val table = mouseEvent.source as JTable
-                    if (mouseEvent.clickCount == 2 && table.selectedRow != -1) {
-                        val row = table.selectedRow
-                        val id = table.getValueAt(row, 0) as Int
-                        try {
-                            ExistingProductDialog(this@ProductsPanel.parent, client, id)
-                        } catch (e: Exception) {
-                            this@ProductsPanel.showError(java.lang.Exception("No such product. List seems to be outdated."))
-                        }
-                        refreshTable()
+        })
+        table.addMouseListener(object : MouseAdapter() {
+            override fun mousePressed(mouseEvent: MouseEvent) {
+                val t = mouseEvent.source as JTable
+                if (mouseEvent.clickCount == 2 && t.selectedRow != -1) {
+                    val row = t.selectedRow
+                    val id = t.getValueAt(row, 0) as Int
+                    try {
+                        ExistingProductDialog(this@ProductsPanel.parent, client, id)
+                    } catch (e: Exception) {
+                        this@ProductsPanel.showError(java.lang.Exception("No such product. List seems to be outdated."))
                     }
+                    refreshTable()
                 }
-            })
-        }
+            }
+        })
+        return table
     }
 
 }

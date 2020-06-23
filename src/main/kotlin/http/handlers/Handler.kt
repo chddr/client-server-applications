@@ -72,8 +72,8 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
         when (exception) {
             is NoSuchProductIdException -> writeResponse(404, ErrorResponse("No such product ID"))
             is NoSuchGroupIdException -> writeResponse(404, ErrorResponse("No such group ID"))
-            is WrongPriceException -> writeResponse(409, ErrorResponse("Wrong price"))
-            is WrongNameFormatException -> writeResponse(409, ErrorResponse("Wrong name"))
+            is WrongPriceException -> writeResponse(409, ErrorResponse("Wrong price: Must be positive or negative"))
+            is WrongNameFormatException -> writeResponse(409, ErrorResponse("Wrong name: should be 3 to 20 chars"))
             is NameTakenException -> writeResponse(409, ErrorResponse("Such name is already used"))
         }
     }

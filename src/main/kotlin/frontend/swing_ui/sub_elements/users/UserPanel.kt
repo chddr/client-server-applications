@@ -47,7 +47,8 @@ class UserPanel(private val client: HttpClientLogic, private val parent: ClientA
 
             add(addGroup.al())
             add(Box.createVerticalGlue())
-            add(JButton("Load users").apply {
+            add(JButton("Refresh").apply {
+                al()
                 addActionListener { refreshTable() }
             })
         }

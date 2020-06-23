@@ -65,7 +65,7 @@ class GroupsPanel(private val client: HttpClientLogic, private val parent: Clien
 
             add(Box.createVerticalGlue())
 
-            add(JButton("Load groups").apply {
+            add(JButton("Refresh").apply {
                 al()
                 addActionListener {
                     query = queryInput.text.trim()

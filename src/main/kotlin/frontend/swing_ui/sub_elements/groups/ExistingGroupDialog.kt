@@ -101,7 +101,7 @@ methods
     private fun name() = nameInput.text.trim()
     private fun desc() = descInput.text.trim()
 
-    private fun createDeleteButton() = JButton("Delete product")
+    private fun createDeleteButton() = JButton("Delete group")
             .apply {
                 background = Color.RED.darker()
                 foreground = Color.BLACK.brighter()

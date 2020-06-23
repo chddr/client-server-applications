@@ -43,7 +43,7 @@ class ClientApp(url: String) : JFrame("Client App") {
 
 
     init {
-        minimumSize = Dimension(400, 400)
+        minimumSize = Dimension(400, 350)
         defaultCloseOperation = EXIT_ON_CLOSE
         contentPane = mainPanel
 
