@@ -38,7 +38,8 @@ class HttpServer(port: Int = 8080, dbName: String = "file.db") : Closeable {
             ProductHandler("^/api/product$", this),
             LoginHandler("^/login$", this),
             GroupIdHandler("^/api/group/(\\d+)$", this),
-            GroupHandler("^/api/group$", this)
+            GroupHandler("^/api/group$", this),
+            UserHandler("^/api/user$", this)
     )
     private val defaultHandler = ContextNotFoundHandler(this)
 

@@ -10,7 +10,6 @@ import http.responses.LoginResponse
 import io.restassured.RestAssured
 import io.restassured.RestAssured.`when`
 import io.restassured.RestAssured.given
-import org.apache.commons.codec.digest.DigestUtils
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.*
 
@@ -43,7 +42,7 @@ class HTTPTests {
         if (server.userDB.getUser(adminLogin) == null)
             server.userDB.insert(User(
                     adminLogin,
-                    DigestUtils.md5Hex(adminPass),
+                    adminPass,
                     "admin"
             ))
     }

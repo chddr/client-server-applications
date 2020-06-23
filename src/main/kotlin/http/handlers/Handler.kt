@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import db.exceptions.*
 import http.HttpServer
-import http.Utils.defaultAccess
 import http.responses.ErrorResponse
 import java.net.URI
 
@@ -86,5 +85,11 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
         } catch (e: Exception) {
             throw WrongIdException()
         }
+    }
+
+    companion object {
+        val defaultAccess = listOf("admin", "user")
+        val allAccess = listOf("admin", "user", "anonymous")
+        val adminAccess = listOf("admin")
     }
 }

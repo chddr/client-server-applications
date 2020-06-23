@@ -3,7 +3,6 @@ package http.handlers
 import com.sun.net.httpserver.HttpExchange
 import db.entities.UserCredentials
 import http.HttpServer
-import http.Utils.allAccess
 import http.authentication.JwtService
 import http.responses.ErrorResponse
 import http.responses.LoginResponse

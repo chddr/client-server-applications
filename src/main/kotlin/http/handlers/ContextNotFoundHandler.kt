@@ -2,7 +2,6 @@ package http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import http.HttpServer
-import http.Utils.allAccess
 import java.io.IOException
 
 class ContextNotFoundHandler(server: HttpServer) : Handler("", server, allAccess) {

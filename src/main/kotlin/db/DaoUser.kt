@@ -2,6 +2,7 @@ package db
 
 import db.DBUtils.extractUser
 import db.entities.User
+import org.apache.commons.codec.digest.DigestUtils
 import java.sql.Connection
 import java.sql.DriverManager
 
@@ -19,7 +20,7 @@ class DaoUser(db: String) {
     fun insert(user: User): Int {
         return connection.prepareStatement("insert into 'users'('login', 'password', 'role') values (?, ?, ?)").use { statement ->
             statement.setString(1, user.login)
-            statement.setString(2, user.password)
+            statement.setString(2, DigestUtils.md5Hex(user.password))
             statement.setString(3, user.role)
             statement.execute()
 
@@ -35,6 +36,17 @@ class DaoUser(db: String) {
             when {
                 res.next() -> res.extractUser()
                 else -> null
+            }
+        }
+    }
+
+    fun getUsers(): ArrayList<User> {
+        return connection.createStatement().use {
+            it.executeQuery("select * from 'users'").run {
+                ArrayList<User>().also { prods ->
+                    while (next())
+                        prods.add(extractUser())
+                }
             }
         }
     }
