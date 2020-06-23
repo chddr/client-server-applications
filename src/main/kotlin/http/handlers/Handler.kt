@@ -5,11 +5,12 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import db.exceptions.*
 import http.HttpServer
+import http.Utils.defaultAccess
 import http.responses.ErrorResponse
 import java.net.URI
 
 
-abstract class Handler(pattern: String, private val httpServer: HttpServer, private val privilegeRequired: Collection<String> = listOf("admin", "user")) : HttpHandler {
+abstract class Handler(pattern: String, private val httpServer: HttpServer, private val privilegeRequired: Collection<String> = defaultAccess) : HttpHandler {
 
     private val urlPattern: Regex = Regex(pattern)
 

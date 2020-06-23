@@ -60,6 +60,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     }
 
     private fun refreshTable() {
+        loadGroups()
         pageNum.text = page.toString()
         try {
             prods = client.loadProducts(page, SIZE, criterion)
@@ -156,7 +157,6 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                 .upper(upper)
                 .groupId((groupsInput.selectedItem as Group?)?.id)
         refreshTable()
-        loadGroups()
     }
 
     private fun createAddProductButton(): JButton {
