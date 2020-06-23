@@ -258,6 +258,23 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
+    fun groupWorth(id: Int): Double {
+        val json = mapper.writeValueAsBytes(Id(id))
+
+        val request = HttpGet("$url/api/groupstats").apply {
+            setHeader("Authorization", loginResponse?.token)
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<Price>(response.entity.content).price
+                else -> throw handleException(response)
+            }
+        }
+    }
+
     private fun handleException(response: HttpResponse): Throwable {
         if (response.statusLine.statusCode == 403)
             return UnauthorizedException("Please log in first.")

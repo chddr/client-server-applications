@@ -41,7 +41,7 @@ class HttpServer(port: Int = 8080, dbName: String = "file.db") : Closeable {
             GroupHandler("^/api/group$", this),
             UserHandler("^/api/user$", this),
             StatsHandler("^/api/stats$", this),
-            GroupStatsHandler("^/api/stats$", this)
+            GroupStatsHandler("^/api/groupstats$", this)
     )
     private val defaultHandler = ContextNotFoundHandler(this)
 
