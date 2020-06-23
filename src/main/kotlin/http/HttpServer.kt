@@ -23,7 +23,7 @@ class HttpServer(port: Int = 8080, dbName: String = "file.db") : Closeable {
         }
     }
 
-    private val procesor = Executors.newFixedThreadPool(PROCESSOR_THREADS)
+    private val processor = Executors.newFixedThreadPool(PROCESSOR_THREADS)
 
     val objectMapper = jacksonObjectMapper()
     val userDB = DaoUser(dbName)
@@ -55,14 +55,14 @@ class HttpServer(port: Int = 8080, dbName: String = "file.db") : Closeable {
         val uri = exchange.requestURI.toString()
         val handler = contextHandlers.firstOrNull { it.matches(uri) } ?: defaultHandler
 
-        procesor.submit { handler.handle(exchange) }
+        processor.submit { handler.handle(exchange) }
         Unit
     }
 
 
     override fun close() {
         server.stop(0)
-        procesor.waitForStop("")
+        processor.waitForStop("")
     }
 
 }
