@@ -30,6 +30,8 @@ class DaoProduct(db: String) : Closeable {
         if (!product.price.isFinite() || product.price <= 0) throw WrongPriceException()
         if (productExists(product.name)) throw NameTakenException()
         if (!checkName(product.name)) throw WrongNameFormatException()
+        if (product.groupId != null && !groupExists(product.groupId)) throw NoSuchGroupIdException()
+        if (product.number != null && product.number <0) throw IllegalArgumentException("Wrong number of products")
 
         return conn.prepareStatement("INSERT INTO products('name', 'price', 'quantity', 'groupId') VALUES (?,?,?,?)").use {
             it.run {
