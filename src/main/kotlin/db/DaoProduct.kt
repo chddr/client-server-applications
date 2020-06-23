@@ -178,8 +178,9 @@ class DaoProduct(db: String) : Closeable {
     }
 
     private fun updateGroupName(id: Int, name: String) {
-        if (groupExists(name)) throw NameTakenException()
         if (!groupExists(id)) throw NoSuchGroupIdException()
+        if (name == getGroup(id).name) return
+        if (groupExists(name)) throw NameTakenException()
         if (!checkName(name)) throw WrongNameFormatException()
 
         conn.prepareStatement("UPDATE groups SET name = ? WHERE id = $id").use {

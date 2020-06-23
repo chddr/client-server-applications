@@ -10,7 +10,7 @@ import org.apache.commons.codec.digest.DigestUtils.md5Hex
 
 class LoginHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPattern, httpServer, privilegeRequired = allAccess) {
 
-    override fun handleGET(exchange: HttpExchange) {
+    override fun handlePOST(exchange: HttpExchange) {
 
         val userCreds = try {
             objectMapper().readValue(exchange.requestBody, UserCredentials::class.java)

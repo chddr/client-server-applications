@@ -19,7 +19,7 @@ class NewProductDialog(parent: JFrame, private val client: HttpClientLogic) : JD
     private val createButton = createCreateButton()
 
     private val labels = listOf("Name:", "Price:", "Number:", "Group:").map { JLabel(it) }
-
+    //TODO add number manipulations
     init {
 
         add(createPanel())

@@ -59,7 +59,7 @@ class UserPanel(private val client: HttpClientLogic, private val parent: ClientA
             foreground = Color.WHITE
             addActionListener {
                 try {
-//                    NewGroupDialog(this@UserPanel.parent, client) TODO
+                    NewUserDialog(this@UserPanel.parent, client)
                     refreshTable()
                 } catch (e: Exception) {
                     this@UserPanel.showError(e)

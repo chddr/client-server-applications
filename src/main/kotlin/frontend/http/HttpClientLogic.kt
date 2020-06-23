@@ -25,7 +25,7 @@ class HttpClientLogic(private val url: String) {
                 UserCredentials(login, password)
         )
 
-        val request = HttpGet("$url/login").apply {
+        val request = HttpPost("$url/login").apply {
             entity = ByteArrayEntity(json)
             setHeader("Content-Type", "application/json")
         }
@@ -88,6 +88,24 @@ class HttpClientLogic(private val url: String) {
             }
         }
     }
+
+    fun createUser(user: User): Int {
+        val json = mapper.writeValueAsBytes(user)
+
+        val request = HttpPut("$url/api/user").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                201 -> return@execute mapper.readValue<Id>(response.entity.content).id
+                else -> throw handleException(response)
+            }
+        }
+    }
+
 
     fun deleteUser(id: Int): Any {
         val json = mapper.writeValueAsBytes(Id(id))

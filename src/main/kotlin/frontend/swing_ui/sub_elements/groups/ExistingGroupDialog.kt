@@ -41,7 +41,7 @@ class ExistingGroupDialog(parent: ClientApp, private val client: HttpClientLogic
         val bord = 5 // border size
         return JPanel().apply {
             border = BorderFactory.createEmptyBorder(bord, bord, bord, bord)
-            layout = GridLayout(3, 2, bord, bord)
+            layout = GridLayout(4, 2, bord, bord)
 
             add(JLabel("Id:"))
             add(idInput)
@@ -88,7 +88,8 @@ methods
                 isEnabled = false
                 addActionListener {
                     try {
-                        client.modifyGroup(Group(group.id, name(), desc()))
+                        val desc = desc().takeIf { it != group.description }
+                        client.modifyGroup(Group(group.id, name(), desc))
                         dispose()
                     } catch (e: Exception) {
                         this@ExistingGroupDialog.showError(e)
