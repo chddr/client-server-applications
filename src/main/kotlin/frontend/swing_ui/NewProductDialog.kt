@@ -14,7 +14,6 @@ class NewProductDialog(parent: JFrame, private val client: HttpClientLogic) : JD
     private var groups: Map<Int, Group> = client.loadGroups().associateBy(Group::id)
 
     private val nameInput = createNameInput()
-    private val numberInput = createNumberInput()
     private val priceInput = createPriceInput()
     private val groupsInput = createGroupInput()
     private val createButton = createCreateButton()
@@ -25,7 +24,7 @@ class NewProductDialog(parent: JFrame, private val client: HttpClientLogic) : JD
 
         add(createPanel())
 
-        minimumSize = Dimension(200, 200)
+        minimumSize = Dimension(200, 150)
         isResizable = false
         setLocationRelativeTo(null)
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
@@ -38,14 +37,12 @@ class NewProductDialog(parent: JFrame, private val client: HttpClientLogic) : JD
         val bord = 5 // border size
         return JPanel().apply {
             border = BorderFactory.createEmptyBorder(bord, bord, bord, bord)
-            layout = GridLayout(5, 1, bord, bord)
+            layout = GridLayout(4, 1, bord, bord)
 
             add(labels[0])
             add(nameInput)
             add(labels[1])
             add(priceInput)
-            add(labels[2])
-            add(numberInput)
             add(labels[3])
             add(groupsInput)
             add(createButton)
@@ -53,8 +50,6 @@ class NewProductDialog(parent: JFrame, private val client: HttpClientLogic) : JD
     }
 
     private fun createNameInput() = JTextField()
-
-    private fun createNumberInput() = JTextField()
 
     private fun createPriceInput() = JSpinner(SpinnerNumberModel(1.0, 0.0, 10_000.0, 0.1))
 
@@ -80,7 +75,6 @@ class NewProductDialog(parent: JFrame, private val client: HttpClientLogic) : JD
     private fun formProduct() = Product(
             name = nameInput.text.trim(),
             price = priceInput.value as Double,
-            number = numberInput.text.toIntOrNull(),
             groupId = (groupsInput.selectedItem as Group?)?.id
     )
 

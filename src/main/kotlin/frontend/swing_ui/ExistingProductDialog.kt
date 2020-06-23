@@ -107,12 +107,13 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
                 addItem(null)
                 for ((_, group) in groups) addItem(group)
 
-                val groupId = product.groupId ?: return@apply
-                selectedItem = groups[groupId]
-
                 addActionListener {
                     changeRegistered()
                 }
+
+                val groupId = product.groupId ?: return@apply
+                selectedItem = groups[groupId]
+
             }
 
     private fun createSubmitButton() = JButton("Submit change")
@@ -169,7 +170,7 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
 
     private fun changed(): Boolean {
         generateProductChange().run {
-            return !(name == null && price == null && number == null && groupId == null)
+            return (name != null || price != null || number != null || groupId != null || (product.groupId != (groupsInput.selectedItem as Group?)?.id))
         }
     }
 

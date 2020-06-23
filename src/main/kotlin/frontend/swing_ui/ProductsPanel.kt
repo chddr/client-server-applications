@@ -9,6 +9,7 @@ import frontend.swing_ui.ProductsPanel.UpDown.Up
 import frontend.swing_ui.UiUtils.showError
 import java.awt.BorderLayout
 import java.awt.Color
+import java.awt.Component
 import java.awt.FlowLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -108,19 +109,24 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
         }
     }
 
+    private fun JComponent.al(): JComponent {
+        alignmentX = Component.LEFT_ALIGNMENT
+        return this
+    }
+
     private fun createQueryPanel(): JPanel {
         return JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
 
-            add(addProduct)
-            add(JLabel("Query:"))
-            add(queryInput)
-            add(JLabel("Lower bound:"))
-            add(lowerBound)
-            add(JLabel("Upper bound:"))
-            add(upperBound)
-            add(JLabel("Group:"))
-            add(groupsInput)
+            add(addProduct.al())
+            add(JLabel("Query:").al())
+            add(queryInput.al())
+            add(JLabel("Lower bound:").al())
+            add(lowerBound.al())
+            add(JLabel("Upper bound:").al())
+            add(upperBound.al())
+            add(JLabel("Group:").al())
+            add(groupsInput.al())
             add(Box.createVerticalStrut(5))
 
             add(JButton("Load products and groups").apply {
@@ -150,11 +156,16 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
     }
 
     private fun createAddProductButton(): JButton {
-        return JButton("Create and add new product").apply {
+        return JButton("Create new product").apply {
             background = Color.GREEN.darker()
             foreground = Color.WHITE
             addActionListener {
-                NewProductDialog(this@ProductsPanel.parent, client)
+                try {
+                    NewProductDialog(this@ProductsPanel.parent, client)
+                    refreshTable()
+                } catch (e: Exception) {
+                    this@ProductsPanel.showError(e)
+                }
             }
         }
     }
@@ -185,8 +196,9 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                         try {
                             ExistingProductDialog(this@ProductsPanel.parent, client, id)
                         } catch (e: Exception) {
-                            this@ProductsPanel.showError(java.lang.Exception("No such product. Try to refresh the list."))
+                            this@ProductsPanel.showError(java.lang.Exception("No such product. List seems to be outdated."))
                         }
+                        refreshTable()
                     }
                 }
             })
