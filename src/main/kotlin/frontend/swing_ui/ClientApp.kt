@@ -1,5 +1,6 @@
 package frontend.swing_ui
 
+import StatsPanel
 import frontend.http.HttpClientLogic
 import frontend.swing_ui.sub_elements.LoginPanel
 import frontend.swing_ui.sub_elements.groups.GroupsPanel
@@ -18,6 +19,7 @@ class ClientApp(url: String) : JFrame("Client App") {
     private val productsPanel = ProductsPanel(client, this)
     private val groupsPanel = GroupsPanel(client, this)
     private val userPanel = UserPanel(client, this)
+    private val statsPanel = StatsPanel(client, this)
 
     private val mainPanel = JTabbedPane().apply {
         addTab("Login", loginPanel)
@@ -25,20 +27,21 @@ class ClientApp(url: String) : JFrame("Client App") {
 
 
     fun addAdminTabs() {
-        mainPanel.addTab("Products", productsPanel)
-        mainPanel.addTab("Groups", groupsPanel)
+        addUserTabs()
         mainPanel.addTab("Users", userPanel)
     }
 
     fun addUserTabs() {
         mainPanel.addTab("Products", productsPanel)
         mainPanel.addTab("Groups", groupsPanel)
+        mainPanel.addTab("Stats", statsPanel)
     }
 
     fun removeTabs() {
         mainPanel.remove(productsPanel)
         mainPanel.remove(groupsPanel)
         mainPanel.remove(userPanel)
+        mainPanel.remove(statsPanel)
     }
 
 

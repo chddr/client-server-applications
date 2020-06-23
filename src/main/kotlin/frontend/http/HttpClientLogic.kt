@@ -245,6 +245,10 @@ class HttpClientLogic(private val url: String) {
         }
     }
 
+    fun totalWorth(): Double {
+        return Math.random() * 10000
+    }
+
     private fun handleException(response: HttpResponse): Throwable {
         if (response.statusLine.statusCode == 403)
             return UnauthorizedException("Please log in first.")
