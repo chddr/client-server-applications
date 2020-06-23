@@ -28,7 +28,6 @@ class GroupsPanel(private val client: HttpClientLogic, private val parent: Clien
     /*Info*/
     private var groups = ArrayList<Group>()
     private var query: String? = null
-    private var page = 0
 
     init {
         layout = BorderLayout(5, 5)
@@ -67,6 +66,7 @@ class GroupsPanel(private val client: HttpClientLogic, private val parent: Clien
             add(Box.createVerticalGlue())
 
             add(JButton("Load groups").apply {
+                al()
                 addActionListener {
                     query = queryInput.text.trim()
                     refreshTable()

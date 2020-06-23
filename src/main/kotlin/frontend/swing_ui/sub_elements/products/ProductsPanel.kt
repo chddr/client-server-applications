@@ -131,6 +131,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             add(Box.createVerticalStrut(5))
 
             add(JButton("Load products and groups").apply {
+                al()
                 addActionListener {
                     loadProductsAndGroups()
                 }
