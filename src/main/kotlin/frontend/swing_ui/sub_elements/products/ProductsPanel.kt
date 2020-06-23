@@ -1,11 +1,11 @@
-package frontend.swing_ui.sub_elements
+package frontend.swing_ui.sub_elements.products
 
 import db.entities.Criterion
 import db.entities.Group
 import db.entities.Product
 import frontend.HttpClientLogic
-import frontend.swing_ui.sub_elements.ProductsPanel.UpDown.Down
-import frontend.swing_ui.sub_elements.ProductsPanel.UpDown.Up
+import frontend.swing_ui.sub_elements.products.ProductsPanel.UpDown.Down
+import frontend.swing_ui.sub_elements.products.ProductsPanel.UpDown.Up
 import frontend.swing_ui.utils.UiUtils.showError
 import java.awt.BorderLayout
 import java.awt.Color

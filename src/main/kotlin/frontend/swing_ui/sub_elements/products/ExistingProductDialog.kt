@@ -1,4 +1,4 @@
-package frontend.swing_ui.sub_elements
+package frontend.swing_ui.sub_elements.products
 
 import db.entities.Group
 import db.entities.query_types.ProductChange

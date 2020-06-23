@@ -1,4 +1,4 @@
-package frontend.swing_ui.sub_elements
+package frontend.swing_ui.sub_elements.groups
 
 import frontend.HttpClientLogic
 import frontend.swing_ui.utils.UiUtils.showError

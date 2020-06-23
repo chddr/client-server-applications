@@ -1,4 +1,4 @@
-package frontend.swing_ui.sub_elements
+package frontend.swing_ui.sub_elements.groups
 
 import db.entities.Group
 import frontend.HttpClientLogic
