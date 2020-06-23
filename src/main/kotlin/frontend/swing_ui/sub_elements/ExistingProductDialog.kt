@@ -1,10 +1,10 @@
-package frontend.swing_ui
+package frontend.swing_ui.sub_elements
 
 import db.entities.Group
 import db.entities.query_types.ProductChange
 import frontend.HttpClientLogic
-import frontend.swing_ui.SimpleDocumentListener.Companion.addChangeListener
-import frontend.swing_ui.UiUtils.showError
+import frontend.swing_ui.utils.SimpleDocumentListener.Companion.addChangeListener
+import frontend.swing_ui.utils.UiUtils.showError
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Frame

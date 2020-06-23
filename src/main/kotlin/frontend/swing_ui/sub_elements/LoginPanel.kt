@@ -1,7 +1,7 @@
-package frontend.swing_ui
+package frontend.swing_ui.sub_elements
 
 import frontend.HttpClientLogic
-import frontend.swing_ui.UiUtils.showError
+import frontend.swing_ui.utils.UiUtils.showError
 import javax.swing.*
 
 class LoginPanel(private val client: HttpClientLogic) : JPanel() {

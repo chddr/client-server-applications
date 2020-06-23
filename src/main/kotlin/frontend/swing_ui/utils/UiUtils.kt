@@ -1,4 +1,4 @@
-package frontend.swing_ui
+package frontend.swing_ui.utils
 
 import java.awt.Component
 import javax.swing.JOptionPane
