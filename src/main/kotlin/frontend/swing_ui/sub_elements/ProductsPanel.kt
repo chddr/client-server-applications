@@ -144,7 +144,7 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
                         return@addActionListener
                     }
 
-                    criterion.query(queryInput.text)
+                    criterion.query(queryInput.text.trim())
                             .lower(lower)
                             .upper(upper)
                             .groupId((groupsInput.selectedItem as Group?)?.id)

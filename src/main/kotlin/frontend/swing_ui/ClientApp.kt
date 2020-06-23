@@ -1,11 +1,11 @@
 package frontend.swing_ui
 
 import frontend.HttpClientLogic
+import frontend.swing_ui.sub_elements.GroupsPanel
 import frontend.swing_ui.sub_elements.LoginPanel
 import frontend.swing_ui.sub_elements.ProductsPanel
 import java.awt.Dimension
 import javax.swing.JFrame
-import javax.swing.JPanel
 import javax.swing.JTabbedPane
 
 
@@ -15,7 +15,7 @@ class ClientApp(url: String) : JFrame("Client App") {
 
     private val loginPanel = LoginPanel(client)
     private val productsPanel = ProductsPanel(client, this)
-    private val groupTable = JPanel()
+    private val groupTable = GroupsPanel(client, this)
 
     private val mainPanel = JTabbedPane().apply {
         addTab("Login", loginPanel)
