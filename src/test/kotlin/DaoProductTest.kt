@@ -36,7 +36,7 @@ internal class DaoProductTest {
         }
     }
 
-    private val dao = DaoProduct("file.db:memory")
+    private val dao = DaoProduct("test.db:memory")
 
     @BeforeEach
     fun setup() {
@@ -334,7 +334,7 @@ internal class DaoProductTest {
 
         val id = dao.addGroup("wrong")
 
-        dao.changeGroupName(id, newName)
+        dao.updateGroup(id, newName)
 
         assertEquals(
                 newName,
@@ -400,14 +400,6 @@ internal class DaoProductTest {
         }
 
         assertThrows(java.lang.IllegalArgumentException::class.java) {
-            dao.getGroupList(-1)
-        }
-
-        assertThrows(java.lang.IllegalArgumentException::class.java) {
-            dao.getGroupList(1, 0)
-        }
-
-        assertThrows(java.lang.IllegalArgumentException::class.java) {
             dao.getProductList(-1)
         }
 
@@ -428,11 +420,11 @@ internal class DaoProductTest {
         }
 
         assertThrows(NoSuchGroupIdException::class.java) {
-            dao.changeGroupName(165215412, "testsing")
+            dao.updateGroup(165215412, "testsing")
         }
 
         assertThrows(NameTakenException::class.java) {
-            dao.changeGroupName(dao.addGroup("new  naem t"), "grains")
+            dao.updateGroup(dao.addGroup("new  naem t"), "grains")
         }
 
         assertThrows(java.lang.IllegalArgumentException::class.java) {

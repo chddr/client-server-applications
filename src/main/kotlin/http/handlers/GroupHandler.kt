@@ -17,7 +17,7 @@ class GroupHandler(urlPattern: String, httpServer: HttpServer) : Handler(urlPatt
 
     override fun handlePOST(exchange: HttpExchange) {
         val (id, name) = objectMapper().readValue<Group>(exchange.requestBody)
-        productDB().changeGroupName(id, name)
+        productDB().updateGroup(id, name)
         exchange.writeResponse(204, null)
     }
 

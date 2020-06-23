@@ -13,7 +13,7 @@ object DBUtils {
         return Product(getString("name"), getDouble("price"), getInt("id"), getInt("quantity"), groupId)
     }
 
-    fun ResultSet.extractGroup() = Group(getInt("id"), getString("name"))
+    fun ResultSet.extractGroup() = Group(getInt("id"), getString("name"), getString("description"))
 
     fun ResultSet.extractUser(): User {
         return User(

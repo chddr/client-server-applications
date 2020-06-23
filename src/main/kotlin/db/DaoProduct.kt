@@ -18,7 +18,7 @@ class DaoProduct(db: String) : Closeable {
 
     init {
         conn.createStatement().use {
-            it.execute("CREATE TABLE IF NOT EXISTS 'groups' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE)")
+            it.execute("CREATE TABLE IF NOT EXISTS 'groups' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE, 'description' TEXT)")
             it.execute("CREATE TABLE IF NOT EXISTS 'products' ('id' INTEGER PRIMARY KEY AUTOINCREMENT , 'name' TEXT NOT NULL UNIQUE , 'price' REAL NOT NULL, 'quantity' INTEGER NOT NULL DEFAULT 0, 'groupId' INTEGER DEFAULT NULL, FOREIGN KEY (groupId) REFERENCES groups(id) ON DELETE SET NULL )")
         }
     }
@@ -44,13 +44,14 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun addGroup(name: String): Int {
+    fun addGroup(name: String, description: String? = null): Int {
         if (groupExists(name)) throw NameTakenException()
         if (!checkName(name)) throw WrongNameFormatException()
 
-        return conn.prepareStatement("INSERT INTO groups('name') VALUES (?)").use {
+        return conn.prepareStatement("INSERT INTO groups('name', 'description') VALUES (?, ?)").use {
             it.run {
                 setString(1, name)
+                description?.let { it -> setString(2, it) }
 
                 executeUpdate()
                 generatedKeys
@@ -171,13 +172,28 @@ class DaoProduct(db: String) : Closeable {
         }
     }
 
-    fun changeGroupName(id: Int, name: String) {
+    fun updateGroup(id: Int, name: String? = null, description: String? = null) {
+        if (name!= null) updateGroupName(id, name)
+        if (description!= null) updateGroupDesc(id, description)
+    }
+
+    private fun updateGroupName(id: Int, name: String) {
         if (groupExists(name)) throw NameTakenException()
         if (!groupExists(id)) throw NoSuchGroupIdException()
         if (!checkName(name)) throw WrongNameFormatException()
 
         conn.prepareStatement("UPDATE groups SET name = ? WHERE id = $id").use {
             it.setString(1, name)
+
+            it.executeUpdate()
+        }
+    }
+
+    private fun updateGroupDesc(id: Int, description: String?) {
+        if (!groupExists(id)) throw NoSuchGroupIdException()
+
+        conn.prepareStatement("UPDATE groups SET description = ? WHERE id = $id").use {
+            it.setString(1, description)
 
             it.executeUpdate()
         }

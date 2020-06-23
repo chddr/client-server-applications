@@ -1,17 +1,18 @@
+
 import DaoProductTest.Companion.populate
 import db.entities.Product
 import db.entities.User
 import db.entities.UserCredentials
 import db.entities.query_types.Id
 import db.entities.query_types.IdAndName
+import http.HttpServer
+import http.responses.LoginResponse
 import io.restassured.RestAssured
 import io.restassured.RestAssured.`when`
 import io.restassured.RestAssured.given
 import org.apache.commons.codec.digest.DigestUtils
 import org.hamcrest.Matchers.*
 import org.junit.jupiter.api.*
-import http.HttpServer
-import http.responses.LoginResponse
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HTTPTests {
@@ -19,12 +20,12 @@ class HTTPTests {
     private var server = HttpServer()
     private val port = 9568
 
-    private val adminLogin = "login"
-    private val adminPass = "password"
+    private val adminLogin = "test"
+    private val adminPass = "test"
 
     @BeforeAll
     fun init() {
-        server = HttpServer(port, "file.db:memory")
+        server = HttpServer(port, "testing.db:memory")
         server.productDB.populate()
         //set up an admin role
         setUpAdmin()
@@ -145,7 +146,7 @@ class HTTPTests {
 
         given().header("Authorization", loginToken)
                 .`when`().get("/api/product/4012984091284091822109401294")
-                .then().statusCode(400).body("message", `is`("Id too long"))
+                .then().statusCode(400).body("message", containsString("Id too long"))
 
         given().header("Authorization", loginToken)
                 .`when`().patch("/api/product/1")

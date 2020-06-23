@@ -65,7 +65,7 @@ object MessageGenerators {
 
     fun changeGroupName(message: Message): Message {
         val (id, name) = message.msg.idAndName()
-        Processor.db.changeGroupName(id, name)
+        Processor.db.updateGroup(id, name)
         val group = Processor.db.getGroup(id)
         return groupMessage(group)
     }

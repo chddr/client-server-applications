@@ -131,28 +131,32 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
 
             add(JButton("Load products and groups").apply {
                 addActionListener {
-                    val (lower, upper) = try {
-                        val lower = if (lowerBound.text.isBlank()) {
-                            null
-                        } else lowerBound.text.toDouble()
-                        val upper = if (upperBound.text.isBlank()) {
-                            null
-                        } else upperBound.text.toDouble()
-                        lower to upper
-                    } catch (e: Exception) {
-                        this@ProductsPanel.showError(java.lang.Exception("Please input correct numeric bounds"))
-                        return@addActionListener
-                    }
-
-                    criterion.query(queryInput.text.trim())
-                            .lower(lower)
-                            .upper(upper)
-                            .groupId((groupsInput.selectedItem as Group?)?.id)
-                    refreshTable()
-                    loadGroups()
+                    loadProductsAndGroups()
                 }
             })
         }
+    }
+
+    private fun loadProductsAndGroups() {
+        val (lower, upper) = try {
+            val lower = if (lowerBound.text.isBlank()) {
+                null
+            } else lowerBound.text.toDouble()
+            val upper = if (upperBound.text.isBlank()) {
+                null
+            } else upperBound.text.toDouble()
+            lower to upper
+        } catch (e: Exception) {
+            this@ProductsPanel.showError(java.lang.Exception("Please input correct numeric bounds"))
+            return
+        }
+
+        criterion.query(queryInput.text.trim())
+                .lower(lower)
+                .upper(upper)
+                .groupId((groupsInput.selectedItem as Group?)?.id)
+        refreshTable()
+        loadGroups()
     }
 
     private fun createAddProductButton(): JButton {
@@ -160,13 +164,17 @@ class ProductsPanel(private val client: HttpClientLogic, private val parent: JFr
             background = Color.GREEN.darker()
             foreground = Color.WHITE
             addActionListener {
-                try {
-                    NewProductDialog(this@ProductsPanel.parent, client)
-                    refreshTable()
-                } catch (e: Exception) {
-                    this@ProductsPanel.showError(e)
-                }
+                addGroup()
             }
+        }
+    }
+
+    private fun addGroup() {
+        try {
+            NewProductDialog(this@ProductsPanel.parent, client)
+            refreshTable()
+        } catch (e: Exception) {
+            this@ProductsPanel.showError(e)
         }
     }
 
