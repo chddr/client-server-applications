@@ -19,9 +19,9 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
     private val nameInput = createNameInput()
     private val numberInput = createNumberInput()
     private val priceInput = createPriceInput()
-    private val groupsInput = createGroupInput()
     private val submitButton = createSubmitButton()
     private val deleteButton = createDeleteButton()
+    private val groupsInput = createGroupInput()
 
 
     private val labels = listOf("Id:", "Name:", "Price:", "Number:", "Group:").map { JLabel(it) }
@@ -65,7 +65,6 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
         submitButton.isEnabled = changed()
     }
 
-
     /*
     Very big
     ugly
@@ -102,19 +101,25 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
                 }
             }
 
-    private fun createGroupInput() = JComboBox<Group>()
-            .apply {
-                addItem(null)
-                for ((_, group) in groups) addItem(group)
+    private fun createGroupInput(): JComboBox<Group> {
+        val jComboBox = JComboBox<Group>()
+        return jComboBox.apply {
+            addItem(null)
+            for ((_, group) in groups) addItem(group)
 
-                addActionListener {
-                    changeRegistered()
-                }
-
-                val groupId = product.groupId ?: return@apply
-                selectedItem = groups[groupId]
-
+            if (product.groupId != null) {
+                val group = groups[product.groupId]
+                selectedItem = group
             }
+
+
+            addActionListener {
+                changeRegistered()
+            }
+
+
+        }
+    }
 
     private fun createSubmitButton() = JButton("Submit change")
             .apply {
