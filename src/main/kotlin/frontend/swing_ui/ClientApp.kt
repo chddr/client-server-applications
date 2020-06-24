@@ -9,6 +9,7 @@ import frontend.swing_ui.sub_elements.users.UserPanel
 import java.awt.Dimension
 import javax.swing.JFrame
 import javax.swing.JTabbedPane
+import javax.swing.WindowConstants
 
 
 class ClientApp(url: String) : JFrame("Client App") {
@@ -47,13 +48,18 @@ class ClientApp(url: String) : JFrame("Client App") {
 
     init {
         minimumSize = Dimension(400, 350)
-        defaultCloseOperation = EXIT_ON_CLOSE
+        defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
         contentPane = mainPanel
 
 
         setLocationRelativeTo(null)
         pack()
         isVisible = true
+    }
+
+    override fun dispose() {
+        super.dispose()
+        client.close()
     }
 
 

@@ -288,6 +288,7 @@ class HttpClientLogic(private val url: String) {
         return Exception("$code: $errMsg")
     }
 
+    fun close() = client.close()
 
     private val client = HttpClients.createDefault()
     private var loginResponse: LoginResponse? = null
