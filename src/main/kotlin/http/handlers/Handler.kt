@@ -75,6 +75,8 @@ abstract class Handler(pattern: String, private val httpServer: HttpServer, priv
             is WrongPriceException -> writeResponse(409, ErrorResponse("Wrong price: Must be positive or negative"))
             is WrongNameFormatException -> writeResponse(409, ErrorResponse("Wrong name: should be 3 to 20 chars"))
             is NameTakenException -> writeResponse(409, ErrorResponse("Such name is already used"))
+            is NotEnoughItemsException -> writeResponse(409, ErrorResponse("Not enough items!"))
+            else -> writeResponse(409, ErrorResponse("Some other db exception. Contact the dev to add it!"))
         }
     }
 

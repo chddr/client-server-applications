@@ -262,7 +262,7 @@ class HttpClientLogic(private val url: String) {
         val json = mapper.writeValueAsBytes(Id(id))
 
         val request = HttpGet("$url/api/groupstats").apply {
-            setHeader("Authorization", loginResponse?.token)
+            setHeader("Content-Type", "application/json")
             setHeader("Authorization", loginResponse?.token)
             entity = ByteArrayEntity(json)
         }
@@ -296,6 +296,23 @@ class HttpClientLogic(private val url: String) {
     fun isLoggedIn() = loginResponse != null
     fun logout() {
         loginResponse = null
+    }
+
+    fun changeNumber(id: Int, amount: Int, s: String): Int {
+        val json = mapper.writeValueAsBytes(AddRemoveProduct(amount, s))
+
+        val request = HttpPost("$url/api/product/$id").apply {
+            setHeader("Content-Type", "application/json")
+            setHeader("Authorization", loginResponse?.token)
+            entity = ByteArrayEntity(json)
+        }
+
+        return client.execute(request) { response ->
+            when (response.statusLine.statusCode) {
+                200 -> return@execute mapper.readValue<Int>(response.entity.content)
+                else -> throw handleException(response)
+            }
+        }
     }
 
 

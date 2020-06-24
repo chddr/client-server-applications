@@ -10,6 +10,7 @@ import java.awt.Dimension
 import java.awt.Frame
 import java.awt.GridLayout
 import javax.swing.*
+import javax.swing.JOptionPane.ERROR_MESSAGE
 
 @Suppress("DuplicatedCode")
 class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, id: Int) : JDialog(owner, "Product", true) {
@@ -22,6 +23,8 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
     private val priceInput = createPriceInput()
     private val submitButton = createSubmitButton()
     private val deleteButton = createDeleteButton()
+    private val addButton = createAddButton()
+    private val removeButton = createRemoveButton()
     private val groupsInput = createGroupInput()
 
 
@@ -45,7 +48,7 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
         val bord = 5 // border size
         return JPanel().apply {
             border = BorderFactory.createEmptyBorder(bord, bord, bord, bord)
-            layout = GridLayout(6, 2, bord, bord)
+            layout = GridLayout(7, 2, bord, bord)
 
             add(labels[0])
             add(idInput)
@@ -57,6 +60,10 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
             add(numberInput)
             add(labels[4])
             add(groupsInput)
+
+            add(addButton)
+            add(removeButton)
+
             add(submitButton)
             add(deleteButton)
         }
@@ -90,6 +97,7 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
 
     private fun createNumberInput() = JTextField(product.number.toString())
             .apply {
+                isEditable = false
                 addChangeListener {
                     changeRegistered()
                 }
@@ -153,6 +161,40 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
                 }
             }
 
+
+    private fun createAddButton() = JButton("Add product").apply {
+        addActionListener {
+            changeNumber("add")
+        }
+    }
+
+    private fun createRemoveButton() = JButton("Remove product").apply {
+        addActionListener {
+            changeNumber("remove")
+        }
+    }
+
+    private fun changeNumber(string: String) {
+        val amount = try {
+            JOptionPane.showInputDialog(this@ExistingProductDialog,
+                    "How much?", 1).toInt()
+        } catch (e: Exception) {
+            -1
+        }
+        if (amount <= 0) {
+            JOptionPane.showMessageDialog(this@ExistingProductDialog,
+                    "Please enter valid number (>0)", "Error", ERROR_MESSAGE)
+            return
+        }
+        try {
+            val num = client.changeNumber(product.id!!, amount, string)
+            numberInput.text = num.toString()
+            JOptionPane.showMessageDialog(this, "Success")
+        } catch (e: Exception) {
+            this.showError(e)
+        }
+    }
+
     private fun generateProductChange(): ProductChange {
         var name: String? = nameInput.text.trim()
         name = if (product.name == name) null else name
@@ -160,23 +202,20 @@ class ExistingProductDialog(owner: Frame, private val client: HttpClientLogic, i
         var price = priceInput.value as Double?
         price = if (product.price == price) null else price
 
-        var number = numberInput.text.toIntOrNull()
-        number = if (product.number == number) null else number
-
         var groupId = (groupsInput.selectedItem as Group?)?.id
         groupId = if (product.groupId == groupId) null else groupId
 
         return ProductChange(product.id!!,
                 name,
                 price,
-                number,
+                null,
                 groupId
         )
     }
 
     private fun changed(): Boolean {
         generateProductChange().run {
-            return (name != null || price != null || number != null || groupId != null || (product.groupId != (groupsInput.selectedItem as Group?)?.id))
+            return (name != null || price != null || groupId != null || (product.groupId != (groupsInput.selectedItem as Group?)?.id))
         }
     }
 
